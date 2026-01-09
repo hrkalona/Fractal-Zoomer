@@ -4,6 +4,7 @@ package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.norms.Norm;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -37,15 +38,16 @@ public class EscapeTimeGrid extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        double zabs = Math.log(normImpl.computeWithoutRoot((Complex)object[1])) / log_bailout - 1.0f;
+        Complex z = data.z;
+        double zabs = Math.log(normImpl.computeWithoutRoot(z)) / log_bailout - 1.0f;
 
         if(abs) {
             zabs = Math.abs(zabs);
         }
 
-        double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
+        double zarg = (z.arg() / (pi2) + 1.0f) % 1.0;
 
         boolean grid;
         if(EscapeTimeAlg.smooth) {
@@ -57,7 +59,7 @@ public class EscapeTimeGrid extends OutColorAlgorithm {
             grid = 0.05 < zabs && zabs < 0.95 && 0.05 < zarg && zarg < 0.95;
         }
 
-        double result = EscapeTimeAlg.getResult(object);
+        double result = EscapeTimeAlg.getResult(data);
         return grid ? result : -(result + INCREMENT);
 
     }

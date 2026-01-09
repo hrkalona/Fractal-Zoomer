@@ -8,7 +8,6 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double[] AValues;
     private double[] BValues;
     private double[] CValues;
-    private int median;
     private boolean avgWithMean;
     private double ASum;
     private double BSum;
@@ -19,7 +18,6 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
         AValues = new double[totalSamples];
         BValues = new double[totalSamples];
         CValues = new double[totalSamples];
-        median = (totalSamples >>> 1);
         this.avgWithMean = avgWithMean;
         ASum = 0;
         BSum = 0;
@@ -71,18 +69,21 @@ public class MedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
-        Arrays.sort(AValues);
-        Arrays.sort(BValues);
-        Arrays.sort(CValues);
+        Arrays.sort(AValues, 0, addedSamples);
+        Arrays.sort(BValues, 0, addedSamples);
+        Arrays.sort(CValues, 0, addedSamples);
+
+        int median = addedSamples >> 1;
 
         if(avgWithMean) {
-            double finalA = (AValues[median] + ASum * totalSamplesReciprocal) * 0.5;
-            double finalB = (BValues[median] + BSum * totalSamplesReciprocal) * 0.5;
-            double finalC = (CValues[median] + CSum * totalSamplesReciprocal) * 0.5;
+            double addedSamplesReciprocal = 1.0 / addedSamples;
+            double finalA = (AValues[median] + ASum * addedSamplesReciprocal) * 0.5;
+            double finalB = (BValues[median] + BSum * addedSamplesReciprocal) * 0.5;
+            double finalC = (CValues[median] + CSum * addedSamplesReciprocal) * 0.5;
 
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);

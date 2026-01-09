@@ -1,17 +1,13 @@
 package fractalzoomer.core.rendering_algorithms;
 
-import fractalzoomer.core.PixelExtraData;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.*;
-import fractalzoomer.utils.Pixel;
-import fractalzoomer.utils.StopExecutionException;
-import fractalzoomer.utils.StopSuccessiveRefinementException;
-import fractalzoomer.utils.WaitOnCondition;
+import fractalzoomer.utils.*;
 import org.apfloat.Apfloat;
 
 import java.awt.*;
@@ -55,13 +51,17 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
         super(action, FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs,  color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending,  post_processing_order, pbs, gradient_offset,  contourFactor, gps, pps, ds, banded);
     }
 
-    public static Pixel[][] CoordinatesPerLevel;
     public static void initCoordinates(boolean force) {
 
-        if(force || CoordinatesPerLevel == null) {
+        if(force || CoordinatesPerLevel == null || coordinates_width != PatternedBruteForceRender.coordinates_width || coordinates_height != PatternedBruteForceRender.coordinates_height) {
 
             CoordinatesPerLevel = new Pixel[SUCCESSIVE_REFINEMENT_CHUNK_X.length][];
             int current_chunk_size_x, current_chunk_size_y;
+
+            coordinates_width = PatternedBruteForceRender.coordinates_width;
+            coordinates_height = PatternedBruteForceRender.coordinates_height;
+
+            boolean reverse = TaskRender.PATTERN_PULSE && CoordinatesPerLevel.length % 2 == 0;
 
             int x, y;
             for (int id = 0; id < CoordinatesPerLevel.length - 1; id++) {
@@ -72,53 +72,93 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
                 ArrayList<Pixel> list = new ArrayList<>();
 
                 if(Pixel.COMPARE_ALG == 16) {
-                    for (int i = 0; i < coordinates.length; i++) {
-                        Pixel pix = coordinates[i];
-                        x = pix.x;
-                        y = pix.y;
+                    if (reverse) {
+                        for (int i = 0; i < coordinates.length; i++) {
+                            Pixel pix = coordinates[i];
+                            x = pix.x;
+                            y = pix.y;
 
-                        if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0 || (y / current_chunk_size_y) % 2 == 1) {
-                            continue;
+                            if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0 || (y / current_chunk_size_y) % 2 == 0) {
+                                continue;
+                            }
+                            list.add(pix);
                         }
-                        list.add(pix);
-                    }
 
-                    for (int i = 0; i < coordinates.length; i++) {
-                        Pixel pix = coordinates[i];
-                        x = pix.x;
-                        y = pix.y;
+                        for (int i = 0; i < coordinates.length; i++) {
+                            Pixel pix = coordinates[i];
+                            x = pix.x;
+                            y = pix.y;
 
-                        if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0 || (y / current_chunk_size_y) % 2 == 0) {
-                            continue;
+                            if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0 || (y / current_chunk_size_y) % 2 == 1) {
+                                continue;
+                            }
+                            list.add(pix);
                         }
-                        list.add(pix);
+                    } else {
+                        for (int i = 0; i < coordinates.length; i++) {
+                            Pixel pix = coordinates[i];
+                            x = pix.x;
+                            y = pix.y;
+
+                            if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0 || (y / current_chunk_size_y) % 2 == 1) {
+                                continue;
+                            }
+                            list.add(pix);
+                        }
+
+                        for (int i = 0; i < coordinates.length; i++) {
+                            Pixel pix = coordinates[i];
+                            x = pix.x;
+                            y = pix.y;
+
+                            if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0 || (y / current_chunk_size_y) % 2 == 0) {
+                                continue;
+                            }
+                            list.add(pix);
+                        }
                     }
                 }
                 else {
-                    for (int i = 0; i < coordinates.length; i++) {
-                        Pixel pix = coordinates[i];
-                        x = pix.x;
-                        y = pix.y;
+                    if (reverse) {
+                        for (int i = coordinates.length - 1; i >= 0; i--) {
+                            Pixel pix = coordinates[i];
+                            x = pix.x;
+                            y = pix.y;
 
-                        if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0) {
-                            continue;
+                            if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0) {
+                                continue;
+                            }
+                            list.add(pix);
                         }
-                        list.add(pix);
+                    } else {
+                        for (int i = 0; i < coordinates.length; i++) {
+                            Pixel pix = coordinates[i];
+                            x = pix.x;
+                            y = pix.y;
+
+                            if (x % current_chunk_size_x != 0 || y % current_chunk_size_y != 0) {
+                                continue;
+                            }
+                            list.add(pix);
+                        }
                     }
                 }
 
                 Pixel[] array = new Pixel[list.size()];
                 CoordinatesPerLevel[id] = list.toArray(array);
+
+                if (TaskRender.PATTERN_PULSE) {
+                    reverse = !reverse;
+                }
             }
 
             CoordinatesPerLevel[CoordinatesPerLevel.length - 1] = coordinates;
         }
     }
 
-    public static Pixel[][] CoordinatesPerLevelFastJulia;
     public static void initCoordinatesFastJulia(boolean force) {
 
-        if(force || CoordinatesPerLevelFastJulia == null) {
+        if(force || CoordinatesPerLevelFastJulia == null || coordinatesFastJulia.length != CoordinatesPerLevelFastJulia[CoordinatesPerLevelFastJulia.length - 1].length) {
             CoordinatesPerLevelFastJulia = new Pixel[SUCCESSIVE_REFINEMENT_CHUNK_X.length][];
             int current_chunk_size_x, current_chunk_size_y;
 
@@ -188,7 +228,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
         initialize(location);
 
@@ -356,13 +396,15 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
                             examined[loc2] = true;
                             rendering_done_per_task[taskId]++;
 
-                            tempx = Math.min(image_width, x + current_chunk_size_x);
-                            tempy = Math.min(image_height, y + current_chunk_size_y);
+                            if (SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS) {
+                                tempx = Math.min(image_width, x + current_chunk_size_x);
+                                tempy = Math.min(image_height, y + current_chunk_size_y);
 
-                            for (int i = y; i < tempy; i++) {
-                                for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
-                                    if (rgbs[loc3] >>> 24 != Constants.NORMAL_ALPHA) {
-                                        rgbs[loc3] = (color & 0xFFFFFF) | Constants.QUICKRENDER_CALCULATED_ALPHA_OFFSETED;
+                                for (int i = y; i < tempy; i++) {
+                                    for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
+                                        if (rgbs[loc3] >>> 24 != Constants.NORMAL_ALPHA) {
+                                            rgbs[loc3] = (color & 0xFFFFFF) | Constants.QUICKRENDER_CALCULATED_ALPHA_OFFSETED;
+                                        }
                                     }
                                 }
                             }
@@ -432,18 +474,18 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         initialize(location);
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -559,7 +601,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
                                     aa.initialize(color);
 
                                     //Supersampling
-                                    for (int i = 0; i < supersampling_num; i++) {
+                                    for (int i = 0; i < max_samples; i++) {
                                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, midLoc));
                                         escaped_val = iteration_algorithm.escaped();
                                         color = getFinalColor(temp_result, escaped_val);
@@ -623,7 +665,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
                             aa.initialize(color);
 
                             //Supersampling
-                            for(int i = 0; i < supersampling_num; i++) {
+                            for(int i = 0; i < max_samples; i++) {
                                 temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc2));
                                 escaped_val = iteration_algorithm.escaped();
                                 color = getFinalColor(temp_result, escaped_val);
@@ -672,18 +714,18 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         initialize(location);
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -809,7 +851,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
                                     aa.initialize(color);
 
                                     //Supersampling
-                                    for (int i = 0; i < supersampling_num; i++) {
+                                    for (int i = 0; i < max_samples; i++) {
                                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, midLoc));
                                         escaped_val = iteration_algorithm.escaped();
                                         color = getFinalColor(temp_result, escaped_val);
@@ -881,7 +923,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
                             aa.initialize(color);
 
                             //Supersampling
-                            for (int i = 0; i < supersampling_num; i++) {
+                            for (int i = 0; i < max_samples; i++) {
                                 temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc2));
                                 escaped_val = iteration_algorithm.escaped();
                                 color = getFinalColor(temp_result, escaped_val);
@@ -897,12 +939,14 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
 
                             rgbs[loc2] = color = aa.getColor();
 
-                            tempx = Math.min(image_width, x + current_chunk_size_x);
-                            tempy = Math.min(image_height, y + current_chunk_size_y);
+                            if (SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS) {
+                                tempx = Math.min(image_width, x + current_chunk_size_x);
+                                tempy = Math.min(image_height, y + current_chunk_size_y);
 
-                            for (int i = y; i < tempy; i++) {
-                                for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
-                                    rgbs[loc3] = color;
+                                for (int i = y; i < tempy; i++) {
+                                    for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
+                                        rgbs[loc3] = color;
+                                    }
                                 }
                             }
                         }
@@ -969,7 +1013,7 @@ public class PatternedSuccessiveRefinementGuessing2Render extends PatternedSucce
     @Override
     protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
         initialize(location);
 

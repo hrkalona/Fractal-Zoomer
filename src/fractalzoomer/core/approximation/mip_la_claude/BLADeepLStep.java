@@ -1,10 +1,10 @@
 package fractalzoomer.core.approximation.mip_la_claude;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 
-public class BLADeepLStep extends BLADeep {
+public class BLADeepLStep extends BLADeepBase {
     public double Bx;
     public double By;
     public long Bexp;

@@ -1,12 +1,14 @@
 package fractalzoomer.core.reference;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.Waypoint;
+import fractalzoomer.core.TaskRender;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CompressedDoubleReference extends DoubleReference {
+public class CompressedDoubleReference extends DoubleReference implements Serializable {
+    private static final long serialVersionUID = 2259L;
     private ArrayList<Waypoint> wayPointsList;
     private ArrayList<Integer> rebasesList;
 
@@ -19,8 +21,11 @@ public class CompressedDoubleReference extends DoubleReference {
 
     private boolean compressed_extended;
 
-    public CompressedDoubleReference(int length) {
-        super();
+    private double compressionError;
+    private SerializableFunction<?, ?> function;
+
+    public CompressedDoubleReference(int length, ReferenceType type) {
+        super(type);
         wayPointsList = new ArrayList<>();
         rebasesList = new ArrayList<>();
         wayPointRe = new double[0];
@@ -31,10 +36,11 @@ public class CompressedDoubleReference extends DoubleReference {
         this.length = length;
         compressed = true;
         compressed_extended = false;
+        compressionError = ReferenceCompressor.CompressionError;
     }
 
-    public CompressedDoubleReference(int length, int lengthOverride) {
-        super();
+    public CompressedDoubleReference(int length, int lengthOverride, ReferenceType type) {
+        super(type);
         wayPointsList = new ArrayList<>();
         rebasesList = new ArrayList<>();
         wayPointRe = new double[0];
@@ -46,6 +52,7 @@ public class CompressedDoubleReference extends DoubleReference {
         this.lengthOverride = lengthOverride;
         compressed = true;
         compressed_extended = false;
+        compressionError = ReferenceCompressor.CompressionError;
     }
 
     public void setCompressedExtended(boolean value) {
@@ -213,13 +220,36 @@ public class CompressedDoubleReference extends DoubleReference {
 
         int left = 0;
         int right = wayPointIteration.length - 1;
+        int mid;
 
         while (left <= right) {
-            int mid = (int)(((long)left + right) >>> 1);
+            int diff = right - left;
+            if (!TaskRender.USE_INTERPOLATION_BINARY_SEARCH || diff <= TaskRender.BINARY_SEARCH_HYBRID_DIFF) {
+                mid = (int)(((long)left + right) >>> 1);
+            } else {
+                int v_left = wayPointIteration[left];
+                int v_right = wayPointIteration[right];
 
-            if (wayPointIteration[mid] == iteration) {
+                if (v_left == v_right) {
+                    mid = (int)(((long)left + right) >>> 1);
+                } else {
+                    long num = ((long) (iteration - v_left)) * diff;
+                    long den = (v_right - v_left);
+                    mid = left + (int) Math.round(((double)num) / den);
+
+                    if (mid < left) {
+                        mid = left;
+                    }
+                    if (mid > right) {
+                        mid = right;
+                    }
+                }
+            }
+
+            int v_mid = wayPointIteration[mid];
+            if (v_mid == iteration) {
                 return new Waypoint(new Complex(wayPointRe[mid], wayPointIm[mid]), iteration, mid);
-            } else if (wayPointIteration[mid] < iteration) {
+            } else if (v_mid < iteration) {
                 left = mid + 1;
             } else {
                 right = mid - 1;
@@ -238,13 +268,36 @@ public class CompressedDoubleReference extends DoubleReference {
 
         int left = 0;
         int right = wayPointIteration.length - 1;
+        int mid;
 
         while (left <= right) {
-            int mid = (int)(((long)left + right) >>> 1);
+            int diff = right - left;
+            if (!TaskRender.USE_INTERPOLATION_BINARY_SEARCH || diff <= TaskRender.BINARY_SEARCH_HYBRID_DIFF) {
+                mid = (int)(((long)left + right) >>> 1);
+            } else {
+                int v_left = wayPointIteration[left];
+                int v_right = wayPointIteration[right];
 
-            if (wayPointIteration[mid] == iteration) {
+                if (v_left == v_right) {
+                    mid = (int)(((long)left + right) >>> 1);
+                } else {
+                    long num = ((long) (iteration - v_left)) * diff;
+                    long den = (v_right - v_left);
+                    mid = left + (int) Math.round(((double)num) / den);
+
+                    if (mid < left) {
+                        mid = left;
+                    }
+                    if (mid > right) {
+                        mid = right;
+                    }
+                }
+            }
+
+            int v_mid = wayPointIteration[mid];
+            if (v_mid == iteration) {
                 return new Waypoint(new Complex(wayPointRe[mid], wayPointIm[mid]), iteration, mid);
-            } else if (wayPointIteration[mid] < iteration) {
+            } else if (v_mid < iteration) {
                 left = mid + 1;
             } else {
                 right = mid - 1;
@@ -268,6 +321,21 @@ public class CompressedDoubleReference extends DoubleReference {
 
     public int getRebaseAtIndex(int index) {
         return rebases[index];
+    }
+
+    @Override
+    public double getCompressionError() {
+        return compressionError;
+    }
+
+    @Override
+    public void setFunction(SerializableFunction<?, ?> function) {
+        this.function = function;
+    }
+
+    @Override
+    public SerializableFunction<?, ?> getFuction() {
+        return function;
     }
 
 }

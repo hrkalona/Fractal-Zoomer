@@ -6,6 +6,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -22,42 +23,42 @@ public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
         if(parser.foundN()) {
-            parser.setNvalue(new Complex((int)object[0], 0));
+            parser.setNvalue(new Complex(data.iterations, 0));
         }
 
         if(parser.foundNF()) {
-            parser.setNFvalue(new Complex(escape_time_alg.getFractionalPart(object), 0));
+            parser.setNFvalue(new Complex(escape_time_alg.getFractionalPart(data), 0));
         }
         
         if(parser.foundZ()) {
-            parser.setZvalue(((Complex)object[1]));
+            parser.setZvalue(data.z);
         }
         
         if(parser.foundC()) {
-            parser.setCvalue(((Complex)object[4]));
+            parser.setCvalue(data.c);
         }
         
         if(parser.foundS()) {
-            parser.setSvalue(((Complex)object[5]));
+            parser.setSvalue(data.start);
         }
 
         if(parser.foundC0()) {
-            parser.setC0value(((Complex)object[6]));
+            parser.setC0value(data.c0);
         }
 
         if (parser.foundPixel()) {
-            parser.setPixelvalue(((Complex) object[7]));
+            parser.setPixelvalue(data.pixel);
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(((Complex)object[2]));
+            parser.setPvalue(data.zold);
         }
         
         if(parser.foundPP()) {
-            parser.setPPvalue(((Complex)object[3]));
+            parser.setPPvalue(data.zold2);
         }
 
         if(parser.foundAnyVar()) {
@@ -83,10 +84,10 @@ public class UserOutColorAlgorithmEOC extends  UserOutColorAlgorithm {
         }
    
         if(result < 0) {
-            return (boolean)object[8] ? result - MAGNET_INCREMENT  : result;
+            return data.escaped ? result - MAGNET_INCREMENT  : result;
         }
         else {
-            return (boolean)object[8] ? result + MAGNET_INCREMENT  : result;
+            return data.escaped ? result + MAGNET_INCREMENT  : result;
         }
     }
 

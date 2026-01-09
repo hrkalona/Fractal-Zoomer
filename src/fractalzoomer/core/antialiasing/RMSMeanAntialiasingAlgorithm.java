@@ -69,18 +69,19 @@ public class RMSMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
-        double rmsA = Math.sqrt(RMSASum / addedSamples);
-        double rmsB = Math.sqrt(RMSBSum / addedSamples);
-        double rmsC = Math.sqrt(RMSCSum / addedSamples);
+        double addedSamplesReciprocal = 1.0 / addedSamples;
+        double rmsA = Math.sqrt(RMSASum * addedSamplesReciprocal);
+        double rmsB = Math.sqrt(RMSBSum * addedSamplesReciprocal);
+        double rmsC = Math.sqrt(RMSCSum * addedSamplesReciprocal);
 
         if(avgWithMean) {
-            double finalA = (rmsA + ASum * totalSamplesReciprocal) * 0.5;
-            double finalB = (rmsB + BSum * totalSamplesReciprocal) * 0.5;
-            double finalC = (rmsC + CSum * totalSamplesReciprocal) * 0.5;
+            double finalA = (rmsA + ASum * addedSamplesReciprocal) * 0.5;
+            double finalB = (rmsB + BSum * addedSamplesReciprocal) * 0.5;
+            double finalC = (rmsC + CSum * addedSamplesReciprocal) * 0.5;
 
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);

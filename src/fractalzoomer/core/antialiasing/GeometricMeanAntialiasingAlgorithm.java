@@ -73,18 +73,19 @@ public class GeometricMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
-        double geometricA = (AProduct > 0) ? Math.pow(AProduct, 1.0 / addedSamples) : 0;
-        double geometricB = (BProduct > 0) ? Math.pow(BProduct, 1.0 / addedSamples) : 0;
-        double geometricC = (CProduct > 0) ? Math.pow(CProduct, 1.0 / addedSamples) : 0;
+        double addedSamplesReciprocal = 1.0 / addedSamples;
+        double geometricA = (AProduct > 0) ? Math.pow(AProduct, addedSamplesReciprocal) : 0;
+        double geometricB = (BProduct > 0) ? Math.pow(BProduct, addedSamplesReciprocal) : 0;
+        double geometricC = (CProduct > 0) ? Math.pow(CProduct, addedSamplesReciprocal) : 0;
 
         if(avgWithMean) {
-            double finalA = (geometricA + ASum * totalSamplesReciprocal) * 0.5;
-            double finalB = (geometricB + BSum * totalSamplesReciprocal) * 0.5;
-            double finalC = (geometricC + CSum * totalSamplesReciprocal) * 0.5;
+            double finalA = (geometricA + ASum * addedSamplesReciprocal) * 0.5;
+            double finalB = (geometricB + BSum * addedSamplesReciprocal) * 0.5;
+            double finalC = (geometricC + CSum * addedSamplesReciprocal) * 0.5;
 
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);

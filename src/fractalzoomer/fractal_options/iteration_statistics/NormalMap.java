@@ -1,11 +1,16 @@
 package fractalzoomer.fractal_options.iteration_statistics;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.approximation.la_zhuoran.LAstep;
 import fractalzoomer.core.approximation.mip_la_claude.BLA;
 import fractalzoomer.core.approximation.mip_la_claude.BLADeep;
-import fractalzoomer.core.approximation.la_zhuoran.LAstep;
 import fractalzoomer.core.approximation.mip_la_zhuoran.MipLADeepStep;
 import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorAlgorithm;

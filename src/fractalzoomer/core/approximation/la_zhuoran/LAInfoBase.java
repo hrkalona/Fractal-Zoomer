@@ -1,10 +1,13 @@
 package fractalzoomer.core.approximation.la_zhuoran;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
 import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfo;
 import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfoDeep;
 import fractalzoomer.core.approximation.la_zhuoran.impl_refindex.LAInfoDeepRI;
 import fractalzoomer.core.approximation.la_zhuoran.impl_refindex.LAInfoRI;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.main.app_settings.ApproximationDefaultSettings;
 

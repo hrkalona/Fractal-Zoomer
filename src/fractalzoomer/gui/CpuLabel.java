@@ -138,13 +138,15 @@ public class CpuLabel extends JLabel {
     }
 
     public static double getCpuLoad() {
-        return ManagementFactory.getPlatformMXBean(
+        double value = ManagementFactory.getPlatformMXBean(
                 com.sun.management.OperatingSystemMXBean.class).getProcessCpuLoad();
+        return Math.max(0, value);
     }
 
     public static double getSystemCpuLoad() {
-        return ManagementFactory.getPlatformMXBean(
+        double value = ManagementFactory.getPlatformMXBean(
                 com.sun.management.OperatingSystemMXBean.class).getSystemCpuLoad();
+        return Math.max(0, value);
     }
 
 }

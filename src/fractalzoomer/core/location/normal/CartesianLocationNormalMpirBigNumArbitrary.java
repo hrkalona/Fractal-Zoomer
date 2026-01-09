@@ -1,9 +1,9 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MpirBigNumComplex;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MpirBigNumComplex;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -326,9 +326,9 @@ public class CartesianLocationNormalMpirBigNumArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        MpirBigNum[][] steps = createAntialiasingStepsMpirBigNum(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        MpirBigNum[][] steps = createAntialiasingStepsMpirBigNum(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }

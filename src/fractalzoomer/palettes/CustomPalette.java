@@ -164,7 +164,7 @@ public class CustomPalette extends Palette {
 
         n = n - color_cycling_location % n;
         //System.out.print("{");
-        int red = 0, green = 0, blue = 0;
+        //int red = 0, green = 0, blue = 0;
         for (int i = 0; i < colors.length; i++) { // interpolate all colors
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color

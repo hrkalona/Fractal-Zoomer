@@ -1,10 +1,10 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.DDComplex;
-import fractalzoomer.core.DoubleDouble;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
 import fractalzoomer.core.location.normal.PolarLocationNormalDoubleDoubleArbitrary;
+import fractalzoomer.core.numerics.DDComplex;
+import fractalzoomer.core.numerics.DoubleDouble;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
@@ -62,8 +62,7 @@ public class PolarLocationDeltaDoubleDouble extends PolarLocationNormalDoubleDou
 
     @Override
     public MantExp getMaxSizeInImage() {
-        DoubleDouble end = ddcenter.add(ddmulx.multiply(width * 0.5));
-        return end.exp().getMantExp();
+        return ddsize.multiply(new DoubleDouble(Math.exp(mulx * width * 0.5))).getMantExp();
     }
 
     @Override

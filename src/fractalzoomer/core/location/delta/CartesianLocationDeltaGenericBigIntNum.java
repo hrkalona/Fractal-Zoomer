@@ -1,10 +1,10 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.BigIntNum;
-import fractalzoomer.core.BigIntNumComplex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
 import fractalzoomer.core.location.normal.CartesianLocationNormalBigIntNumArbitrary;
+import fractalzoomer.core.numerics.BigIntNum;
+import fractalzoomer.core.numerics.BigIntNumComplex;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;

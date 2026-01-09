@@ -30,8 +30,10 @@ public class ProcessingMenu extends MyMenu {
     private JMenuItem contour_coloring_opt;
     private JMenuItem statistics_coloring_opt;
     private JMenuItem histogram_coloring_opt;
+    private JMenuItem blinn_light_opt;
 
     private JMenuItem numerical_distance_estimator_opt;
+    private JMenuItem texture_opt;
     private JMenuItem order_opt;
     
     public ProcessingMenu(MainWindow ptr2, String name) {
@@ -57,6 +59,8 @@ public class ProcessingMenu extends MyMenu {
         histogram_coloring_opt = new MyMenuItem("Histogram Coloring", MainWindow.getIcon("histogram.png"));
         slope_opt = new MyMenuItem("Slopes", MainWindow.getIcon("slopes.png"));
         numerical_distance_estimator_opt = new MyMenuItem("Numerical Distance Estimator", MainWindow.getIcon("numerical_dem.png"));
+        texture_opt = new MyMenuItem("Texture Mapping", MainWindow.getIcon("texture.png"));
+        blinn_light_opt = new MyMenuItem("Blinn-Phong Light", MainWindow.getIcon("blinn_light.png"));
 
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
@@ -74,6 +78,8 @@ public class ProcessingMenu extends MyMenu {
         histogram_coloring_opt.setToolTipText("Calculates the histogram of the iterations and re-scales the palette accordingly.");
         slope_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
         numerical_distance_estimator_opt.setToolTipText("Calculates the distance estimator using numerical methods.");
+        texture_opt.setToolTipText("Applies an image as a texture");
+        blinn_light_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
 
         smoothing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
         exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0));
@@ -91,6 +97,8 @@ public class ProcessingMenu extends MyMenu {
         histogram_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.SHIFT_MASK));
         slope_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.SHIFT_MASK | ActionEvent.CTRL_MASK));
         numerical_distance_estimator_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.SHIFT_MASK | ActionEvent.CTRL_MASK));
+        texture_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_9, ActionEvent.CTRL_MASK));
+        blinn_light_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_9, ActionEvent.SHIFT_MASK));
 
         contour_coloring_opt.addActionListener(e -> ptr.setContourColoring());
         
@@ -114,6 +122,8 @@ public class ProcessingMenu extends MyMenu {
         
         light_opt.addActionListener(e -> ptr.setLighting());
 
+        blinn_light_opt.addActionListener(e -> ptr.setBlinnLighting());
+
         slope_opt.addActionListener(e -> ptr.setSlopes());
         
         order_opt.addActionListener(e -> ptr.setProcessingOrder());
@@ -123,10 +133,13 @@ public class ProcessingMenu extends MyMenu {
         histogram_coloring_opt.addActionListener(e -> ptr.setHistogramColoring());
 
         numerical_distance_estimator_opt.addActionListener(e -> ptr.setNumericalDistanceEstimator());
+
+        texture_opt.addActionListener(e -> ptr.setTexture());
         
         add(smoothing_opt);
         add(statistics_coloring_opt);
         add(histogram_coloring_opt);
+        add(texture_opt);
         add(exterior_de_opt);
         add(fake_de_opt);
         add(numerical_distance_estimator_opt);
@@ -139,6 +152,7 @@ public class ProcessingMenu extends MyMenu {
         add(bump_map_opt);
         add(light_opt);
         add(slope_opt);
+        add(blinn_light_opt);
         addSeparator();
         add(order_opt);
     }
@@ -153,6 +167,12 @@ public class ProcessingMenu extends MyMenu {
         
         return offset_coloring_opt;
         
+    }
+
+    public JMenuItem getTexture() {
+
+        return texture_opt;
+
     }
     
     public JMenuItem getGreyScaleColoring() {
@@ -177,6 +197,12 @@ public class ProcessingMenu extends MyMenu {
         
         return light_opt;
         
+    }
+
+    public JMenuItem getBlinnLight() {
+
+        return blinn_light_opt;
+
     }
 
     public JMenuItem getSlopes() {
@@ -311,6 +337,12 @@ public class ProcessingMenu extends MyMenu {
         else {
             entropy_coloring_opt.setIcon(MainWindow.getIcon("entropy_coloring.png"));
         }
+
+        if(s.pps.ts.applyTexture) {
+            texture_opt.setIcon(MainWindow.getIcon("texture_enabled.png"));
+        } else {
+            texture_opt.setIcon(MainWindow.getIcon("texture.png"));
+        }
         
         if(s.exterior_de) {
             exterior_de_opt.setIcon(MainWindow.getIcon("distance_estimation_enabled.png"));
@@ -324,6 +356,13 @@ public class ProcessingMenu extends MyMenu {
         }
         else {
             light_opt.setIcon(MainWindow.getIcon("light.png"));
+        }
+
+        if(s.pps.bls.lighting) {
+            blinn_light_opt.setIcon(MainWindow.getIcon("blinn_light_enabled.png"));
+        }
+        else {
+            blinn_light_opt.setIcon(MainWindow.getIcon("blinn_light.png"));
         }
 
         if(s.pps.ss.slopes) {

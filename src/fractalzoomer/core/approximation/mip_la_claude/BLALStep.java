@@ -2,7 +2,7 @@ package fractalzoomer.core.approximation.mip_la_claude;
 
 import fractalzoomer.core.Complex;
 
-public class BLALStep extends BLA {
+public class BLALStep extends BLABase {
 
     public double Bx;
     public double By;

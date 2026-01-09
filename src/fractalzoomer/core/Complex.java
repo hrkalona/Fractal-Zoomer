@@ -1,12 +1,15 @@
 
 package fractalzoomer.core;
 
-import fractalzoomer.core.unused.BigDecNumComplex;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.filters_utils.math.Noise;
 import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
-public final class Complex extends GenericComplex {
+import java.io.Serializable;
+
+public final class Complex extends GenericComplex implements Serializable {
+    private static final long serialVersionUID = 222259L;
     public static final double HALF_PI = Math.PI * 0.5;
     public static final double TWO_PI = Math.PI * 2;
     public static final double SQRT_PI = Math.sqrt(Math.PI);
@@ -27,6 +30,13 @@ public final class Complex extends GenericComplex {
 
         this.re = re;
         this.im = im;
+
+    }
+
+    public Complex(String re, String im) {
+
+        this.re = Double.parseDouble(re);
+        this.im = Double.parseDouble(im);
 
     }
 

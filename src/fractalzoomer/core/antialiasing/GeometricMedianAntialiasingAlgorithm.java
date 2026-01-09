@@ -1,7 +1,6 @@
 package fractalzoomer.core.antialiasing;
 
 import fractalzoomer.utils.ColorCorrection;
-import fractalzoomer.utils.ColorSpaceConverter;
 
 public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double[] AValues;
@@ -133,10 +132,10 @@ public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm 
         }
         else if(colorSpace == 2 || colorSpace == 4 || colorSpace == 5 || colorSpace == 6 || colorSpace == 8) { //Lab, LUV, OKLab, JzAzBz, YCbCr
             double sum = 0;
-            for(int i = 0; i < AValues.length; i++) {
+            for(int i = 0; i < addedSamples; i++) {
                 sum += AValues[i];
             }
-            sum *= totalSamplesReciprocal;
+            sum /= addedSamples;
             return new double[] {sum, centroid[0], centroid[1]};
         }
         return null;
@@ -144,7 +143,7 @@ public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm 
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
@@ -154,14 +153,15 @@ public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm 
 
         int length = centroid.length;
 
-        for (int i = 0; i < totalSamples; i++) {
+        for (int i = 0; i < addedSamples; i++) {
             for(int k = 0; k < length; k++) {
                 centroid[k] += vars[k][i];
             }
         }
 
+        double addedSamplesReciprocal = 1.0 / addedSamples;
         for(int k = 0; k < length; k++) {
-            centroid[k] *= totalSamplesReciprocal;
+            centroid[k] *= addedSamplesReciprocal;
         }
 //        for (int i = 0; i < AValues.length; i++) {
 //            centroid[0] += weight[i] * AValues[i];
@@ -182,7 +182,7 @@ public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm 
         double epsilon = 1e-3; // Convergence threshold
         int maxIterations = 250;
         double epsilon_squared = epsilon * epsilon;
-        double[] distances = new double[totalSamples];
+        double[] distances = new double[addedSamples];
         double[] var = new double[length];
 
         int iter;
@@ -191,7 +191,7 @@ public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm 
             double totalWeight = 0.0;
 
             boolean hasZeroDistance = false;
-            for (int i = 0; i < totalSamples; i++) {
+            for (int i = 0; i < addedSamples; i++) {
                 getVarI(vars, i, var);
                 distances[i] = distance(centroid, var);
                 if(distances[i] == 0) {
@@ -205,7 +205,7 @@ public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm 
                 }
             }
             // Adjust centroid based on weighted distances
-            for (int i = 0; i < totalSamples; i++) {
+            for (int i = 0; i < addedSamples; i++) {
                 double distance = 0;
                 if(hasZeroDistance) {
                     getVarI(vars, i, var);
@@ -242,9 +242,9 @@ public class GeometricMedianAntialiasingAlgorithm extends AntialiasingAlgorithm 
         double[] finalCentroid = finalizeResult(centroid);
 
         if(avgWithMean) {
-            double finalA = (finalCentroid[0] + ASum * totalSamplesReciprocal) * 0.5;
-            double finalB = (finalCentroid[1] + BSum * totalSamplesReciprocal) * 0.5;
-            double finalC = (finalCentroid[2] + CSum * totalSamplesReciprocal) * 0.5;
+            double finalA = (finalCentroid[0] + ASum * addedSamplesReciprocal) * 0.5;
+            double finalB = (finalCentroid[1] + BSum * addedSamplesReciprocal) * 0.5;
+            double finalC = (finalCentroid[2] + CSum * addedSamplesReciprocal) * 0.5;
 
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);

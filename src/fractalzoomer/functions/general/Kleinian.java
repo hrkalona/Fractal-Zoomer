@@ -119,13 +119,13 @@ public class Kleinian extends FractalWithoutConstant {
                 escaped = true;
 
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
-                double out = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, complex[0], zold, zold2, pixel, start, c0, pixel);
+                double out = out_color_algorithm.getResult(outColorData);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return out;
@@ -135,8 +135,8 @@ public class Kleinian extends FractalWithoutConstant {
             if (iterations != 0 && complex[0].distance_squared(zold2) < error) {
 
                 finalizeStatistic(false, complex[0]);
-                Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
-                double in = in_color_algorithm.getResult(object);
+                inColorData.setData(complex[0], zold, zold2, pixel, start, c0, pixel);
+                double in = in_color_algorithm.getResult(inColorData);
 
                 in = getFinalValueIn(in);
 
@@ -161,8 +161,8 @@ public class Kleinian extends FractalWithoutConstant {
         }
 
         finalizeStatistic(false, complex[0]);
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(complex[0], zold, zold2, pixel, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -219,12 +219,12 @@ public class Kleinian extends FractalWithoutConstant {
                 break;
             case ESCAPE_TIME_SQUARES:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeSquares(5, escape_time_algorithm);
+                    out_color_algorithm = new EscapeTimeSquares(escape_time_algorithm);
                 }
                 break;
             case ESCAPE_TIME_SQUARES2:
                 if (smoothing) {
-                    out_color_algorithm = new EscapeTimeSquares2(5, escape_time_algorithm);
+                    out_color_algorithm = new EscapeTimeSquares2(escape_time_algorithm);
                 }
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:

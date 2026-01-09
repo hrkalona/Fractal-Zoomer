@@ -596,9 +596,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                 combo_box_color_space.setFocusable(true);
                 combo_box_color_space.setToolTipText("Sets the color space.");
 
-                combo_box_color_space.addActionListener(e -> {
-                    colorChanged();
-                });
+                combo_box_color_space.addActionListener(e -> colorChanged());
             }
 
             if(linkedPoints == null) {
@@ -662,9 +660,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                 interpolationMode.setSelectedIndex(0);
                 interpolationMode.setToolTipText("Sets the color interpolation method.");
 
-                interpolationMode.addActionListener( e -> {
-                    colorChanged();
-                });
+                interpolationMode.addActionListener( e -> colorChanged());
             }
 
             if(interpolationColorMode == null) {
@@ -676,9 +672,7 @@ class ColorPoint implements Comparable<ColorPoint> {
                 interpolationColorMode.setSelectedIndex(0);
                 interpolationColorMode.setToolTipText("Sets the color mode.");
 
-                interpolationColorMode.addActionListener( e -> {
-                    colorChanged();
-                });
+                interpolationColorMode.addActionListener( e -> colorChanged());
             }
 
             if(customColorLabel == null) {

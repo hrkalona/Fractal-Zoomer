@@ -69,34 +69,35 @@ public class TriMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
-        Arrays.sort(AValues);
-        Arrays.sort(BValues);
-        Arrays.sort(CValues);
+        Arrays.sort(AValues, 0, addedSamples);
+        Arrays.sort(BValues, 0, addedSamples);
+        Arrays.sort(CValues, 0, addedSamples);
 
-        double medianA = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(AValues, 0, AValues.length);
-        double q1A = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(AValues, 0, AValues.length / 2);
-        double q3A = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(AValues, (AValues.length + 1) / 2, AValues.length);
+        double medianA = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(AValues, 0, addedSamples);
+        double q1A = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(AValues, 0, addedSamples / 2);
+        double q3A = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(AValues, (addedSamples + 1) / 2, addedSamples);
 
-        double medianB = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(BValues, 0, BValues.length);
-        double q1B = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(BValues, 0, BValues.length / 2);
-        double q3B = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(BValues, (BValues.length + 1) / 2, BValues.length);
+        double medianB = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(BValues, 0, addedSamples);
+        double q1B = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(BValues, 0, addedSamples / 2);
+        double q3B = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(BValues, (addedSamples + 1) / 2, addedSamples);
 
-        double medianC = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(CValues, 0, CValues.length);
-        double q1C = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(CValues, 0, CValues.length / 2);
-        double q3C = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(CValues, (CValues.length + 1) / 2, CValues.length);
+        double medianC = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(CValues, 0, addedSamples);
+        double q1C = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(CValues, 0, addedSamples / 2);
+        double q3C = MeanNoOutliersAntialiasingAlgorithm.calculateMedian(CValues, (addedSamples + 1) / 2, addedSamples);
 
         double triMeanA = (q1A + 2 * medianA + q3A) * 0.25;
         double triMeanB = (q1B + 2 * medianB + q3B) * 0.25;
         double triMeanC = (q1C + 2 * medianC + q3C) * 0.25;
 
         if(avgWithMean) {
-            double finalA = (triMeanA + ASum * totalSamplesReciprocal) * 0.5;
-            double finalB = (triMeanB + BSum * totalSamplesReciprocal) * 0.5;
-            double finalC = (triMeanC + CSum * totalSamplesReciprocal) * 0.5;
+            double addedSamplesReciprocal = 1.0 / addedSamples;
+            double finalA = (triMeanA + ASum * addedSamplesReciprocal) * 0.5;
+            double finalB = (triMeanB + BSum * addedSamplesReciprocal) * 0.5;
+            double finalC = (triMeanC + CSum * addedSamplesReciprocal) * 0.5;
 
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);

@@ -1,10 +1,16 @@
 
 package fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.core.reference.ReferenceData;
 import fractalzoomer.core.reference.ReferenceDeepData;
+import fractalzoomer.core.reference.SerializableFunction;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -17,7 +23,6 @@ import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
-import java.util.function.Function;
 
 /**
  *
@@ -137,7 +142,7 @@ public class Formula48 extends Julia {
 
         int ReferencePeriod = getPeriod();
 
-        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         Complex refZ;
         Complex zWithoutInitVal = new Complex();
@@ -145,14 +150,14 @@ public class Formula48 extends Julia {
         Complex c = complexIn[1];
 
         if(iterations != 0 && RefIteration < MaxRefIteration) {
-            refZ = getArrayValue(reference, RefIteration);
-            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+            refZ = getReferenceValue(reference, RefIteration);
+            zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
             z = refZ.plus_mutable(DeltaSubN);
         }
         else if(iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            refZ = getArrayValue(reference, RefIteration);
-            zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+            refZ = getReferenceValue(reference, RefIteration);
+            zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
             z = refZ.plus_mutable(DeltaSubN);
         }
 
@@ -170,13 +175,13 @@ public class Formula48 extends Julia {
                 escaped = true;
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
-                double res = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, z, zold, zold2, c, start, c0, pixel);
+                double res = out_color_algorithm.getResult(outColorData);
 
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -193,8 +198,8 @@ public class Formula48 extends Julia {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                refZ = getArrayValue(reference, RefIteration);
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+                refZ = getReferenceValue(reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
                 z = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
@@ -212,8 +217,8 @@ public class Formula48 extends Julia {
         }
 
         finalizeStatistic(false, z);
-        Object[] object = {z, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(z, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -244,7 +249,7 @@ public class Formula48 extends Julia {
 
         int ReferencePeriod = getPeriod();
 
-        int MaxRefIteration = getReferenceFinalIterationNumber(true, referenceData);
+        int MaxRefIteration = getReferenceFinalIterationNumber(true);
 
         int minExp = -1000;
         int reducedExp = minExp / (int)getPower();
@@ -269,15 +274,15 @@ public class Formula48 extends Julia {
             MantExpComplex zWithoutInitVal = MantExpComplex.create();
             MantExpComplex z = MantExpComplex.create();
             if(iterations != 0 && RefIteration < MaxRefIteration) {
-                refZm = getArrayDeepValue(referenceDeep, RefIteration);
-                zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                refZm = getReferenceDeepValue(referenceDeep, RefIteration);
+                zWithoutInitVal = getExpressionDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                 z = refZm.plus_mutable(DeltaSubN);
                 zc = z.toComplex();
             }
             else if(iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                refZm = getArrayDeepValue(referenceDeep, RefIteration);
-                zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                refZm = getReferenceDeepValue(referenceDeep, RefIteration);
+                zWithoutInitVal = getExpressionDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                 z = refZm.plus_mutable(DeltaSubN);
                 zc = z.toComplex();
             }
@@ -294,13 +299,13 @@ public class Formula48 extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -316,8 +321,8 @@ public class Formula48 extends Julia {
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    refZm = getArrayDeepValue(referenceDeep, RefIteration);
-                    zWithoutInitVal = getArrayDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                    refZm = getReferenceDeepValue(referenceDeep, RefIteration);
+                    zWithoutInitVal = getExpressionDeepValue(referenceDeepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                     z = refZm.plus_mutable(DeltaSubN);
                     zc = z.toComplex();
                 }
@@ -353,14 +358,14 @@ public class Formula48 extends Julia {
             Complex refZ;
 
             if(!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-                refZ = getArrayValue(reference, RefIteration);
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                refZ = getReferenceValue(reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                 zc = refZ.plus_mutable(CDeltaSubN);
             }
             else if(!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
                 RefIteration = RefIteration % ReferencePeriod;
-                refZ = getArrayValue(reference, RefIteration);
-                zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                refZ = getReferenceValue(reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                 zc = refZ.plus_mutable(CDeltaSubN);
             }
 
@@ -376,13 +381,13 @@ public class Formula48 extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -403,8 +408,8 @@ public class Formula48 extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    refZ = getArrayValue(reference, RefIteration);
-                    zWithoutInitVal = getArrayValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                    refZ = getReferenceValue(reference, RefIteration);
+                    zWithoutInitVal = getExpressionValue(referenceData.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                     zc = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
@@ -423,8 +428,8 @@ public class Formula48 extends Julia {
         }
 
         finalizeStatistic(false, zc);
-        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(zc, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -454,7 +459,7 @@ public class Formula48 extends Julia {
         Complex c = complexIn[1];
 
         ReferenceData data = referenceData;
-        int MaxRefIteration = data.MaxRefIteration;
+        int MaxRefIteration = referenceOrbit.MaxRefIteration;
 
         Complex zWithoutInitVal = new Complex();
 
@@ -472,13 +477,13 @@ public class Formula48 extends Julia {
                 escaped = true;
 
                 finalizeStatistic(true, z);
-                Object[] object = {iterations, z, zold, zold2, c, start, c0, pixel};
-                double res = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, z, zold, zold2, c, start, c0, pixel);
+                double res = out_color_algorithm.getResult(outColorData);
 
                 res = getFinalValueOut(res);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel, object);
+                    setTrueColorOut(z, zold, zold2, iterations, c, start, c0, pixel);
                 }
 
                 return getAndAccumulateStatsNotDeep(res);
@@ -495,8 +500,8 @@ public class Formula48 extends Julia {
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1) {
-                refZ = getArrayValue(data.Reference, RefIteration);
-                zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
+                refZ = getReferenceValue(data.Reference, RefIteration);
+                zWithoutInitVal = getExpressionValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(DeltaSubN);
                 z = refZ.plus_mutable(DeltaSubN);
             }
             //No Post filters work
@@ -510,14 +515,14 @@ public class Formula48 extends Julia {
                 RefIteration = 0;
 
                 data = secondReferenceData;
-                MaxRefIteration = data.MaxRefIteration;
+                MaxRefIteration = secondReferenceOrbit.MaxRefIteration;
                 rebases++;
             }
         }
 
         finalizeStatistic(false, z);
-        Object[] object = {z, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(z, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -552,7 +557,7 @@ public class Formula48 extends Julia {
 
         ReferenceDeepData deepData = referenceDeepData;
         ReferenceData data = referenceData;
-        int MaxRefIteration = data.MaxRefIteration;
+        int MaxRefIteration = referenceOrbit.MaxRefIteration;
 
         int minExp = -1000;
         int reducedExp = minExp / (int)getPower();
@@ -567,7 +572,7 @@ public class Formula48 extends Julia {
 
         if(useFullFloatExp || (totalSkippedIterations == 0 && exp <= minExp) || (totalSkippedIterations != 0 && exp <= reducedExp)) {
             MantExpComplex zWithoutInitVal = MantExpComplex.create();
-            MantExpComplex z = getArrayDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
+            MantExpComplex z = getReferenceDeepValue(deepData.Reference, RefIteration).plus_mutable(DeltaSubN);
             MantExpComplex zoldDeep;
 
             for (; iterations < max_iterations; iterations++) {
@@ -579,13 +584,13 @@ public class Formula48 extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -601,8 +606,8 @@ public class Formula48 extends Julia {
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
-                    refZm = getArrayDeepValue(deepData.Reference, RefIteration);
-                    zWithoutInitVal = getArrayDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
+                    refZm = getReferenceDeepValue(deepData.Reference, RefIteration);
+                    zWithoutInitVal = getExpressionDeepValue(deepData.ReferenceSubCp, RefIteration, refZm).plus_mutable(DeltaSubN);
                     z = refZm.plus_mutable(DeltaSubN);
                     zc = z.toComplex();
                 }
@@ -617,7 +622,7 @@ public class Formula48 extends Julia {
 
                     deepData = secondReferenceDeepData;
                     data = secondReferenceData;
-                    MaxRefIteration = data.MaxRefIteration;
+                    MaxRefIteration = secondReferenceOrbit.MaxRefIteration;
 
                     rebases++;
                 }
@@ -652,13 +657,13 @@ public class Formula48 extends Julia {
                     escaped = true;
 
                     finalizeStatistic(true, zc);
-                    Object[] object = {iterations, zc, zold, zold2, c, start, c0, pixel};
-                    double res = out_color_algorithm.getResult(object);
+                    outColorData.setData(iterations, zc, zold, zold2, c, start, c0, pixel);
+                    double res = out_color_algorithm.getResult(outColorData);
 
                     res = getFinalValueOut(res);
 
                     if (outTrueColorAlgorithm != null) {
-                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel, object);
+                        setTrueColorOut(zc, zold, zold2, iterations, c, start, c0, pixel);
                     }
 
                     return getAndAccumulateStatsNotScaled(res);
@@ -675,8 +680,8 @@ public class Formula48 extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    refZ = getArrayValue(data.Reference, RefIteration);
-                    zWithoutInitVal = getArrayValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
+                    refZ = getReferenceValue(data.Reference, RefIteration);
+                    zWithoutInitVal = getExpressionValue(data.ReferenceSubCp, RefIteration, refZ).plus_mutable(CDeltaSubN);
                     zc = refZ.plus_mutable(CDeltaSubN);
                 }
                 //No Post filters work
@@ -690,7 +695,7 @@ public class Formula48 extends Julia {
                     RefIteration = 0;
 
                     data = secondReferenceData;
-                    MaxRefIteration = data.MaxRefIteration;
+                    MaxRefIteration = secondReferenceOrbit.MaxRefIteration;
                     rebases++;
                 }
 
@@ -698,8 +703,8 @@ public class Formula48 extends Julia {
         }
 
         finalizeStatistic(false, zc);
-        Object[] object = {zc, zold, zold2, c, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(zc, zold, zold2, c, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -739,14 +744,14 @@ public class Formula48 extends Julia {
         if(deepZoom) {
             precalcm = loc.getMantExpComplex(preCalc);
             precalcm2 = loc.getMantExpComplex(preCalc2);
-            setArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalcm, mcz);
-            setArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precalcm2, mcz);
+            setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalcm, mcz);
+            setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precalcm2, mcz);
         }
         if(lowPrecReferenceOrbitNeeded) {
-            setArrayValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalcm.toComplex() : preCalc.toComplex(), cz);
+            setExpressionValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalcm.toComplex() : preCalc.toComplex(), cz);
         }
         if(lowPrecReferenceOrbitNeeded) {
-            setArrayValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precalcm2.toComplex() : preCalc2.toComplex(), cz);
+            setExpressionValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precalcm2.toComplex() : preCalc2.toComplex(), cz);
         }
 
         return new GenericComplex[] {};
@@ -760,17 +765,17 @@ public class Formula48 extends Julia {
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctions(Complex c) {
-        Function<Complex, Complex> f1 = x -> x.fourth().times_mutable(5).sub_mutable(1);
-        Function<Complex, Complex> f2 = x -> x.fourth().sub_mutable(1).times_mutable(x).times2_mutable();
-        return new Function[] {f1, f2};
+    protected SerializableFunction[] getPrecalculatedTermsFunctions(Complex c) {
+        SerializableFunction<Complex, Complex> f1 = x -> x.fourth().times_mutable(5).sub_mutable(1);
+        SerializableFunction<Complex, Complex> f2 = x -> x.fourth().sub_mutable(1).times_mutable(x).times2_mutable();
+        return new SerializableFunction[] {f1, f2};
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
-        Function<MantExpComplex, MantExpComplex> f1 = x -> x.fourth().times_mutable(MantExp.FIVE).sub_mutable(MantExp.ONE);
-        Function<MantExpComplex, MantExpComplex> f2 = x -> x.fourth().sub_mutable(MantExp.ONE).times_mutable(x).times2_mutable();
-        return new Function[] {f1, f2};
+    protected SerializableFunction[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
+        SerializableFunction<MantExpComplex, MantExpComplex> f1 = x -> x.fourth().times_mutable(MantExp.FIVE).sub_mutable(MantExp.ONE);
+        SerializableFunction<MantExpComplex, MantExpComplex> f2 = x -> x.fourth().sub_mutable(MantExp.ONE).times_mutable(x).times2_mutable();
+        return new SerializableFunction[] {f1, f2};
     }
 
     @Override
@@ -816,13 +821,13 @@ public class Formula48 extends Julia {
     @Override
     public Complex perturbationFunction(Complex z, Complex c, int RefIteration) {
 
-        Complex Z = getArrayValue(reference, RefIteration);
+        Complex Z = getReferenceValue(reference, RefIteration);
         Complex Zsqr = Z.square();
         Complex Z2 = Z.times2();
 
         Complex temp = z.plus(Z.times4()).times_mutable(z.cube()).times_mutable(Zsqr);
 
-        Complex nom = C.times(temp.plus(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)))
+        Complex nom = C.times(temp.plus(getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getExpressionValue(referenceData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)))
                 .plus_mutable(c.times(temp.plus(z.times(3).plus_mutable(Z2).times_mutable(z).times2_mutable().plus_mutable(Zsqr).times_mutable(Zsqr).plus_mutable(1).times_mutable(Zsqr))));
 
         Complex denom = Zsqr.plus(Z2.plus(z).times_mutable(z)).times_mutable(Zsqr);
@@ -835,13 +840,13 @@ public class Formula48 extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, MantExpComplex c, int RefIteration) {
 
-        MantExpComplex Z = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(referenceDeep, RefIteration);
         MantExpComplex Zsqr = Z.square();
         MantExpComplex Z2 = Z.times2();
 
         MantExpComplex temp = z.plus(Z.times4()).times_mutable(z.cube()).times_mutable(Zsqr);
 
-        MantExpComplex nom = Cdeep.times(temp.plus(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)))
+        MantExpComplex nom = Cdeep.times(temp.plus(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)))
                 .plus_mutable(c.times(temp.plus(z.times(MantExp.THREE).plus_mutable(Z2).times_mutable(z).times2_mutable().plus_mutable(Zsqr).times_mutable(Zsqr).plus_mutable(MantExp.ONE).times_mutable(Zsqr))));
 
         MantExpComplex denom = Zsqr.plus(Z2.plus(z).times_mutable(z)).times_mutable(Zsqr);
@@ -852,13 +857,13 @@ public class Formula48 extends Julia {
     @Override
     public Complex perturbationFunction(Complex z, int RefIteration) {
 
-        Complex Z = getArrayValue(reference, RefIteration);
+        Complex Z = getReferenceValue(reference, RefIteration);
         Complex Zsqr = Z.square();
         Complex Z2 = Z.times2();
 
         Complex temp = z.plus(Z.times4()).times_mutable(z.cube()).times_mutable(Zsqr);
 
-        Complex nom = C.times(temp.plus(getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
+        Complex nom = C.times(temp.plus(getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getExpressionValue(referenceData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
 
         Complex denom = Zsqr.plus(Z2.plus(z).times_mutable(z)).times_mutable(Zsqr);
 
@@ -869,13 +874,13 @@ public class Formula48 extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, int RefIteration) {
 
-        MantExpComplex Z = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(referenceDeep, RefIteration);
         MantExpComplex Zsqr = Z.square();
         MantExpComplex Z2 = Z.times2();
 
         MantExpComplex temp = z.plus(Z.times4()).times_mutable(z.cube()).times_mutable(Zsqr);
 
-        MantExpComplex nom = Cdeep.times(temp.plus(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
+        MantExpComplex nom = Cdeep.times(temp.plus(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
 
         MantExpComplex denom = Zsqr.plus(Z2.plus(z).times_mutable(z)).times_mutable(Zsqr);
 
@@ -885,13 +890,13 @@ public class Formula48 extends Julia {
     @Override
     public Complex perturbationFunction(Complex z, ReferenceData data, int RefIteration) {
 
-        Complex Z = getArrayValue(data.Reference, RefIteration);
+        Complex Z = getReferenceValue(data.Reference, RefIteration);
         Complex Zsqr = Z.square();
         Complex Z2 = Z.times2();
 
         Complex temp = z.plus(Z.times4()).times_mutable(z.cube()).times_mutable(Zsqr);
 
-        Complex nom = C.times(temp.plus(getArrayValue(data.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getArrayValue(data.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
+        Complex nom = C.times(temp.plus(getExpressionValue(data.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getExpressionValue(data.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
 
         Complex denom = Zsqr.plus(Z2.plus(z).times_mutable(z)).times_mutable(Zsqr);
 
@@ -901,13 +906,13 @@ public class Formula48 extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, ReferenceDeepData data, int RefIteration) {
 
-        MantExpComplex Z = getArrayDeepValue(data.Reference, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(data.Reference, RefIteration);
         MantExpComplex Zsqr = Z.square();
         MantExpComplex Z2 = Z.times2();
 
         MantExpComplex temp = z.plus(Z.times4()).times_mutable(z.cube()).times_mutable(Zsqr);
 
-        MantExpComplex nom = Cdeep.times(temp.plus(getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
+        MantExpComplex nom = Cdeep.times(temp.plus(getExpressionDeepValue(data.PrecalculatedTerms[0], RefIteration, Z).times_mutable(z).plus_mutable(getExpressionDeepValue(data.PrecalculatedTerms[1], RefIteration, Z)).times_mutable(z)));
 
         MantExpComplex denom = Zsqr.plus(Z2.plus(z).times_mutable(z)).times_mutable(Zsqr);
 
@@ -933,32 +938,6 @@ public class Formula48 extends Julia {
     }
 
     @Override
-    protected void calculateRefSubCp(GenericComplex z, GenericComplex initVal, Location loc, int bigNumLib, boolean lowPrecReferenceOrbitNeeded, boolean deepZoom, ReferenceData referenceData, ReferenceDeepData referenceDeepData, int iterations, Complex cz, MantExpComplex mcz) {
-
-        GenericComplex zsubcp;
-        if(bigNumLib == Constants.BIGNUM_MPFR) {
-            zsubcp = z.sub(initVal, workSpaceData.temp1, workSpaceData.temp2);
-        }
-        else if(bigNumLib == Constants.BIGNUM_MPIR) {
-            zsubcp = z.sub(initVal, workSpaceData.temp1p, workSpaceData.temp2p);
-        }
-        else {
-            zsubcp = z.sub(initVal);
-        }
-
-        MantExpComplex zsubcpm = null;
-        if(deepZoom) {
-            zsubcpm = loc.getMantExpComplex(zsubcp);
-            setArrayDeepValue(referenceDeepData.ReferenceSubCp, iterations, zsubcpm, mcz);
-        }
-
-        if(lowPrecReferenceOrbitNeeded) {
-            setArrayValue(referenceData.ReferenceSubCp, iterations, deepZoom ? zsubcpm.toComplex() : zsubcp.toComplex(), cz);
-        }
-
-    }
-
-    @Override
     protected GenericComplex referenceFunction(GenericComplex z, GenericComplex c, NormComponents normData, GenericComplex[] initialPrecal, GenericComplex[] precalc) {
         if(z.isZero()) {
             throw new ArithmeticException("Division by zero");
@@ -969,6 +948,11 @@ public class Formula48 extends Julia {
 
     @Override
     public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsReferenceSavingOrLoading() {
         return true;
     }
 

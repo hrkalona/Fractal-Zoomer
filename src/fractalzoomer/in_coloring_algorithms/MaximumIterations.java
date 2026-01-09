@@ -3,6 +3,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.utils.ColorAlgorithm;
+import fractalzoomer.utils.InColorData;
 
 /**
  *
@@ -16,7 +17,7 @@ public class MaximumIterations extends InColorAlgorithm {
     }
     
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(InColorData data) {
   
         return ColorAlgorithm.MAXIMUM_ITERATIONS;
  

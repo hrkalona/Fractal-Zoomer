@@ -2,15 +2,14 @@
 package fractalzoomer.core.rendering_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.PixelExtraData;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.*;
+import fractalzoomer.utils.PixelExtraData;
 import fractalzoomer.utils.StopExecutionException;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
 import org.apfloat.Apfloat;
@@ -100,7 +99,7 @@ public class BruteForceInterleavedRender extends TaskRender {
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         int condition = image_width * image_height;
 
@@ -116,7 +115,7 @@ public class BruteForceInterleavedRender extends TaskRender {
         postProcess(image_width, image_height, null, location);
     }
 
-    private void renderAntialiasedInternal(int condition, int thread_chunk_size, int image_width, boolean storeExtraData, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
+    private void renderAntialiasedInternal(int condition, int thread_chunk_size, int image_width, boolean storeExtraData, AntialiasingAlgorithm aa, int max_samples, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
         int x, y, loc;
         double f_val, temp_result;
         boolean escaped_val;
@@ -145,7 +144,7 @@ public class BruteForceInterleavedRender extends TaskRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
+                for(int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -175,17 +174,18 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         int condition = image_width * image_height;
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         initialize(location);
 
@@ -196,8 +196,8 @@ public class BruteForceInterleavedRender extends TaskRender {
         int thread_chunk_size = getThreadChunkSize(image_width, true);
 
         long time = System.currentTimeMillis();
-        renderAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
-        renderAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
+        renderAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, max_samples, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
+        renderAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, max_samples, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 
         postProcess(image_width, image_height, aa, location);
@@ -231,7 +231,7 @@ public class BruteForceInterleavedRender extends TaskRender {
     @Override
     protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initializeFastJulia(location);
 
@@ -246,7 +246,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
     }
 
-    private void renderFastJuliaAntialiasedInternal(int condition, int thread_chunk_size, int image_size, boolean storeExtraData, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
+    private void renderFastJuliaAntialiasedInternal(int condition, int thread_chunk_size, int image_size, boolean storeExtraData, AntialiasingAlgorithm aa, int max_samples, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
         int loc, x, y, color;
         double f_val, temp_result;
         boolean escaped_val;
@@ -273,7 +273,7 @@ public class BruteForceInterleavedRender extends TaskRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
+                for(int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -297,10 +297,10 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         initializeFastJulia(location);
 
@@ -308,9 +308,9 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -318,13 +318,13 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         int thread_chunk_size = getThreadChunkSize(image_size, true);
 
-        renderFastJuliaAntialiasedInternal(condition, thread_chunk_size, image_size, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
-        renderFastJuliaAntialiasedInternal(condition, thread_chunk_size, image_size, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
+        renderFastJuliaAntialiasedInternal(condition, thread_chunk_size, image_size, storeExtraData, aa, max_samples, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
+        renderFastJuliaAntialiasedInternal(condition, thread_chunk_size, image_size, storeExtraData, aa, max_samples, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
 
         postProcessFastJulia(image_size, aa, location);
     }
 
-    private void applyPostProcessingPointFilterInternal(double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, int condition, int thread_chunk_size, int image_width, int image_height, AtomicInteger dCount, Location location, double sizeCorr, double lightx, double lighty, AntialiasingAlgorithm aa, int[] modified, int a, int b) {
+    private void applyPostProcessingPointFilterInternal(double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, int condition, int thread_chunk_size, int image_width, int image_height, AtomicInteger dCount, Location location, double sizeCorr, double lightx, double lighty, AntialiasingAlgorithm aa, int a, int b) {
         int loc, x, y;
         do {
 
@@ -338,8 +338,7 @@ public class BruteForceInterleavedRender extends TaskRender {
                 x = loc % image_width;
                 y = loc / image_width;
 
-                applyPostProcessingOnPixel(loc, x, y, image_width, image_height, image_iterations, escaped, pixelData, aa, modified, sizeCorr, lightx, lighty, location);
-
+                applyPostProcessingOnPixel(loc, x, y, image_width, image_height, image_iterations, escaped, pixelData, aa, sizeCorr, lightx, lighty, location);
             }
 
         } while(true);
@@ -363,11 +362,7 @@ public class BruteForceInterleavedRender extends TaskRender {
             lighty = Math.sin(lightAngleRadians) * gradCorr;
         }
 
-
-        int[] modified = new int[1];
-
         if(aa != null) {
-            modified = new int[aa.getTotalSamples()];
             aa.setNeedsAllSamples(false);
         }
 
@@ -375,8 +370,8 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         int thread_chunk_size = getThreadChunkSize(image_width, true);
 
-        applyPostProcessingPointFilterInternal(image_iterations, escaped, pixelData, condition, thread_chunk_size, image_width, image_height, normal_rendering_algorithm_post_processing, location, sizeCorr, lightx, lighty, aa, modified, 2, 0);
-        applyPostProcessingPointFilterInternal(image_iterations, escaped, pixelData, condition, thread_chunk_size, image_width, image_height, normal_rendering_algorithm_post_processing2, location, sizeCorr, lightx, lighty, aa, modified, 2, 1);
+        applyPostProcessingPointFilterInternal(image_iterations, escaped, pixelData, condition, thread_chunk_size, image_width, image_height, normal_rendering_algorithm_post_processing, location, sizeCorr, lightx, lighty, aa, 2, 0);
+        applyPostProcessingPointFilterInternal(image_iterations, escaped, pixelData, condition, thread_chunk_size, image_width, image_height, normal_rendering_algorithm_post_processing2, location, sizeCorr, lightx, lighty, aa, 2, 1);
 
     }
 
@@ -426,8 +421,8 @@ public class BruteForceInterleavedRender extends TaskRender {
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        int totalSamples = supersampling_num + 1;
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = pixelData != null && pixelData.length > 0 && pixelData[0].rgb_values != null ? pixelData[0].rgb_values.length - 1 : supersampling_num;
 
         aa.setNeedsAllSamples(true);
 
@@ -530,7 +525,7 @@ public class BruteForceInterleavedRender extends TaskRender {
     @Override
     protected void renderDomain(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
         int condition = image_width * image_height;
 
@@ -550,7 +545,7 @@ public class BruteForceInterleavedRender extends TaskRender {
 
     }
 
-    private void renderDomainAntialiasedInternal(int condition, int thread_chunk_size, int image_size, boolean storeExtraData, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
+    private void renderDomainAntialiasedInternal(int condition, int thread_chunk_size, int image_size, boolean storeExtraData, AntialiasingAlgorithm aa, int max_samples, int totalSamples, AtomicInteger dCount, Location location, int a, int b) {
         int loc, x, y, color;
         double f_val;
         do {
@@ -581,7 +576,7 @@ public class BruteForceInterleavedRender extends TaskRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     val = iteration_algorithm.calculateDomain(location.getAntialiasingComplex(i, loc));
                     color = domain_color.getDomainColor(val);
 
@@ -611,18 +606,18 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         int condition = image_width * image_height;
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -632,8 +627,8 @@ public class BruteForceInterleavedRender extends TaskRender {
 
         long time = System.currentTimeMillis();
 
-        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
-        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, supersampling_num, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
+        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, max_samples, totalSamples, normal_rendering_algorithm_pixel, location, 2, 0);
+        renderDomainAntialiasedInternal(condition, thread_chunk_size, image_width, storeExtraData, aa, max_samples, totalSamples, normal_rendering_algorithm_pixel2, location, 2, 1);
 
         pixel_calculation_time_per_task = System.currentTimeMillis() - time;
 

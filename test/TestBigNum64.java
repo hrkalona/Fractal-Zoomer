@@ -1,6 +1,7 @@
 package test;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.numerics.BigNum64;
+import fractalzoomer.core.numerics.MyApfloat;
 import org.apfloat.Apfloat;
 
 public class TestBigNum64 {

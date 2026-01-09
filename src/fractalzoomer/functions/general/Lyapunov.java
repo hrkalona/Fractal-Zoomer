@@ -385,13 +385,13 @@ public class Lyapunov extends Julia {
                 escaped = true;
 
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
-                double out = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, complex[0], zold, zold2, complex[1], start, c0, pixel);
+                double out = out_color_algorithm.getResult(outColorData);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
                 return out;
@@ -434,8 +434,8 @@ public class Lyapunov extends Julia {
         }
 
         finalizeStatistic(false, complex[0]);
-        Object[] object = {complex[0], zold, zold2, complex[1], start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(complex[0], zold, zold2, complex[1], start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 
@@ -486,13 +486,13 @@ public class Lyapunov extends Julia {
                 escaped = true;
 
                 finalizeStatistic(true, complex[0]);
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0, pixel};
-                double out = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, complex[0], zold, zold2, complex[1], start, c0, pixel);
+                double out = out_color_algorithm.getResult(outColorData);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel, object);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0, pixel);
                 }
 
                 return out;

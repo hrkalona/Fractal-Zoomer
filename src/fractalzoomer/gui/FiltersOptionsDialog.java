@@ -170,10 +170,17 @@ public class FiltersOptionsDialog extends JDialog {
         useJitter.setToolTipText("Adds jitter to the sampling.");
         useJitter.setSelected(((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4);
 
+        String[] aaPattern = {"Grid", "Poisson Disk", "Blue Noise", "Random", "Rotated Grid"};
+        JComboBox<String> antialiasingPatternType = new JComboBox<>(aaPattern);
+        antialiasingPatternType.setSelectedIndex(fs.aaType);
+        antialiasingPatternType.setFocusable(false);
+        antialiasingPatternType.setToolTipText("Sets the anti-aliasing pattern type.");
+
         useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
 
         antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() != 5);
 
+        antialiasingPatternType.setEnabled(aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 6);
 
         JPanel samples = new JPanel();
         samples.setBackground(MainWindow.bg_color);
@@ -191,6 +198,8 @@ public class FiltersOptionsDialog extends JDialog {
 
         JPanel jitterPanel = new JPanel();
         jitterPanel.setBackground(MainWindow.bg_color);
+        jitterPanel.add(new JLabel("Pattern: "));
+        jitterPanel.add(antialiasingPatternType);
         jitterPanel.add(useJitter);
 
 
@@ -216,6 +225,7 @@ public class FiltersOptionsDialog extends JDialog {
             antialiasing_color_space.setEnabled(aaMethod.getSelectedIndex() != 5);
             useJitter.setEnabled(aaMethod.getSelectedIndex() != 6);
             sigmaR.setEnabled(aaMethod.getSelectedIndex() == 6);
+            antialiasingPatternType.setEnabled(aaMethod.getSelectedIndex() != 5 && aaMethod.getSelectedIndex() != 6);
         });
 
         ((JPanel)components_filters[MainWindow.ANTIALIASING]).add(samples);
@@ -2108,9 +2118,7 @@ public class FiltersOptionsDialog extends JDialog {
 
         quadtree_merge.setEnabled(treeAlgorithm.getSelectedIndex() == 0);
 
-        treeAlgorithm.addActionListener( e -> {
-            quadtree_merge.setEnabled(treeAlgorithm.getSelectedIndex() == 0);
-        });
+        treeAlgorithm.addActionListener( e -> quadtree_merge.setEnabled(treeAlgorithm.getSelectedIndex() == 0));
 
         String[] fill_alg_str = {"Original Color", "Level Color", "Fill Color"};
 
@@ -3203,6 +3211,8 @@ public class FiltersOptionsDialog extends JDialog {
             int aaMethodOld = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
             int aaSamplesIndexOld = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
             int old_supersampling_num = TaskRender.getExtraSamples(aaSamplesIndexOld, aaMethodOld);
+            int aaTypeOld = fs.aaType;
+            fs.aaType = antialiasingPatternType.getSelectedIndex();
 
             for(int k = 0; k < filters_options_vals.length; k++) {
                 if(components_filters[k] != null) {
@@ -3339,7 +3349,7 @@ public class FiltersOptionsDialog extends JDialog {
 
             dispose();
 
-            ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters, (aaSamplesIndexNew != aaSamplesIndexOld) || (old_supersampling_num != new_supersampling_num) || (aaMethodOld == 5 && aaMethodNew != 5) || (aaMethodOld != 5 && aaMethodNew == 5), useJitterOld != useJitterNew);
+            ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters, (aaSamplesIndexNew != aaSamplesIndexOld) || (old_supersampling_num != new_supersampling_num) || (aaMethodOld == 5 && aaMethodNew != 5) || (aaMethodOld != 5 && aaMethodNew == 5), useJitterOld != useJitterNew, aaTypeOld != fs.aaType);
 
             tab_index = tabbedPane.getSelectedIndex();
 
@@ -3385,7 +3395,7 @@ public class FiltersOptionsDialog extends JDialog {
         reset.setFocusable(false);
         reset.addActionListener(e -> {
 
-            ptra2.filtersOptionsChanged(null, null, null, null, null, null, true, true);
+            ptra2.filtersOptionsChanged(null, null, null, null, null, null, true, true, true);
 
             tab_index = tabbedPane.getSelectedIndex();
 

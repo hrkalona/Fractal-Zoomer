@@ -2,7 +2,7 @@ package fractalzoomer.core.approximation.mip_la_claude;
 
 import fractalzoomer.core.Complex;
 
-public class BLA1Step extends BLA {
+public class BLA1Step extends BLABase {
     //This class Assumes that B is 1 + 0i
     public BLA1Step(double r2, Complex A) {
         super(r2, A);
@@ -45,8 +45,4 @@ public class BLA1Step extends BLA {
 
     @Override
     public double getBx() { return 1.0;}
-
-    @Override
-    public double getBy() { return 0.0;}
-
 }

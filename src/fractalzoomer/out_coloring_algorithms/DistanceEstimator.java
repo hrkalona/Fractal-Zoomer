@@ -2,7 +2,7 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 /**
  *
@@ -16,11 +16,11 @@ public class DistanceEstimator  extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-         double temp2 = (((Complex)object[1]).norm_squared());
+         double temp2 = data.z.norm_squared();
          double temp3 = Math.log(temp2);      
-         double temp = -2.0 * Math.log(temp3 * temp3 * temp2 / ((Complex)object[2]).norm_squared());
+         double temp = -2.0 * Math.log(temp3 * temp3 * temp2 / data.dc.norm_squared());
          
          return temp < 0 ? 0 : temp;
 

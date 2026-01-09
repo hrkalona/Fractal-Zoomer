@@ -1,9 +1,9 @@
 
 package fractalzoomer.true_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.TransferFunction;
+import fractalzoomer.utils.TrueColorData;
 
 /**
  *
@@ -24,7 +24,7 @@ public abstract class TrueColorAlgorithm {
 
     }
 
-    public abstract int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped, double fractional_part);
+    public abstract int createColor(TrueColorData data);
 
     
 }

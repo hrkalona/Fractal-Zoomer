@@ -1,10 +1,14 @@
 package fractalzoomer.core.approximation.la_zhuoran.impl;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
 import fractalzoomer.core.approximation.la_zhuoran.ATInfo;
 import fractalzoomer.core.approximation.la_zhuoran.GenericLAInfo;
 import fractalzoomer.core.approximation.la_zhuoran.LAReference;
 import fractalzoomer.core.approximation.la_zhuoran.LAstep;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplexFull;
 import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.functions.Fractal;
 
@@ -43,7 +47,7 @@ public class LAInfoDeepFull extends LAInfoDeep {
 
     protected LAInfoDeepFull(int refIndex, ReferenceDecompressor referenceDecompressor) {
         super(refIndex);
-        MantExpComplex z = LAReference.f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, refIndex);
+        MantExpComplex z = LAReference.f.getReferenceDeepValue(referenceDecompressor, Fractal.referenceDeep, refIndex);
         //z.Normalize();
         RefRe = z.getMantissaReal();
         RefIm = z.getMantissaImag();
@@ -105,7 +109,7 @@ public class LAInfoDeepFull extends LAInfoDeep {
 
         LAInfoDeepFull out = (LAInfoDeepFull)out1;
 
-        MantExpComplex z = LAReference.f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
+        MantExpComplex z = LAReference.f.getReferenceDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
 
         MantExp ChebyMagz = z.chebyshevNorm();
 

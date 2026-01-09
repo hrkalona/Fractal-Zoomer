@@ -1,10 +1,14 @@
 package fractalzoomer.core.location.normal;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.BigComplex;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
+import fractalzoomer.utils.BigPoint;
 import org.apfloat.Apfloat;
 
 public class CartesianLocationNormalApfloatArbitrary extends Location {
@@ -56,7 +60,7 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
         double coefy = height == image_size ? 0.5 : (1 + (height - (double)width) / width) * 0.5;
 
         coefxdd = new MyApfloat(coefx);
-        coefydd = new Apfloat(coefy);
+        coefydd = new MyApfloat(coefy);
 
 
         Apfloat size_2_x = MyApfloat.fp.multiply(size, coefxdd);
@@ -277,9 +281,9 @@ public class CartesianLocationNormalApfloatArbitrary extends Location {
     }
 
     @Override
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
-        super.createAntialiasingSteps(adaptive, jitter, numberOfExtraSamples);
-        Apfloat[][] steps = createAntialiasingStepsApfloat(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, numberOfExtraSamples);
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
+        super.createAntialiasingSteps(adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
+        Apfloat[][] steps = createAntialiasingStepsApfloat(ddtemp_size_image_size_x, ddtemp_size_image_size_y, adaptive, jitter, aaType, numberOfExtraSamples, gaussian);
         ddantialiasing_x = steps[0];
         ddantialiasing_y = steps[1];
     }

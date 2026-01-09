@@ -2,6 +2,7 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 

@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 
 public class RenderFrame extends JFrame {
     public RenderFrame(BufferedImage img) {
-        MainWindow.setLaf();
+        MainWindow.setLaf(new String[] {});
         setTitle("Render Frame");
         setSize(img.getWidth(), img.getHeight());
 

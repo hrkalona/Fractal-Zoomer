@@ -1,15 +1,11 @@
 package fractalzoomer.core.approximation.la_zhuoran.impl_refindex;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.core.approximation.la_zhuoran.*;
 import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfo;
-import fractalzoomer.core.approximation.la_zhuoran.GenericLAInfo;
-import fractalzoomer.core.approximation.la_zhuoran.InvalidCalculationException;
-import fractalzoomer.core.approximation.la_zhuoran.LAInfoBase;
-import fractalzoomer.core.approximation.la_zhuoran.LAstep;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.functions.Fractal;
 
 public class LAInfoRI extends LAInfoBase {
@@ -78,12 +74,12 @@ public class LAInfoRI extends LAInfoBase {
 
     @Override
     public GenericComplex getRef(Fractal f) {
-        return f.getArrayValue(Fractal.reference, RefIndex);
+        return f.getReferenceValue(Fractal.reference, RefIndex);
     }
 
     @Override
     protected boolean Step(LAInfoRI out, int zRefIndex, ReferenceDecompressor referenceDecompressor, boolean checkDip) throws InvalidCalculationException {
-        Complex z = LAReference.f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
+        Complex z = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, zRefIndex);
         double ChebyMagz = z.chebyshevNorm();
 
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
@@ -130,7 +126,7 @@ public class LAInfoRI extends LAInfoBase {
     @Override
     protected boolean Composite(LAInfoRI out, LAInfoRI LA, ReferenceDecompressor referenceDecompressor, boolean checkDip) throws InvalidCalculationException {
         int zRefIndex = LA.RefIndex;
-        Complex z = LAReference.f.getArrayValue(referenceDecompressor, Fractal.reference, zRefIndex);
+        Complex z = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, zRefIndex);
         Complex ZCoeff = new Complex(ZCoeffRe, ZCoeffIm);
         Complex CCoeff = new Complex(CCoeffRe, CCoeffIm);
 
@@ -189,7 +185,7 @@ public class LAInfoRI extends LAInfoBase {
 
     @Override
     protected LAstep Prepare(Fractal f, Complex dz)  {
-        Complex newdz = dz.times(f.getArrayValue(Fractal.reference, RefIndex).times2_mutable().plus_mutable(dz));
+        Complex newdz = dz.times(f.getReferenceValue(Fractal.reference, RefIndex).times2_mutable().plus_mutable(dz));
 
         LAstep temp = new LAstep();
         temp.unusable = newdz.chebyshevNorm() >= LAThreshold;
@@ -199,7 +195,7 @@ public class LAInfoRI extends LAInfoBase {
 
     @Override
     protected LAstep Prepare(Fractal f, double dre, double dim)  {
-        Complex ref = f.getArrayValue(Fractal.reference, RefIndex);
+        Complex ref = f.getReferenceValue(Fractal.reference, RefIndex);
         double newdre = 2 * ref.getRe() + dre;
         double newdim = 2 * ref.getIm() + dim;
 

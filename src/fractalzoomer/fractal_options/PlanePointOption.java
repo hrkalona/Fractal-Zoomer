@@ -2,7 +2,7 @@
 package fractalzoomer.fractal_options;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplex;
 
 /**
  *

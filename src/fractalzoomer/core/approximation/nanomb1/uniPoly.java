@@ -1,7 +1,7 @@
 package fractalzoomer.core.approximation.nanomb1;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 
 // https://fractalforums.org/f/28/t/277/msg7952#msg7952
 public class uniPoly {

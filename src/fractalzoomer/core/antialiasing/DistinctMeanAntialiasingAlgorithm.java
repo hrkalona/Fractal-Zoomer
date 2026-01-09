@@ -67,7 +67,7 @@ public class DistinctMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 
@@ -82,9 +82,10 @@ public class DistinctMeanAntialiasingAlgorithm extends AntialiasingAlgorithm {
                 .average().getAsDouble();
 
         if(avgWithMean) {
-            double finalA = (avgA + SumA2 * totalSamplesReciprocal) * 0.5;
-            double finalB = (avgB + SumB2 * totalSamplesReciprocal) * 0.5;
-            double finalC = (avgC + SumC2 * totalSamplesReciprocal) * 0.5;
+            double addedSamplesReciprocal = 1.0 / addedSamples;
+            double finalA = (avgA + SumA2 * addedSamplesReciprocal) * 0.5;
+            double finalB = (avgB + SumB2 * addedSamplesReciprocal) * 0.5;
+            double finalC = (avgC + SumC2 * addedSamplesReciprocal) * 0.5;
             int[] result = getColorChannels(finalA, finalB, finalC);
             return ColorCorrection.linearToGamma(result[0], result[1], result[2]);
         } else {

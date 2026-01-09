@@ -182,6 +182,12 @@ public class ColorsMenu extends MyMenu {
         
     }
 
+    public JMenuItem getBlinnLight() {
+
+        return processing.getBlinnLight();
+
+    }
+
     public JMenuItem getSlopes() {
 
         return processing.getSlopes();
@@ -216,6 +222,12 @@ public class ColorsMenu extends MyMenu {
         
         return processing.getDistanceEstimation();
         
+    }
+
+    public JMenuItem getTexture() {
+
+        return processing.getTexture();
+
     }
     
     public JMenuItem getSmoothing() {

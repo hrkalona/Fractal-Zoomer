@@ -6,6 +6,7 @@ import fractalzoomer.core.TaskRender;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorSpaceConverter;
+import fractalzoomer.utils.TrueColorData;
 
 /**
  *
@@ -164,53 +165,53 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
     }
 
     @Override
-    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped, double fractional_part) {
+    public int createColor(TrueColorData data) {
 
         /**
          * * C1 ***
          */
         if (parser1.foundN()) {
-            parser1.setNvalue(new Complex(iterations, 0));
+            parser1.setNvalue(new Complex(data.iterations, 0));
         }
 
         if (parser1.foundNF()) {
-            parser1.setNFvalue(new Complex(fractional_part, 0));
+            parser1.setNFvalue(new Complex(data.fractionalPart, 0));
         }
 
         if (parser1.foundZ()) {
-            parser1.setZvalue(z);
+            parser1.setZvalue(data.z);
         }
 
         if (parser1.foundC()) {
-            parser1.setCvalue(c);
+            parser1.setCvalue(data.c);
         }
 
         if (parser1.foundS()) {
-            parser1.setSvalue(start);
+            parser1.setSvalue(data.start);
         }
 
         if (parser1.foundPixel()) {
-            parser1.setPixelvalue(pixel);
+            parser1.setPixelvalue(data.pixel);
         }
 
         if (parser1.foundC0()) {
-            parser1.setSvalue(c0);
+            parser1.setSvalue(data.c0);
         }
 
         if (parser1.foundP()) {
-            parser1.setPvalue(zold);
+            parser1.setPvalue(data.zold);
         }
 
         if (parser1.foundPP()) {
-            parser1.setPPvalue(zold2);
+            parser1.setPPvalue(data.zold2);
         }
 
         if (parser1.foundStat()) {
-            parser1.setStatvalue(new Complex(stat, 0));
+            parser1.setStatvalue(new Complex(data.statValue, 0));
         }
 
         if (parser1.foundTrap()) {
-            parser1.setTrapvalue(new Complex(trap, 0));
+            parser1.setTrapvalue(new Complex(data.trapValue, 0));
         }
 
         if(parser1.foundAnyVar()) {
@@ -229,47 +230,47 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
              * * C2 ***
              */
             if (parser2.foundN()) {
-                parser2.setNvalue(new Complex(iterations, 0));
+                parser2.setNvalue(new Complex(data.iterations, 0));
             }
 
             if (parser2.foundNF()) {
-                parser2.setNFvalue(new Complex(fractional_part, 0));
+                parser2.setNFvalue(new Complex(data.fractionalPart, 0));
             }
 
             if (parser2.foundZ()) {
-                parser2.setZvalue(z);
+                parser2.setZvalue(data.z);
             }
 
             if (parser2.foundC()) {
-                parser2.setCvalue(c);
+                parser2.setCvalue(data.c);
             }
 
             if (parser2.foundS()) {
-                parser2.setSvalue(start);
+                parser2.setSvalue(data.start);
             }
 
             if (parser2.foundPixel()) {
-                parser2.setPixelvalue(pixel);
+                parser2.setPixelvalue(data.pixel);
             }
 
             if (parser2.foundC0()) {
-                parser2.setSvalue(c0);
+                parser2.setSvalue(data.c0);
             }
 
             if (parser2.foundP()) {
-                parser2.setPvalue(zold);
+                parser2.setPvalue(data.zold);
             }
 
             if (parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
+                parser2.setPPvalue(data.zold2);
             }
 
             if (parser2.foundStat()) {
-                parser2.setStatvalue(new Complex(stat, 0));
+                parser2.setStatvalue(new Complex(data.statValue, 0));
             }
 
             if (parser2.foundTrap()) {
-                parser2.setTrapvalue(new Complex(trap, 0));
+                parser2.setTrapvalue(new Complex(data.trapValue, 0));
             }
 
             if(parser2.foundAnyVar()) {
@@ -287,47 +288,47 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
              * * C3 ***
              */
             if (parser3.foundN()) {
-                parser3.setNvalue(new Complex(iterations, 0));
+                parser3.setNvalue(new Complex(data.iterations, 0));
             }
 
             if (parser3.foundNF()) {
-                parser3.setNFvalue(new Complex(fractional_part, 0));
+                parser3.setNFvalue(new Complex(data.fractionalPart, 0));
             }
 
             if (parser3.foundZ()) {
-                parser3.setZvalue(z);
+                parser3.setZvalue(data.z);
             }
 
             if (parser3.foundC()) {
-                parser3.setCvalue(c);
+                parser3.setCvalue(data.c);
             }
 
             if (parser3.foundS()) {
-                parser3.setSvalue(start);
+                parser3.setSvalue(data.start);
             }
 
             if (parser3.foundPixel()) {
-                parser3.setPixelvalue(pixel);
+                parser3.setPixelvalue(data.pixel);
             }
 
             if (parser3.foundC0()) {
-                parser3.setSvalue(c0);
+                parser3.setSvalue(data.c0);
             }
 
             if (parser3.foundP()) {
-                parser3.setPvalue(zold);
+                parser3.setPvalue(data.zold);
             }
 
             if (parser3.foundPP()) {
-                parser3.setPPvalue(zold2);
+                parser3.setPPvalue(data.zold2);
             }
 
             if (parser3.foundStat()) {
-                parser3.setStatvalue(new Complex(stat, 0));
+                parser3.setStatvalue(new Complex(data.statValue, 0));
             }
 
             if (parser3.foundTrap()) {
-                parser3.setTrapvalue(new Complex(trap, 0));
+                parser3.setTrapvalue(new Complex(data.trapValue, 0));
             }
 
             if(parser3.foundAnyVar()) {
@@ -352,7 +353,7 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
             c3 = expr3.getValue().getRe();
         }
 
-        return getColor(c1, c2, c3, space, escaped);
+        return getColor(c1, c2, c3, space, data.escaped);
 
     }
 

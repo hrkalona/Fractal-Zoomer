@@ -1,6 +1,9 @@
 package fractalzoomer.functions.formulas.m_like_generalization;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.core.reference.ReferenceData;
 import fractalzoomer.core.reference.ReferenceDeepData;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
@@ -121,7 +124,7 @@ public class Formula50 extends Julia {
     @Override
     public Complex perturbationFunction(Complex z, Complex c, int RefIteration) {
         //xn = 2 * (2 * X * x + x2) - 3 * X2 * x - 3 * X * x2 - x2 * x + c;
-        Complex X = getArrayValue(reference, RefIteration);
+        Complex X = getReferenceValue(reference, RefIteration);
         Complex x = z;
         Complex x2 = x.square();
         Complex X2 = X.square();
@@ -136,7 +139,7 @@ public class Formula50 extends Julia {
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
-        Complex X = getArrayValue(data.Reference, RefIteration);
+        Complex X = getReferenceValue(data.Reference, RefIteration);
         Complex x = DeltaSubN;
         Complex x2 = x.square();
         Complex X2 = X.square();
@@ -144,13 +147,12 @@ public class Formula50 extends Julia {
         return X.times(x).times2_mutable().plus_mutable(x2).times2_mutable()
                 .sub_mutable(X2.times(x).times_mutable(3))
                 .sub_mutable(X.times(x2).times_mutable(3))
-                .sub_mutable(x2.times(x))
-               ;
+                .sub_mutable(x2.times(x));
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, ReferenceDeepData data, int RefIteration) {
-        MantExpComplex X = getArrayDeepValue(data.Reference, RefIteration);
+        MantExpComplex X = getReferenceDeepValue(data.Reference, RefIteration);
         MantExpComplex x = DeltaSubN;
         MantExpComplex x2 = x.square();
         MantExpComplex X2 = X.square();
@@ -158,14 +160,13 @@ public class Formula50 extends Julia {
         return X.times(x).times2_mutable().plus_mutable(x2).times2_mutable()
                 .sub_mutable(X2.times(x).times_mutable(MantExp.THREE))
                 .sub_mutable(X.times(x2).times_mutable(MantExp.THREE))
-                .sub_mutable(x2.times(x))
-                ;
+                .sub_mutable(x2.times(x));
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
-        MantExpComplex X = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex X = getReferenceDeepValue(referenceDeep, RefIteration);
         MantExpComplex x = DeltaSubN;
         MantExpComplex x2 = x.square();
         MantExpComplex X2 = X.square();
@@ -181,7 +182,7 @@ public class Formula50 extends Julia {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        Complex X = getArrayValue(reference, RefIteration);
+        Complex X = getReferenceValue(reference, RefIteration);
         Complex x = DeltaSubN;
         Complex x2 = x.square();
         Complex X2 = X.square();
@@ -189,15 +190,14 @@ public class Formula50 extends Julia {
         return X.times(x).times2_mutable().plus_mutable(x2).times2_mutable()
                 .sub_mutable(X2.times(x).times_mutable(3))
                 .sub_mutable(X.times(x2).times_mutable(3))
-                .sub_mutable(x2.times(x))
-                ;
+                .sub_mutable(x2.times(x));
 
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
 
-        MantExpComplex X = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex X = getReferenceDeepValue(referenceDeep, RefIteration);
         MantExpComplex x = DeltaSubN;
         MantExpComplex x2 = x.square();
         MantExpComplex X2 = X.square();
@@ -205,8 +205,7 @@ public class Formula50 extends Julia {
         return X.times(x).times2_mutable().plus_mutable(x2).times2_mutable()
                 .sub_mutable(X2.times(x).times_mutable(MantExp.THREE))
                 .sub_mutable(X.times(x2).times_mutable(MantExp.THREE))
-                .sub_mutable(x2.times(x))
-               ;
+                .sub_mutable(x2.times(x));
 
     }
 
@@ -243,6 +242,11 @@ public class Formula50 extends Julia {
 
     @Override
     public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsReferenceSavingOrLoading() {
         return true;
     }
 

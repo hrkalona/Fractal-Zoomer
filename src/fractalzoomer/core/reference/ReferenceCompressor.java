@@ -1,13 +1,11 @@
 package fractalzoomer.core.reference;
 
-import fractalzoomer.core.*;
-import fractalzoomer.core.reference.CompressedDeepReference;
-import fractalzoomer.core.reference.CompressedDoubleReference;
-import fractalzoomer.core.reference.DeepReference;
-import fractalzoomer.core.reference.DoubleReference;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplexFull;
 import fractalzoomer.functions.Fractal;
-
-import java.util.function.Function;
 
 public class ReferenceCompressor {
     public static double CompressionError = Math.pow(10, -9);
@@ -35,12 +33,12 @@ public class ReferenceCompressor {
 
     private MantExpComplex initValm;
 
-    private Function<Complex, Complex> function;
-    private Function<MantExpComplex, MantExpComplex> functionm;
+    private SerializableFunction<Complex, Complex> function;
+    private SerializableFunction<MantExpComplex, MantExpComplex> functionm;
 
     private Fractal f;
 
-    public ReferenceCompressor( Fractal f, Complex z, Complex c, Complex initVal) {
+    public ReferenceCompressor(Fractal f, Complex z, Complex c, Complex initVal) {
         this.z = z;
         this.c = c;
         this.f = f;
@@ -54,16 +52,16 @@ public class ReferenceCompressor {
         this.initValm = initValm;
     }
 
-    public ReferenceCompressor(Function<Complex, Complex> function) {
+    public ReferenceCompressor(SerializableFunction<Complex, Complex> function) {
         this.function = function;
     }
 
-    public ReferenceCompressor(Function<MantExpComplex, MantExpComplex> function, boolean deep) {
+    public ReferenceCompressor(SerializableFunction<MantExpComplex, MantExpComplex> function, boolean deep) {
         this.functionm = function;
     }
 
     //maxRefIteration should be +1
-    public static CompressedDeepReference compressReferenceWithExpression(CompressedDeepReference reference, DeepReference expressionReference, Function<MantExpComplex, MantExpComplex> function, Fractal f, MantExpComplex z, MantExpComplex c, int maxRefIteration) {
+    public static CompressedDeepReference compressReferenceWithExpression(CompressedDeepReference reference, DeepReference expressionReference, SerializableFunction<MantExpComplex, MantExpComplex> function, Fractal f, MantExpComplex z, MantExpComplex c, int maxRefIteration) {
 
         if(expressionReference.compressed) {
             throw new UnsupportedOperationException("This reference is already compressed.");
@@ -73,7 +71,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride);
+        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride, expressionReference.type);
 
         MantExpComplex CorrectVal, CalculatedVal;
 
@@ -114,7 +112,7 @@ public class ReferenceCompressor {
     }
 
     @Deprecated
-    public static CompressedDeepReference compressReferenceWithExpression(DeepReference reference, DeepReference expressionReference, Function<MantExpComplex, MantExpComplex> function, int maxRefIteration) {
+    public static CompressedDeepReference compressReferenceWithExpression(DeepReference reference, DeepReference expressionReference, SerializableFunction<MantExpComplex, MantExpComplex> function, int maxRefIteration) {
 
         if(reference.compressed) {
             throw new UnsupportedOperationException("This reference is already compressed.");
@@ -128,7 +126,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride);
+        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride, reference.type);
 
         MantExpComplex CorrectVal, CalculatedVal;
 
@@ -162,7 +160,7 @@ public class ReferenceCompressor {
     }
 
     //maxRefIteration should be +1
-    public static CompressedDoubleReference compressReferenceWithExpression(CompressedDoubleReference reference, DoubleReference expressionReference, Function<Complex, Complex> function, Fractal f, Complex z, Complex c, int maxRefIteration) {
+    public static CompressedDoubleReference compressReferenceWithExpression(CompressedDoubleReference reference, DoubleReference expressionReference, SerializableFunction<Complex, Complex> function, Fractal f, Complex z, Complex c, int maxRefIteration) {
 
         if(expressionReference.compressed) {
             throw new UnsupportedOperationException("This reference is already compressed.");
@@ -172,7 +170,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("Invalid length");
         }
 
-        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride);
+        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride, expressionReference.type);
 
         Complex CorrectVal, CalculatedVal;
 
@@ -209,7 +207,7 @@ public class ReferenceCompressor {
 
     //maxRefIteration should be +1
     @Deprecated
-    public static CompressedDoubleReference compressReferenceWithExpression(DoubleReference reference, DoubleReference expressionReference, Function<Complex, Complex> function, int maxRefIteration) {
+    public static CompressedDoubleReference compressReferenceWithExpression(DoubleReference reference, DoubleReference expressionReference, SerializableFunction<Complex, Complex> function, int maxRefIteration) {
 
         if(reference.compressed) {
             throw new UnsupportedOperationException("This reference is already compressed.");
@@ -223,7 +221,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("The references must have the same length.");
         }
 
-        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride);
+        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride, expressionReference.type);
 
         Complex CorrectVal, CalculatedVal;
 
@@ -255,7 +253,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("This reference is already compressed.");
         }
 
-        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride);
+        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride, reference.type);
 
         Complex Z;
 
@@ -290,7 +288,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("This reference is already compressed.");
         }
 
-        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride);
+        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride, reference.type);
         cref.setCompressedExtended(true);
 
         MantExpComplex Z;
@@ -404,7 +402,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("This reference is already compressed.");
         }
 
-        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride);
+        CompressedDoubleReference cref = new CompressedDoubleReference(reference.length, reference.lengthOverride, reference.type);
         cref.setCompressedExtended(true);
 
         Complex Z;
@@ -488,7 +486,7 @@ public class ReferenceCompressor {
             throw new UnsupportedOperationException("This reference is already compressed.");
         }
 
-        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride);
+        CompressedDeepReference cref = new CompressedDeepReference(reference.length, reference.lengthOverride, reference.type);
 
         MantExpComplex Z;
 
@@ -521,7 +519,10 @@ public class ReferenceCompressor {
 
     }
 
-    public Complex setArrayValue(DoubleReference ref, int iteration, Complex Z) {
+    public Complex setReferenceValue(DoubleReference ref, int iteration, Complex Z) {
+//        if (ref.type != ReferenceType.NORMAL) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
         CompressedDoubleReference cref = (CompressedDoubleReference) ref;
         if (z.sub(Z).chebyshevNorm() * CompressionErrorInverted > Z.chebyshevNorm()) {
             z.assign(Z);
@@ -534,7 +535,10 @@ public class ReferenceCompressor {
         return result;
     }
 
-    public MantExpComplex setArrayDeepValue(DeepReference ref, int iteration, MantExpComplex Z) {
+    public MantExpComplex setReferenceDeepValue(DeepReference ref, int iteration, MantExpComplex Z) {
+//        if (ref.type != ReferenceType.NORMAL) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
         CompressedDeepReference cref = (CompressedDeepReference) ref;
         if (mz.sub(Z).times_mutable(CompressionErrorInvertedm).chebyshevNorm().compareToBothPositiveReduced(Z.chebyshevNorm()) > 0) {
             mz.assign(Z);
@@ -548,7 +552,10 @@ public class ReferenceCompressor {
         return result;
     }
 
-    public void setArrayValue(DoubleReference ref, int iteration, Complex CorrectVal, Complex refZ) {
+    public void setExpressionValue(DoubleReference ref, int iteration, Complex CorrectVal, Complex refZ) {
+//        if (ref.type != ReferenceType.CP && ref.type != ReferenceType.EXPRESSION) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
         CompressedDoubleReference cref = (CompressedDoubleReference) ref;
         Complex CalculatedVal = function.apply(refZ);
         if (CalculatedVal.sub(CorrectVal).chebyshevNorm() * CompressionErrorInverted > CorrectVal.chebyshevNorm()) {
@@ -556,9 +563,11 @@ public class ReferenceCompressor {
         }
     }
 
-    public void setArrayDeepValue(DeepReference ref, int iteration, MantExpComplex CorrectVal, MantExpComplex refZ) {
+    public void setExpressionDeepValue(DeepReference ref, int iteration, MantExpComplex CorrectVal, MantExpComplex refZ) {
+//        if (ref.type != ReferenceType.CP && ref.type != ReferenceType.EXPRESSION) {
+//            throw new RuntimeException("Reference type mismatch");
+//        }
         CompressedDeepReference cref = (CompressedDeepReference) ref;
-
         MantExpComplex CalculatedVal = functionm.apply(refZ);
         CalculatedVal.Normalize();
 
@@ -575,12 +584,12 @@ public class ReferenceCompressor {
         return mz;
     }
 
-    public void compact(DoubleReference ref) {
+    public static void compact(DoubleReference ref) {
         CompressedDoubleReference cref = (CompressedDoubleReference) ref;
         cref.compact();
     }
 
-    public void compact(DeepReference ref) {
+    public static void compact(DeepReference ref) {
         CompressedDeepReference cref = (CompressedDeepReference) ref;
         cref.compact();
     }

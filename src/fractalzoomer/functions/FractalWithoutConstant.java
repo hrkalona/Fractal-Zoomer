@@ -1,7 +1,7 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import org.apfloat.Apfloat;
 
@@ -39,13 +39,13 @@ public abstract class FractalWithoutConstant extends Fractal {
 
                 finalizeStatistic(true, complex[0]);
 
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0, pixel};
-                double out = out_color_algorithm.getResult(object);
+                outColorData.setData(iterations, complex[0], zold, zold2, pixel, start, c0, pixel);
+                double out = out_color_algorithm.getResult(outColorData);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel, object);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0, pixel);
                 }
 
                 return out;
@@ -64,8 +64,8 @@ public abstract class FractalWithoutConstant extends Fractal {
         }
 
         finalizeStatistic(false, complex[0]);
-        Object[] object = {complex[0], zold, zold2, pixel, start, c0, pixel};
-        double in = in_color_algorithm.getResult(object);
+        inColorData.setData(complex[0], zold, zold2, pixel, start, c0, pixel);
+        double in = in_color_algorithm.getResult(inColorData);
 
         in = getFinalValueIn(in);
 

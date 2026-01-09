@@ -54,7 +54,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
     private double getAverage(double[] vals) {
 
         boolean allTheSame = true;
-        for(int i = 0; i < vals.length; i++) {
+        for(int i = 0; i < addedSamples; i++) {
             if(vals[i] != vals[0]) {
                 allTheSame = false;
                 break;
@@ -65,11 +65,11 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
         double upper_fence = Double.MAX_VALUE;
 
         if(!allTheSame) {
-            Arrays.sort(vals);
+            Arrays.sort(vals, 0, addedSamples);
 
-            // double median = calculateMedian(vals, 0, vals.length);
-            double lower_quartile = calculateMedian(vals, 0, vals.length / 2);
-            double upper_quartile = calculateMedian(vals, (vals.length + 1) / 2, vals.length);
+            // double median = calculateMedian(vals, 0, addedSamples);
+            double lower_quartile = calculateMedian(vals, 0, addedSamples / 2);
+            double upper_quartile = calculateMedian(vals, (addedSamples + 1) / 2, addedSamples);
             double iqr = upper_quartile - lower_quartile;
 
             double temp = 1.5 * iqr;
@@ -79,7 +79,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
             double mean = 0;
             double variance = 0;
             int samples = 0;
-            for (int i = 0; i < vals.length; i++) {
+            for (int i = 0; i < addedSamples; i++) {
                 samples++;
                 double delta = vals[i] - mean;
                 mean += delta / samples;
@@ -98,7 +98,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
         double sum = 0;
         int samples = 0;
-        for(int i = 0; i < vals.length; i++) {
+        for(int i = 0; i < addedSamples; i++) {
             if(vals[i] >= lower_fence && vals[i] <= upper_fence) {
                 sum += vals[i];
                 samples++;
@@ -110,7 +110,7 @@ public class MeanNoOutliersAntialiasingAlgorithm extends AntialiasingAlgorithm {
 
     @Override
     public int getColor() {
-        if(addedSamples != totalSamples) {
+        if (addedSamples == 0) {
             return 0xff000000;
         }
 

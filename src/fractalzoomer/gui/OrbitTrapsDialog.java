@@ -64,6 +64,8 @@ public class OrbitTrapsDialog extends JDialog {
         ptra2 = ptra;
         this_frame = this;
 
+        image = ots.trapImage;
+
         setModal(true);
         int color_window_width = 700;
         int color_window_height = 790;
@@ -726,6 +728,11 @@ public class OrbitTrapsDialog extends JDialog {
 
             if(skipTrapIterations < 0) {
                 JOptionPane.showMessageDialog(this_frame, "Trap skip first iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(orbit_traps_opt.isSelected() && image == null && (orbit_traps_combo.getSelectedIndex() == MainWindow.IMAGE_TRAP || orbit_traps_combo.getSelectedIndex() == MainWindow.IMAGE_TRANSPARENT_TRAP)) {
+                JOptionPane.showMessageDialog(ptra, "No pattern image was selected.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 

@@ -3,7 +3,6 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.GeneratedPaletteSettings;
-import fractalzoomer.utils.InfiniteWave;
 import fractalzoomer.utils.Multiwave;
 import fractalzoomer.utils.MultiwaveSimple;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;

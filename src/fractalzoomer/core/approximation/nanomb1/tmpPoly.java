@@ -1,7 +1,7 @@
 package fractalzoomer.core.approximation.nanomb1;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 
 //temporary poly class for solving for nucleus relative position. It is initialized with the part of the SSA that depends only on c.
 public class tmpPoly {

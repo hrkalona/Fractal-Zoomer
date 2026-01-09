@@ -1,36 +1,35 @@
 package fractalzoomer.core.approximation.mip_la_claude;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 
-public abstract class BLADeep {
+public class BLADeep {
     public double r2;
-    public double Ax;
-    public double Ay;
-    public long Aexp;
     public long r2exp;
 
-    protected BLADeep(MantExp r2, MantExpComplex A) {
+    protected BLADeep() {
+        r2 = MantExp.ZERO.getMantissa();
+        r2exp = MantExp.ZERO.getExp();
+    }
+
+    protected BLADeep(MantExp r2) {
         this.r2 = r2.getMantissa();
         this.r2exp = r2.getExp();
-        this.Ax = A.getMantissaReal();
-        this.Ay = A.getMantissaImag();
-        this.Aexp = A.getExp();
     }
 
-    public abstract MantExpComplex getValue(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0);
+    public MantExpComplex getValue(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0) { return  null; }
 
-    public abstract MantExpComplex getValue(MantExpComplex DeltaSubN, MantExp DeltaSub0);
+    public MantExpComplex getValue(MantExpComplex DeltaSubN, MantExp DeltaSub0) { return  null; }
 
-    public MantExpComplex getValue(MantExpComplex DeltaSubN) {
-        return DeltaSubN.times(Aexp, Ax, Ay);
-    }
+    public MantExpComplex getValue(MantExpComplex DeltaSubN) { return  null; }
 
     public MantExp hypotA() {
-        return new MantExpComplex(Aexp, Ax, Ay).hypot();
+        return null;
     }
 
-    public abstract MantExp hypotB();
+    public MantExp hypotB()  {
+        return null;
+    }
 
     public MantExp getR2() {
         return new MantExp(r2exp, r2);
@@ -41,10 +40,12 @@ public abstract class BLADeep {
     }
 
     public MantExpComplex getA() {
-        return new MantExpComplex(Aexp, Ax, Ay);
+        return null;
     }
 
-    public abstract MantExpComplex getB();
+    public MantExpComplex getB()  {
+        return null;
+    }
 
     // A = y.A * x.A
     public static MantExpComplex getNewA(BLADeep x, BLADeep y) {

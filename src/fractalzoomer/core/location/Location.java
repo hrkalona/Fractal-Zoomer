@@ -1,20 +1,24 @@
 package fractalzoomer.core.location;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.NumericLibrary;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.antialiasing.GaussianAntialiasingAlgorithm;
 import fractalzoomer.core.location.delta.*;
 import fractalzoomer.core.location.normal.*;
-import fractalzoomer.core.mpfr.LibMpfr;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.MpirBigNum;
-import fractalzoomer.core.unused.BigDecNum;
-import fractalzoomer.fractal_options.Rotation;
+import fractalzoomer.core.numerics.*;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.app_settings.JitterSettings;
 import fractalzoomer.utils.PixelOffset;
+import fractalzoomer.utils.sampling.BlueNoiseSampling;
+import fractalzoomer.utils.sampling.PoissonDiskSampling;
+import fractalzoomer.utils.sampling.RandomPointSampling;
 import org.apfloat.Apfloat;
 
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +36,7 @@ public class Location {
 
     public static PixelOffset offset;
     protected boolean aaJitter;
-    protected int extraSamplesNumber;
+    protected int maxSamples;
 
     public static int NUMBER_OF_AA_JITTER_KERNELS = 100;
     private static double[][] aaJitterKernelX;
@@ -43,12 +47,9 @@ public class Location {
     protected double[][][] precalculatedJitterDataPolarDouble;
     protected Apfloat[][][] precalculatedJitterDataApfloat;
 
-    protected Apfloat[][][] precalculatedJitterDataPolarApfloat;
     protected MpfrBigNum[][][] precalculatedJitterDataMpfrBigNum;
-    protected MpfrBigNum[][][] precalculatedJitterDataPolarMpfrBigNum;
     protected MpirBigNum[][][] precalculatedJitterDataMpirBigNum;
     protected DoubleDouble[][][] precalculatedJitterDataDoubleDouble;
-    protected DoubleDouble[][][] precalculatedJitterDataPolarDoubleDouble;
 
     protected BigNum[][][] precalculatedJitterDataBigNum;
 
@@ -65,6 +66,7 @@ public class Location {
 
     public static double AA_JITTER_SIZE = 0.25;
     public static boolean FIXED_JITTER_SIZE = false;
+    public static double ROTATED_GRID_ANGLE = 26.6;
     private static double[] VARIABLE_JITTER_SIZE = new double[] {0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.55, 0.6};
 
 
@@ -112,11 +114,8 @@ public class Location {
         precalculatedJitterDataBigNum = other.precalculatedJitterDataBigNum;
         precalculatedJitterDataBigIntNum = other.precalculatedJitterDataBigIntNum;
         precalculatedJitterDataPolarDouble = other.precalculatedJitterDataPolarDouble;
-        precalculatedJitterDataPolarApfloat = other.precalculatedJitterDataPolarApfloat;
-        precalculatedJitterDataPolarDoubleDouble = other.precalculatedJitterDataPolarDoubleDouble;
-        precalculatedJitterDataPolarMpfrBigNum = other.precalculatedJitterDataPolarMpfrBigNum;
         precalculatedJitterDataMantexp = other.precalculatedJitterDataMantexp;
-        extraSamplesNumber = other.extraSamplesNumber;
+        maxSamples = other.maxSamples;
     }
 
     public boolean isPolar() {return false;}
@@ -128,19 +127,18 @@ public class Location {
     public GenericComplex getComplexWithX(int x) {return  null;}
     public void precalculateX(int x) {}
     public GenericComplex getComplexWithY(int y) {return  null;}
-    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int numberOfExtraSamples) {
+    public void createAntialiasingSteps(boolean adaptive, boolean jitter, int aaType, int numberOfExtraSamples, boolean gaussian) {
         this.aaJitter = jitter;
-        extraSamplesNumber = numberOfExtraSamples;
-    }
-
-    public int getExtraSamplesNumber() {
-        return extraSamplesNumber;
     }
 
     public GenericComplex getAntialiasingComplex(int sample, int loc) {return  null;}
     public void setReference(GenericComplex ref) {
-        reference = ref; //Todo hopefully this is ok for multithreading for mpfr
+        reference = ref;
         fractal.initializeReferenceDecompressor();
+    }
+
+    public int getMaxSamples(int samples) {
+        return maxSamples != 0 ? maxSamples : samples;
     }
 
     public static Location getInstanceForRendering(Apfloat xCenter, Apfloat yCenter, Apfloat size, double height_ratio, int width, int height, double circle_period, Apfloat[] rotation_center, Apfloat[] rotation_vals, Fractal fractal, JitterSettings js, boolean polar, boolean highPresicion) {
@@ -148,11 +146,20 @@ public class Location {
         if(highPresicion && TaskRender.HIGH_PRECISION_CALCULATION) {
             int lib = NumericLibrary.getHighPrecisionImplementation(size, fractal);
             if(polar) {
-                if(lib == Constants.ARBITRARY_MPFR || (lib == Constants.ARBITRARY_MPIR && !LibMpfr.mpfrHasError())) {
+                if(lib == Constants.ARBITRARY_MPFR) {
                     return new PolarLocationNormalMpfrBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(lib == Constants.ARBITRARY_MPIR) {
+                    return new PolarLocationNormalMpirBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if(lib == Constants.ARBITRARY_DOUBLEDOUBLE) {
                     return new PolarLocationNormalDoubleDoubleArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(lib == Constants.ARBITRARY_BUILT_IN) {
+                    return new PolarLocationNormalBigNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(lib == Constants.ARBITRARY_BIGINT) {
+                    return new PolarLocationNormalBigIntNumArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
                     return new PolarLocationNormalApfloatArbitrary(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
@@ -185,22 +192,40 @@ public class Location {
 
         if(polar) {
             if(highPresicion && isDeep) {
-                if(bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
+                if(bignumLib == Constants.BIGNUM_MPFR) {
                     return new PolarLocationDeltaDeepMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(bignumLib == Constants.BIGNUM_MPIR) {
+                    return new PolarLocationDeltaDeepMpirBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(bignumLib == Constants.BIGNUM_BUILT_IN) {
+                    return new PolarLocationDeltaDeepBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if(bignumLib == Constants.BIGNUM_BIGINT) {
+                    return new PolarLocationDeltaDeepBigIntNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
                     return new PolarLocationDeltaDeepApfloat(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
             }
             else if(highPresicion) {
-                if (bignumLib == Constants.BIGNUM_MPFR || (bignumLib == Constants.BIGNUM_MPIR && !LibMpfr.mpfrHasError())) {
+                if (bignumLib == Constants.BIGNUM_MPFR) {
                     return new PolarLocationDeltaMpfrBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if (bignumLib == Constants.BIGNUM_MPIR) {
+                    return new PolarLocationDeltaMpirBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLEDOUBLE) {
                     return new PolarLocationDeltaDoubleDouble(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else if (bignumLib == Constants.BIGNUM_DOUBLE) {
                     return new PolarLocationDeltaDouble(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if (bignumLib == Constants.BIGNUM_BUILT_IN) {
+                    return new PolarLocationDeltaBigNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
+                }
+                else if (bignumLib == Constants.BIGNUM_BIGINT) {
+                    return new PolarLocationDeltaBigIntNum(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
                 }
                 else {
                     return new PolarLocationDeltaApfloat(xCenter, yCenter, size, height_ratio, width, height, circle_period, rotation_center, rotation_vals, fractal, js);
@@ -336,7 +361,24 @@ public class Location {
         else if(loc instanceof PolarLocationDeltaDoubleDouble) {
             return new PolarLocationDeltaDoubleDouble((PolarLocationDeltaDoubleDouble)loc);
         }
-
+        else if(loc instanceof PolarLocationDeltaBigNum) {
+            return new PolarLocationDeltaBigNum((PolarLocationDeltaBigNum)loc);
+        }
+        else if(loc instanceof PolarLocationDeltaDeepBigNum) {
+            return new PolarLocationDeltaDeepBigNum((PolarLocationDeltaDeepBigNum)loc);
+        }
+        else if(loc instanceof PolarLocationDeltaBigIntNum) {
+            return new PolarLocationDeltaBigIntNum((PolarLocationDeltaBigIntNum)loc);
+        }
+        else if(loc instanceof PolarLocationDeltaDeepBigIntNum) {
+            return new PolarLocationDeltaDeepBigIntNum((PolarLocationDeltaDeepBigIntNum)loc);
+        }
+        else if(loc instanceof PolarLocationDeltaMpirBigNum) {
+            return new PolarLocationDeltaMpirBigNum((PolarLocationDeltaMpirBigNum)loc);
+        }
+        else if(loc instanceof PolarLocationDeltaDeepMpirBigNum) {
+            return new PolarLocationDeltaDeepMpirBigNum((PolarLocationDeltaDeepMpirBigNum)loc);
+        }
 
 
         //Add arbitrary at the end
@@ -366,6 +408,15 @@ public class Location {
         }
         else if(loc instanceof PolarLocationNormalDoubleDoubleArbitrary) {
             return new PolarLocationNormalDoubleDoubleArbitrary((PolarLocationNormalDoubleDoubleArbitrary)loc);
+        }
+        else if(loc instanceof PolarLocationNormalBigNumArbitrary) {
+            return new PolarLocationNormalBigNumArbitrary((PolarLocationNormalBigNumArbitrary)loc);
+        }
+        else if(loc instanceof PolarLocationNormalBigIntNumArbitrary) {
+            return new PolarLocationNormalBigIntNumArbitrary((PolarLocationNormalBigIntNumArbitrary)loc);
+        }
+        else if(loc instanceof PolarLocationNormalMpirBigNumArbitrary) {
+            return new PolarLocationNormalMpirBigNumArbitrary((PolarLocationNormalMpirBigNumArbitrary)loc);
         }
 
         return null;
@@ -536,7 +587,7 @@ public class Location {
 
     }
 
-    public BigNum[][] createAntialiasingStepsBigNum(BigNum bntemp_size_image_size_x, BigNum bntemp_size_image_size_y, boolean adaptive, boolean jitter, int samples) {
+    public BigNum[][] createAntialiasingStepsBigNum(BigNum bntemp_size_image_size_x, BigNum bntemp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
 
         BigNum ddx_antialiasing_size;
 
@@ -579,7 +630,16 @@ public class Location {
             ddy_antialiasing_size = bntemp_size_image_size_y.divide4();
         }
 
-        BigNum[][] steps = createAntialiasingStepsBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        BigNum[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsBigNumRotatedGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsBigNumNoise(aaType, samples, bntemp_size_image_size_x, bntemp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsBigNum(steps, ddx_antialiasing_size, ddy_antialiasing_size);
@@ -588,7 +648,7 @@ public class Location {
         return steps;
     }
 
-    public BigIntNum[][] createAntialiasingStepsBigIntNum(BigIntNum bntemp_size_image_size_x, BigIntNum bntemp_size_image_size_y, boolean adaptive, boolean jitter, int samples) {
+    public BigIntNum[][] createAntialiasingStepsBigIntNum(BigIntNum bntemp_size_image_size_x, BigIntNum bntemp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
 
         BigIntNum ddx_antialiasing_size;
 
@@ -631,7 +691,16 @@ public class Location {
             ddy_antialiasing_size = bntemp_size_image_size_y.divide4();
         }
 
-        BigIntNum[][] steps = createAntialiasingStepsBigIntNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        BigIntNum[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsBigIntNumRotatedGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsBigIntNumNoise(aaType, samples, bntemp_size_image_size_x, bntemp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsBigIntNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsBigIntNum(steps, ddx_antialiasing_size, ddy_antialiasing_size);
@@ -945,7 +1014,7 @@ public class Location {
 
     }
 
-    public DoubleDouble[][] createAntialiasingStepsDoubleDouble(DoubleDouble bntemp_size_image_size_x, DoubleDouble bntemp_size_image_size_y, boolean adaptive, boolean jitter, int samples)  {
+    public DoubleDouble[][] createAntialiasingStepsDoubleDouble(DoubleDouble bntemp_size_image_size_x, DoubleDouble bntemp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian)  {
 
         DoubleDouble ddx_antialiasing_size;
 
@@ -993,7 +1062,16 @@ public class Location {
             ddy_antialiasing_size = bntemp_size_image_size_y.multiply(point25);
         }
 
-        DoubleDouble[][] steps = createAntialiasingStepsDoubleDoubleGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        DoubleDouble[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsDoubleDoubleRotatedGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsDoubleDoubleNoise(aaType, samples, bntemp_size_image_size_x, bntemp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsDoubleDoubleGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsDoubleDouble(steps, ddx_antialiasing_size, ddy_antialiasing_size);
@@ -1825,7 +1903,7 @@ public class Location {
 
     }
 
-    public double[][] createAntialiasingStepsDouble(double temp_size_image_size_x, double temp_size_image_size_y, boolean adaptive, boolean jitter, int samples) {
+    public double[][] createAntialiasingStepsDouble(double temp_size_image_size_x, double temp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
 
         double x_antialiasing_size;
         double y_antialiasing_size;
@@ -1863,7 +1941,16 @@ public class Location {
             y_antialiasing_size = temp_size_image_size_y * 0.25;
         }
 
-        double[][] steps = createAntialiasingStepsDoubleGrid(x_antialiasing_size,  y_antialiasing_size, adaptive, samples);
+        double[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsDoubleRotatedGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsDoubleNoise(aaType, samples, temp_size_image_size_x, temp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsDoubleGrid(x_antialiasing_size,  y_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsDouble(steps, x_antialiasing_size, y_antialiasing_size);
@@ -1872,10 +1959,9 @@ public class Location {
         return steps;
     }
 
-    public MantExp[][] createAntialiasingStepsMantexp(MantExp temp_size_image_size_x, MantExp temp_size_image_size_y, boolean adaptive, boolean jitter, int samples) {
+    public MantExp[][] createAntialiasingStepsMantexp(MantExp temp_size_image_size_x, MantExp temp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
 
         MantExp x_antialiasing_size;
-
         MantExp y_antialiasing_size;
 
         if(samples > MAX_AA_SAMPLES_224 && !adaptive) {
@@ -1933,13 +2019,280 @@ public class Location {
             y_antialiasing_size.Normalize();
         }
 
-        MantExp[][] steps = createAntialiasingStepsMantexpGrid(x_antialiasing_size,  y_antialiasing_size, adaptive, samples);
+        MantExp[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsMantExpRotatedGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsMantExpNoise(aaType, samples, temp_size_image_size_x, temp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsMantExpGrid(x_antialiasing_size,  y_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsMantexp(steps, x_antialiasing_size, y_antialiasing_size);
         }
 
         return steps;
+    }
+    private double noiseScale = 1000;
+
+    private List<Point2D.Double> createNoiseSamples(int aaType, int max_samples) {
+        int N = max_samples + 1;
+        int tries = 200;
+        List<Point2D.Double> samples;
+        if (aaType == 1) {
+            samples = PoissonDiskSampling.generatePoissonDiskSamples(noiseScale, noiseScale, N, tries);
+        } else if (aaType == 2) {
+            samples = BlueNoiseSampling.generateBlueNoiseSamples(noiseScale, noiseScale, N, tries);
+        } else {
+            samples = RandomPointSampling.generateRandomSamples(noiseScale, noiseScale, N);
+        }
+        maxSamples = Math.min(samples.size() - 1, max_samples);
+        return samples;
+    }
+
+    private double[][] createAntialiasingPolarStepsDoubleNoise(int aaType, int max_samples, double x_scale, double y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        double[][] data = new double[3][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            data[0][i] = Math.exp((p.x / noiseScale - 0.5) * x_scale);
+            double dy = (p.y / noiseScale - 0.5) * y_scale;
+            data[1][i] = Math.sin(dy);
+            data[2][i] = Math.cos(dy);
+        }
+        return data;
+    }
+
+    private double[][] createAntialiasingStepsDoubleNoise(int aaType, int max_samples, double x_scale, double y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        double[][] data = new double[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            data[0][i] = (p.x / noiseScale - 0.5) * x_scale;
+            data[1][i] = (p.y / noiseScale - 0.5) * y_scale;
+        }
+        return data;
+    }
+
+    private double[][] createAntialiasingPolarStepsDoubleFromGrid(double[][] steps) {
+        int samples = steps[0].length;
+        double[][] data = new double[3][samples];
+        for (int i = 0; i < samples; i++) {
+            double dx = steps[0][i];
+            double dy = steps[1][i];
+            data[0][i] = Math.exp(dx);
+            data[1][i] = Math.sin(dy);
+            data[2][i] = Math.cos(dy);
+        }
+        return data;
+    }
+
+    private double[][] createAntialiasingStepsDoubleRotatedGrid(double x_antialiasing_size, double y_antialiasing_size, boolean adaptive, int samples) {
+        double[][] steps = createAntialiasingStepsDoubleGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        double cosa = Math.cos(rads);
+        double sina = Math.sin(rads);
+        for(int i = 0; i < samples; i++) {
+            double x = steps[0][i];
+            double y = steps[1][i];
+            steps[0][i] = x * cosa - y * sina;
+            steps[1][i] = x * sina + y * cosa;
+        }
+        return steps;
+    }
+
+    private MantExp[][] createAntialiasingStepsMantExpRotatedGrid(MantExp x_antialiasing_size, MantExp y_antialiasing_size, boolean adaptive, int samples) {
+        MantExp[][] steps = createAntialiasingStepsMantExpGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        MantExp cosa = new MantExp(Math.cos(rads));
+        MantExp sina = new MantExp(Math.sin(rads));
+        for(int i = 0; i < samples; i++) {
+            MantExp x = steps[0][i];
+            MantExp y = steps[1][i];
+            steps[0][i] = x.multiply(cosa).subtract_mutable(y.multiply(sina));
+            steps[1][i] = x.multiply(sina).add_mutable(y.multiply(cosa));
+            steps[0][i].Normalize();
+            steps[1][i].Normalize();
+        }
+        return steps;
+    }
+
+    private DoubleDouble[][] createAntialiasingStepsDoubleDoubleRotatedGrid(DoubleDouble x_antialiasing_size, DoubleDouble y_antialiasing_size, boolean adaptive, int samples) {
+        DoubleDouble[][] steps = createAntialiasingStepsDoubleDoubleGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        DoubleDouble cosa = new DoubleDouble(Math.cos(rads));
+        DoubleDouble sina = new DoubleDouble(Math.sin(rads));
+        for(int i = 0; i < samples; i++) {
+            DoubleDouble x = steps[0][i];
+            DoubleDouble y = steps[1][i];
+            steps[0][i] = x.multiply(cosa).subtract(y.multiply(sina));
+            steps[1][i] = x.multiply(sina).add(y.multiply(cosa));
+        }
+        return steps;
+    }
+
+    private BigNum[][] createAntialiasingStepsBigNumRotatedGrid(BigNum x_antialiasing_size, BigNum y_antialiasing_size, boolean adaptive, int samples) {
+        BigNum[][] steps = createAntialiasingStepsBigNumGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        BigNum cosa = BigNum.create(Math.cos(rads));
+        BigNum sina = BigNum.create(Math.sin(rads));
+        for(int i = 0; i < samples; i++) {
+            BigNum x = steps[0][i];
+            BigNum y = steps[1][i];
+            steps[0][i] = x.mult(cosa).sub(y.mult(sina));
+            steps[1][i] = x.mult(sina).add(y.mult(cosa));
+        }
+        return steps;
+    }
+
+    private BigIntNum[][] createAntialiasingStepsBigIntNumRotatedGrid(BigIntNum x_antialiasing_size, BigIntNum y_antialiasing_size, boolean adaptive, int samples) {
+        BigIntNum[][] steps = createAntialiasingStepsBigIntNumGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        BigIntNum cosa = new BigIntNum(Math.cos(rads));
+        BigIntNum sina = new BigIntNum(Math.sin(rads));
+        for(int i = 0; i < samples; i++) {
+            BigIntNum x = steps[0][i];
+            BigIntNum y = steps[1][i];
+            steps[0][i] = x.mult(cosa).sub(y.mult(sina));
+            steps[1][i] = x.mult(sina).add(y.mult(cosa));
+        }
+        return steps;
+    }
+
+    private Apfloat[][] createAntialiasingStepsApfloatRotatedGrid(Apfloat x_antialiasing_size, Apfloat y_antialiasing_size, boolean adaptive, int samples) {
+        Apfloat[][] steps = createAntialiasingStepsApfloatGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        Apfloat cosa = new MyApfloat(Math.cos(rads));
+        Apfloat sina = new MyApfloat(Math.sin(rads));
+        for(int i = 0; i < samples; i++) {
+            Apfloat x = steps[0][i];
+            Apfloat y = steps[1][i];
+            steps[0][i] = MyApfloat.fp.subtract(MyApfloat.fp.multiply(x, cosa), MyApfloat.fp.multiply(y, sina));
+            steps[1][i] = MyApfloat.fp.add(MyApfloat.fp.multiply(x, sina), MyApfloat.fp.multiply(y, cosa));
+        }
+        return steps;
+    }
+
+    private MpfrBigNum[][] createAntialiasingStepsMpfrBigNumRotatedGrid(MpfrBigNum x_antialiasing_size, MpfrBigNum y_antialiasing_size, boolean adaptive, int samples) {
+        MpfrBigNum[][] steps = createAntialiasingStepsMpfrBigNumGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        MpfrBigNum cosa = new MpfrBigNum(Math.cos(rads));
+        MpfrBigNum sina = new MpfrBigNum(Math.sin(rads));
+        for(int i = 0; i < samples; i++) {
+            MpfrBigNum x = steps[0][i];
+            MpfrBigNum y = steps[1][i];
+            MpfrBigNum tempx = x.mult(cosa);
+            tempx.sub(y.mult(sina), tempx);
+            steps[0][i] = tempx;
+            MpfrBigNum tempy = x.mult(sina);
+            tempy.add(y.mult(cosa), tempy);
+            steps[1][i] = tempy;
+        }
+        return steps;
+    }
+
+    private MpirBigNum[][] createAntialiasingStepsMpirBigNumRotatedGrid(MpirBigNum x_antialiasing_size, MpirBigNum y_antialiasing_size, boolean adaptive, int samples) {
+        MpirBigNum[][] steps = createAntialiasingStepsMpirBigNumGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double rads = Math.toRadians(ROTATED_GRID_ANGLE);
+        MpirBigNum cosa = new MpirBigNum(Math.cos(rads));
+        MpirBigNum sina = new MpirBigNum(Math.sin(rads));
+        for(int i = 0; i < samples; i++) {
+            MpirBigNum x = steps[0][i];
+            MpirBigNum y = steps[1][i];
+            MpirBigNum tempx = x.mult(cosa);
+            tempx.sub(y.mult(sina), tempx);
+            steps[0][i] = tempx;
+            MpirBigNum tempy = x.mult(sina);
+            tempy.add(y.mult(cosa), tempy);
+            steps[1][i] = tempy;
+        }
+        return steps;
+    }
+
+    private DoubleDouble[][] createAntialiasingStepsDoubleDoubleNoise(int aaType, int max_samples, DoubleDouble x_scale, DoubleDouble y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        DoubleDouble[][] data = new DoubleDouble[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            data[0][i] = x_scale.multiply(p.x / noiseScale - 0.5);
+            data[1][i] = y_scale.multiply(p.y / noiseScale - 0.5);
+        }
+        return data;
+    }
+
+    private Apfloat[][] createAntialiasingStepsApfloatNoise(int aaType, int max_samples, Apfloat x_scale, Apfloat y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        Apfloat[][] data = new Apfloat[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            data[0][i] = MyApfloat.fp.multiply(x_scale, new MyApfloat(p.x / noiseScale - 0.5));
+            data[1][i] = MyApfloat.fp.multiply(y_scale, new MyApfloat(p.y / noiseScale - 0.5));
+        }
+        return data;
+    }
+
+    private BigNum[][] createAntialiasingStepsBigNumNoise(int aaType, int max_samples, BigNum x_scale, BigNum y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        BigNum[][] data = new BigNum[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            data[0][i] = x_scale.mult(BigNum.create(p.x / noiseScale - 0.5));
+            data[1][i] = y_scale.mult(BigNum.create(p.y / noiseScale - 0.5));
+        }
+        return data;
+    }
+
+    private MpfrBigNum[][] createAntialiasingStepsMpfrBigNumNoise(int aaType, int max_samples, MpfrBigNum x_scale, MpfrBigNum y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        MpfrBigNum[][] data = new MpfrBigNum[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            MpfrBigNum tempx = new MpfrBigNum(p.x / noiseScale - 0.5);
+            MpfrBigNum tempy = new MpfrBigNum(p.y / noiseScale - 0.5);
+            data[0][i] = tempx.mult(x_scale, tempx);
+            data[1][i] = tempy.mult(y_scale, tempy);
+        }
+        return data;
+    }
+
+    private MpirBigNum[][] createAntialiasingStepsMpirBigNumNoise(int aaType, int max_samples, MpirBigNum x_scale, MpirBigNum y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        MpirBigNum[][] data = new MpirBigNum[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            MpirBigNum tempx = new MpirBigNum(p.x / noiseScale - 0.5);
+            MpirBigNum tempy = new MpirBigNum(p.y / noiseScale - 0.5);
+            data[0][i] = tempx.mult(x_scale, tempx);
+            data[1][i] = tempy.mult(y_scale, tempy);
+        }
+        return data;
+    }
+
+    private BigIntNum[][] createAntialiasingStepsBigIntNumNoise(int aaType, int max_samples, BigIntNum x_scale, BigIntNum y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        BigIntNum[][] data = new BigIntNum[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            data[0][i] = x_scale.mult(new BigIntNum(p.x / noiseScale - 0.5));
+            data[1][i] = y_scale.mult(new BigIntNum(p.y / noiseScale - 0.5));
+        }
+        return data;
+    }
+
+    private MantExp[][] createAntialiasingStepsMantExpNoise(int aaType, int max_samples, MantExp x_scale, MantExp y_scale) {
+        List<Point2D.Double> samples = createNoiseSamples(aaType, max_samples);
+        MantExp[][] data = new MantExp[2][maxSamples];
+        for (int i = 0; i < maxSamples; i++) {
+            Point2D.Double p = samples.get(i + 1);
+            data[0][i] = x_scale.multiply(p.x / noiseScale - 0.5);
+            data[1][i] = y_scale.multiply(p.y / noiseScale - 0.5);
+            data[0][i].Normalize();
+            data[1][i].Normalize();
+        }
+        return data;
     }
 
     public double[][] createAntialiasingStepsDoubleGrid(double x_antialiasing_size, double y_antialiasing_size, boolean adaptive, int max_samples)  {
@@ -2137,7 +2490,7 @@ public class Location {
     }
 
 
-    public MantExp[][] createAntialiasingStepsMantexpGrid(MantExp x_antialiasing_size, MantExp y_antialiasing_size, boolean adaptive, int max_samples) {
+    public MantExp[][] createAntialiasingStepsMantExpGrid(MantExp x_antialiasing_size, MantExp y_antialiasing_size, boolean adaptive, int max_samples) {
 
         MantExp x_antialiasing_size_x2, x_antialiasing_size_x3 = null, x_antialiasing_size_x4 = null, x_antialiasing_size_x5 = null, x_antialiasing_size_x6 = null, x_antialiasing_size_x7 = null, x_antialiasing_size_x8 = null;
 
@@ -2291,7 +2644,7 @@ public class Location {
         return data;
     }
 
-    public Apfloat[][] createAntialiasingStepsApfloat(Apfloat ddtemp_size_image_size_x, Apfloat ddtemp_size_image_size_y, boolean adaptive, boolean jitter, int samples) {
+    public Apfloat[][] createAntialiasingStepsApfloat(Apfloat ddtemp_size_image_size_x, Apfloat ddtemp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
 
 
         Apfloat ddx_antialiasing_size;
@@ -2336,8 +2689,16 @@ public class Location {
             ddy_antialiasing_size = MyApfloat.fp.multiply(ddtemp_size_image_size_y, point25);
         }
 
-
-        Apfloat[][] steps = createAntialiasingStepsApfloatGrid(ddx_antialiasing_size,  ddy_antialiasing_size, adaptive, samples);
+        Apfloat[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsApfloatRotatedGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsApfloatNoise(aaType, samples, ddtemp_size_image_size_x, ddtemp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsApfloatGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsApfloat(steps, ddx_antialiasing_size, ddy_antialiasing_size);
@@ -2505,7 +2866,7 @@ public class Location {
     }
 
 
-    public MpfrBigNum[][] createAntialiasingStepsMpfrBigNum(MpfrBigNum ddtemp_size_image_size_x, MpfrBigNum ddtemp_size_image_size_y, boolean adaptive, boolean jitter, int samples) {
+    public MpfrBigNum[][] createAntialiasingStepsMpfrBigNum(MpfrBigNum ddtemp_size_image_size_x, MpfrBigNum ddtemp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
 
         MpfrBigNum ddx_antialiasing_size;
 
@@ -2552,7 +2913,16 @@ public class Location {
             ddy_antialiasing_size = ddtemp_size_image_size_y.divide4();
         }
 
-        MpfrBigNum[][] steps = createAntialiasingStepsMpfrBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        MpfrBigNum[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsMpfrBigNumRotatedGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsMpfrBigNumNoise(aaType, samples, ddtemp_size_image_size_x, ddtemp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsMpfrBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsMpfrBigNum(steps, ddx_antialiasing_size, ddy_antialiasing_size);
@@ -2746,7 +3116,7 @@ public class Location {
         }
     }
 
-    public MpirBigNum[][] createAntialiasingStepsMpirBigNum(MpirBigNum ddtemp_size_image_size_x, MpirBigNum ddtemp_size_image_size_y, boolean adaptive, boolean jitter, int samples) {
+    public MpirBigNum[][] createAntialiasingStepsMpirBigNum(MpirBigNum ddtemp_size_image_size_x, MpirBigNum ddtemp_size_image_size_y, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
 
         MpirBigNum ddx_antialiasing_size;
 
@@ -2793,7 +3163,16 @@ public class Location {
             ddy_antialiasing_size = ddtemp_size_image_size_y.divide4();
         }
 
-        MpirBigNum[][] steps = createAntialiasingStepsMpirBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        MpirBigNum[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if (aaType == 4) {
+                steps = createAntialiasingStepsMpirBigNumRotatedGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+            } else {
+                steps = createAntialiasingStepsMpirBigNumNoise(aaType, samples, ddtemp_size_image_size_x, ddtemp_size_image_size_y);
+            }
+        } else {
+            steps = createAntialiasingStepsMpirBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingStepsMpirBigNum(steps, ddx_antialiasing_size, ddy_antialiasing_size);
@@ -2965,7 +3344,7 @@ public class Location {
         }
     }
 
-    public double[][] createAntialiasingPolarStepsDouble(double mulx, double muly, boolean adaptive, boolean jitter, int samples) {
+    public double[][] createAntialiasingPolarStepsDouble(double mulx, double muly, boolean adaptive, boolean jitter, int aaType, int samples, boolean gaussian) {
         double y_antialiasing_size;
         double x_antialiasing_size;
 
@@ -3002,7 +3381,17 @@ public class Location {
             x_antialiasing_size = mulx * 0.25;
         }
 
-        double[][] steps = createAntialiasingPolarStepsDoubleGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        double[][] steps;
+        if (!gaussian && !adaptive && aaType > 0) {
+            if(aaType == 4) {
+                steps = createAntialiasingStepsDoubleRotatedGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+                steps = createAntialiasingPolarStepsDoubleFromGrid(steps);
+            } else {
+                steps = createAntialiasingPolarStepsDoubleNoise(aaType, samples, mulx, muly);
+            }
+        } else {
+            steps = createAntialiasingPolarStepsDoubleGrid(x_antialiasing_size, y_antialiasing_size, adaptive, samples);
+        }
 
         if(jitter) {
             precalculateJitterToAntialiasingPolarStepsDouble(steps, x_antialiasing_size, y_antialiasing_size);
@@ -3245,1002 +3634,6 @@ public class Location {
 
 
         return data;
-    }
-
-    private void precalculateJitterToAntialiasingPolarStepsApfloat(Apfloat[][] steps, Apfloat ddx_antialiasing_size, Apfloat ddy_antialiasing_size) {
-
-        Apfloat[] temp_x = steps[0];
-        Apfloat[] temp_y_sin = steps[1];
-        Apfloat[] temp_y_cos = steps[2];
-
-        precalculatedJitterDataPolarApfloat = new Apfloat[NUMBER_OF_AA_JITTER_KERNELS][steps.length][temp_x.length];
-
-        for(int k = 0; k < NUMBER_OF_AA_JITTER_KERNELS; k++) {
-            for (int i = 0; i < temp_x.length; i++) {
-                precalculatedJitterDataPolarApfloat[k][0][i] = MyApfloat.fp.multiply(temp_x[i], MyApfloat.exp(MyApfloat.fp.multiply(new MyApfloat(aaJitterKernelX[k][i]), ddx_antialiasing_size)));
-                Apfloat temp = MyApfloat.fp.multiply(new MyApfloat(aaJitterKernelY[k][i]), ddy_antialiasing_size);
-                Apfloat cosJitter = MyApfloat.cos(temp);
-                Apfloat sinJitter = MyApfloat.sin(temp);
-                Apfloat tempSin = MyApfloat.fp.add(MyApfloat.fp.multiply(temp_y_sin[i], cosJitter), MyApfloat.fp.multiply(temp_y_cos[i], sinJitter));
-                Apfloat tempCos = MyApfloat.fp.subtract(MyApfloat.fp.multiply(temp_y_cos[i], cosJitter), MyApfloat.fp.multiply(temp_y_sin[i], sinJitter));
-                precalculatedJitterDataPolarApfloat[k][1][i] = tempSin;
-                precalculatedJitterDataPolarApfloat[k][2][i] = tempCos;
-            }
-        }
-    }
-
-    public Apfloat[][] createAntialiasingPolarStepsApfloat(Apfloat ddmulx, Apfloat ddmuly, boolean adaptive, boolean jitter, int samples) {
-
-        Apfloat ddy_antialiasing_size;
-        Apfloat ddx_antialiasing_size;
-
-        if(samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            Apfloat oneSixteenth = new MyApfloat(0.0625);
-
-            ddy_antialiasing_size = ddmuly.multiply(oneSixteenth);
-            ddx_antialiasing_size = ddmulx.multiply(oneSixteenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            Apfloat oneFourteenth = MyApfloat.reciprocal(new MyApfloat(14.0));
-
-            ddy_antialiasing_size = ddmuly.multiply(oneFourteenth);
-            ddx_antialiasing_size = ddmulx.multiply(oneFourteenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            Apfloat oneTwelveth = MyApfloat.reciprocal(new MyApfloat(12.0));
-
-            ddy_antialiasing_size = ddmuly.multiply(oneTwelveth);
-            ddx_antialiasing_size = ddmulx.multiply(oneTwelveth);
-        }
-        else if(samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            Apfloat oneTenth = MyApfloat.reciprocal(new MyApfloat(10.0));
-
-            ddy_antialiasing_size = ddmuly.multiply(oneTenth);
-            ddx_antialiasing_size = ddmulx.multiply(oneTenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            Apfloat pointonetwofive = new Apfloat(0.125);
-
-            ddy_antialiasing_size = ddmuly.multiply(pointonetwofive);
-            ddx_antialiasing_size = ddmulx.multiply(pointonetwofive);
-        }
-        else if(samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            Apfloat oneSixth = MyApfloat.reciprocal(new MyApfloat(6.0));
-            ddy_antialiasing_size = ddmuly.multiply(oneSixth);
-            ddx_antialiasing_size = ddmulx.multiply(oneSixth);
-        }
-        else {
-            Apfloat point25 = new MyApfloat(0.25);
-            ddy_antialiasing_size = MyApfloat.fp.multiply(ddmuly, point25);
-            ddx_antialiasing_size = MyApfloat.fp.multiply(ddmulx, point25);
-        }
-
-        Apfloat[][] steps = createAntialiasingPolarStepsApfloatGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
-
-        if(jitter) {
-            precalculateJitterToAntialiasingPolarStepsApfloat(steps, ddx_antialiasing_size, ddy_antialiasing_size);
-        }
-
-        return steps;
-    }
-
-    public Apfloat[][] createAntialiasingPolarStepsApfloatGrid(Apfloat ddx_antialiasing_size, Apfloat ddy_antialiasing_size, boolean adaptive, int max_samples) {
-
-        Apfloat exp_x_antialiasing_size = MyApfloat.exp(ddx_antialiasing_size);
-        Apfloat exp_inv_x_antialiasing_size = MyApfloat.reciprocal(exp_x_antialiasing_size);
-
-        Apfloat exp_x_antialiasing_size_x2 = MyApfloat.fp.multiply(exp_x_antialiasing_size, exp_x_antialiasing_size);
-        Apfloat exp_inv_x_antialiasing_size_x2 = MyApfloat.reciprocal(exp_x_antialiasing_size_x2);
-
-        Apfloat one = MyApfloat.ONE;
-
-        Apfloat sin_y_antialiasing_size = MyApfloat.sin(ddy_antialiasing_size);
-        Apfloat cos_y_antialiasing_size = MyApfloat.cos(ddy_antialiasing_size);
-
-        Apfloat sin_inv_y_antialiasing_size = sin_y_antialiasing_size.negate();
-        Apfloat cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
-
-        Apfloat _2cos_y_antialiasing_size = MyApfloat.fp.multiply(cos_y_antialiasing_size, MyApfloat.TWO);
-        Apfloat sin_y_antialiasing_size_x2 = MyApfloat.fp.multiply(_2cos_y_antialiasing_size, sin_y_antialiasing_size);
-        Apfloat cos_y_antialiasing_size_x2 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(_2cos_y_antialiasing_size, cos_y_antialiasing_size), one);
-
-        Apfloat sin_inv_y_antialiasing_size_x2 = sin_y_antialiasing_size_x2.negate();
-        Apfloat cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
-
-        Apfloat exp_x_antialiasing_size_x3 = null, exp_inv_x_antialiasing_size_x3 = null, exp_x_antialiasing_size_x4 = null, exp_inv_x_antialiasing_size_x4 = null, exp_x_antialiasing_size_x5 = null, exp_inv_x_antialiasing_size_x5 = null, exp_x_antialiasing_size_x6 = null, exp_inv_x_antialiasing_size_x6 = null, exp_x_antialiasing_size_x7 = null, exp_inv_x_antialiasing_size_x7 = null, exp_x_antialiasing_size_x8 = null, exp_inv_x_antialiasing_size_x8 = null;
-        Apfloat sin_y_antialiasing_size_x3 = null, sin_inv_y_antialiasing_size_x3 = null, sin_y_antialiasing_size_x4 = null, sin_inv_y_antialiasing_size_x4 = null, sin_y_antialiasing_size_x5 = null, sin_inv_y_antialiasing_size_x5 = null, sin_y_antialiasing_size_x6 = null, sin_inv_y_antialiasing_size_x6 = null, sin_y_antialiasing_size_x7 = null, sin_inv_y_antialiasing_size_x7 = null, sin_y_antialiasing_size_x8 = null, sin_inv_y_antialiasing_size_x8 = null;
-        Apfloat cos_y_antialiasing_size_x3 = null, cos_inv_y_antialiasing_size_x3 = null, cos_y_antialiasing_size_x4 = null, cos_inv_y_antialiasing_size_x4 = null, cos_y_antialiasing_size_x5 = null, cos_inv_y_antialiasing_size_x5 = null, cos_y_antialiasing_size_x6 = null, cos_inv_y_antialiasing_size_x6 = null, cos_y_antialiasing_size_x7 = null, cos_inv_y_antialiasing_size_x7 = null, cos_y_antialiasing_size_x8 = null, cos_inv_y_antialiasing_size_x8 = null;
-
-
-        Apfloat _2cos_y_antialiasing_size_x2 = null;
-        if(max_samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            exp_x_antialiasing_size_x3 = MyApfloat.fp.multiply(exp_x_antialiasing_size_x2, exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x3 = MyApfloat.reciprocal(exp_x_antialiasing_size_x3);
-
-            _2cos_y_antialiasing_size_x2 = MyApfloat.fp.multiply(cos_y_antialiasing_size_x2, MyApfloat.TWO);
-            sin_y_antialiasing_size_x3 = MyApfloat.fp.multiply(MyApfloat.fp.add(_2cos_y_antialiasing_size_x2, one), sin_y_antialiasing_size);
-            cos_y_antialiasing_size_x3 = MyApfloat.fp.multiply(MyApfloat.fp.subtract(_2cos_y_antialiasing_size_x2, one), cos_y_antialiasing_size);
-
-            sin_inv_y_antialiasing_size_x3 = sin_y_antialiasing_size_x3.negate();
-            cos_inv_y_antialiasing_size_x3 = cos_y_antialiasing_size_x3;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            exp_x_antialiasing_size_x4 = MyApfloat.fp.multiply(exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2);
-            exp_inv_x_antialiasing_size_x4 = MyApfloat.reciprocal(exp_x_antialiasing_size_x4);
-
-            cos_y_antialiasing_size_x4 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(_2cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x2), one);
-            sin_y_antialiasing_size_x4 = MyApfloat.fp.multiply(sin_y_antialiasing_size_x2, _2cos_y_antialiasing_size_x2);
-
-            sin_inv_y_antialiasing_size_x4 = sin_y_antialiasing_size_x4.negate();
-            cos_inv_y_antialiasing_size_x4 = cos_y_antialiasing_size_x4;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            exp_x_antialiasing_size_x5 = MyApfloat.fp.multiply(exp_x_antialiasing_size_x4, exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x5 = MyApfloat.reciprocal(exp_x_antialiasing_size_x5);
-
-            cos_y_antialiasing_size_x5 = MyApfloat.fp.multiply(cos_y_antialiasing_size, MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.subtract(cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x2), MyApfloat.TWO), one));
-            sin_y_antialiasing_size_x5 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(_2cos_y_antialiasing_size_x2, sin_y_antialiasing_size_x4), sin_y_antialiasing_size_x3);
-
-            sin_inv_y_antialiasing_size_x5 = sin_y_antialiasing_size_x5.negate();
-            cos_inv_y_antialiasing_size_x5 = cos_y_antialiasing_size_x5;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            exp_x_antialiasing_size_x6 = MyApfloat.fp.multiply(exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3);
-            exp_inv_x_antialiasing_size_x6 = MyApfloat.reciprocal(exp_x_antialiasing_size_x6);
-
-            cos_y_antialiasing_size_x6 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(MyApfloat.fp.multiply(cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x3), MyApfloat.TWO), one);
-            sin_y_antialiasing_size_x6 = MyApfloat.fp.multiply(MyApfloat.fp.multiply(cos_y_antialiasing_size_x3, MyApfloat.TWO), sin_y_antialiasing_size_x3);
-
-            sin_inv_y_antialiasing_size_x6 = sin_y_antialiasing_size_x6.negate();
-            cos_inv_y_antialiasing_size_x6 = cos_y_antialiasing_size_x6;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            exp_x_antialiasing_size_x7 = MyApfloat.fp.multiply(exp_x_antialiasing_size_x6, exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x7 = MyApfloat.reciprocal(exp_x_antialiasing_size_x7);
-
-            Apfloat temp = MyApfloat.fp.add(cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x6);
-            cos_y_antialiasing_size_x7 = MyApfloat.fp.multiply(cos_y_antialiasing_size, MyApfloat.fp.subtract(MyApfloat.fp.multiply(MyApfloat.fp.subtract(temp, cos_y_antialiasing_size_x4), MyApfloat.TWO), one));
-            sin_y_antialiasing_size_x7 = MyApfloat.fp.multiply(sin_y_antialiasing_size, MyApfloat.fp.add(MyApfloat.fp.multiply(MyApfloat.fp.add(temp, cos_y_antialiasing_size_x4), MyApfloat.TWO), one));
-
-            sin_inv_y_antialiasing_size_x7 = sin_y_antialiasing_size_x7.negate();
-            cos_inv_y_antialiasing_size_x7 = cos_y_antialiasing_size_x7;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            exp_x_antialiasing_size_x8 = MyApfloat.fp.multiply(exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4);
-            exp_inv_x_antialiasing_size_x8 = MyApfloat.reciprocal(exp_x_antialiasing_size_x8);
-
-            cos_y_antialiasing_size_x8 = MyApfloat.fp.subtract(MyApfloat.fp.multiply(MyApfloat.fp.multiply(cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x4), MyApfloat.TWO), one);
-            sin_y_antialiasing_size_x8 = MyApfloat.fp.multiply(MyApfloat.fp.multiply(cos_y_antialiasing_size_x4, MyApfloat.TWO), sin_y_antialiasing_size_x4);
-
-            sin_inv_y_antialiasing_size_x8 = sin_y_antialiasing_size_x8.negate();
-            cos_inv_y_antialiasing_size_x8 = cos_y_antialiasing_size_x8;
-        }
-
-        Apfloat zero = MyApfloat.ZERO;
-
-        Apfloat[][] data;
-
-        if(!adaptive) {
-
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, one, one, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
-
-
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
-                    zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
-                    sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
-
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
-                    one, one, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
-                    cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
-
-
-            data = new Apfloat[][] {temp_x, temp_y_sin, temp_y_cos};
-        }
-        else {
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,                      one,                       one,
-                    exp_inv_x_antialiasing_size_x2,exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,  exp_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one
-
-            };
-
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    zero, zero, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size, zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size
-
-            };
-
-
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    one, one, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size, one, one, cos_inv_y_antialiasing_size, cos_y_antialiasing_size
-
-
-            };
-
-            data = new Apfloat[][] {temp_x, temp_y_sin, temp_y_cos};
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            //Not implemented for adaptive
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, one, one, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3,
-                    exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3,
-                    exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3
-            };
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size_x3, zero, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, zero, sin_y_antialiasing_size_x3,
-                    sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size
-            };
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size_x3, one, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, one, cos_y_antialiasing_size_x3,
-                    cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size
-            };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            //Not implemented for adaptive
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, one, one, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4,
-                    exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4
-            };
-
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x4,
-                    sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size_x3
-            };
-
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x4,
-                    cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size_x3
-            };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            //Not implemented for adaptive
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, };
-
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, };
-
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            //Not implemented for adaptive
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, };
-
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, };
-
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            //Not implemented for adaptive
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, };
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, };
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            //Not implemented for adaptive
-            Apfloat[] temp_x = {exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, };
-            Apfloat[] temp_y_sin = {sin_inv_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_y_antialiasing_size_x8, };
-            Apfloat[] temp_y_cos = {cos_inv_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_y_antialiasing_size_x8, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        return data;
-
-    }
-
-    private void precalculateJitterToAntialiasingPolarStepsDoubleDouble(DoubleDouble[][] steps, DoubleDouble ddx_antialiasing_size, DoubleDouble ddy_antialiasing_size) {
-
-        DoubleDouble[] temp_x = steps[0];
-        DoubleDouble[] temp_y_sin = steps[1];
-        DoubleDouble[] temp_y_cos = steps[2];
-
-        precalculatedJitterDataPolarDoubleDouble = new DoubleDouble[NUMBER_OF_AA_JITTER_KERNELS][steps.length][temp_x.length];
-
-        for(int k = 0; k < NUMBER_OF_AA_JITTER_KERNELS; k++) {
-            for (int i = 0; i < temp_x.length; i++) {
-                precalculatedJitterDataPolarDoubleDouble[k][0][i] = temp_x[i].multiply(new DoubleDouble(aaJitterKernelX[k][i]).multiply(ddx_antialiasing_size).exp());
-                DoubleDouble temp = new DoubleDouble(aaJitterKernelY[k][i]).multiply(ddy_antialiasing_size);
-                DoubleDouble cosJitter = temp.cos();
-                DoubleDouble sinJitter = temp.sin();
-                DoubleDouble tempSin = temp_y_sin[i].multiply(cosJitter).add(temp_y_cos[i].multiply(sinJitter));
-                DoubleDouble tempCos = temp_y_cos[i].multiply(cosJitter).subtract(temp_y_sin[i].multiply(sinJitter));
-                precalculatedJitterDataPolarDoubleDouble[k][1][i] = tempSin;
-                precalculatedJitterDataPolarDoubleDouble[k][2][i]= tempCos;
-            }
-        }
-    }
-
-    public DoubleDouble[][] createAntialiasingPolarStepsDoubleDouble(DoubleDouble ddmulx, DoubleDouble ddmuly, boolean adaptive, boolean jitter, int samples) {
-
-
-        DoubleDouble ddy_antialiasing_size;
-        DoubleDouble ddx_antialiasing_size;
-
-        if(samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            DoubleDouble oneSixteenth = new DoubleDouble(0.0625);
-
-            ddy_antialiasing_size = ddmuly.multiply(oneSixteenth);
-            ddx_antialiasing_size = ddmulx.multiply(oneSixteenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            DoubleDouble oneFourteenth = new DoubleDouble(1.0).divide(new DoubleDouble(14.0));
-
-            ddy_antialiasing_size = ddmuly.multiply(oneFourteenth);
-            ddx_antialiasing_size = ddmulx.multiply(oneFourteenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            DoubleDouble oneTwelveth = new DoubleDouble(1.0).divide(new DoubleDouble(12.0));
-
-            ddy_antialiasing_size = ddmuly.multiply(oneTwelveth);
-            ddx_antialiasing_size = ddmulx.multiply(oneTwelveth);
-        }
-        else if(samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            DoubleDouble oneTenth = new DoubleDouble(1.0).divide(new DoubleDouble(10.0));
-
-            ddy_antialiasing_size = ddmuly.multiply(oneTenth);
-            ddx_antialiasing_size = ddmulx.multiply(oneTenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            DoubleDouble pointonetwofive = new DoubleDouble(0.125);
-
-            ddy_antialiasing_size = ddmuly.multiply(pointonetwofive);
-            ddx_antialiasing_size = ddmulx.multiply(pointonetwofive);
-        }
-        else if(samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            DoubleDouble oneSixth = new DoubleDouble(1.0).divide(new DoubleDouble(6.0));
-            ddy_antialiasing_size = ddmuly.multiply(oneSixth);
-            ddx_antialiasing_size = ddmulx.multiply(oneSixth);
-        }
-        else {
-            DoubleDouble point25 = new DoubleDouble(0.25);
-
-            ddy_antialiasing_size = ddmuly.multiply(point25);
-            ddx_antialiasing_size = ddmulx.multiply(point25);
-        }
-
-        DoubleDouble[][] steps = createAntialiasingPolarStepsDoubleDoubleGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
-
-        if(jitter) {
-            precalculateJitterToAntialiasingPolarStepsDoubleDouble(steps, ddx_antialiasing_size, ddy_antialiasing_size);
-        }
-
-        return steps;
-    }
-
-    public DoubleDouble[][] createAntialiasingPolarStepsDoubleDoubleGrid(DoubleDouble ddx_antialiasing_size, DoubleDouble ddy_antialiasing_size, boolean adaptive, int max_samples) {
-
-        DoubleDouble exp_x_antialiasing_size = ddx_antialiasing_size.exp();
-        DoubleDouble exp_inv_x_antialiasing_size = exp_x_antialiasing_size.reciprocal();
-
-        DoubleDouble exp_x_antialiasing_size_x2 = exp_x_antialiasing_size.sqr();
-        DoubleDouble exp_inv_x_antialiasing_size_x2 = exp_x_antialiasing_size_x2.reciprocal();
-
-        DoubleDouble one = new DoubleDouble(1.0);
-
-        DoubleDouble sin_y_antialiasing_size = ddy_antialiasing_size.sin();
-        DoubleDouble cos_y_antialiasing_size = ddy_antialiasing_size.cos();
-
-        DoubleDouble sin_inv_y_antialiasing_size = sin_y_antialiasing_size.negate();
-        DoubleDouble cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
-
-        DoubleDouble _2cos_y_antialiasing_size = cos_y_antialiasing_size.multiply(2);
-        DoubleDouble sin_y_antialiasing_size_x2 = sin_y_antialiasing_size.multiply(_2cos_y_antialiasing_size);
-        DoubleDouble cos_y_antialiasing_size_x2 = _2cos_y_antialiasing_size.multiply(cos_y_antialiasing_size).subtract(one);
-
-        DoubleDouble sin_inv_y_antialiasing_size_x2 = sin_y_antialiasing_size_x2.negate();
-        DoubleDouble cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
-
-        DoubleDouble exp_x_antialiasing_size_x3 = null, exp_inv_x_antialiasing_size_x3 = null, exp_x_antialiasing_size_x4 = null, exp_inv_x_antialiasing_size_x4 = null, exp_x_antialiasing_size_x5 = null, exp_inv_x_antialiasing_size_x5 = null, exp_x_antialiasing_size_x6 = null, exp_inv_x_antialiasing_size_x6 = null, exp_x_antialiasing_size_x7 = null, exp_inv_x_antialiasing_size_x7 = null, exp_x_antialiasing_size_x8 = null, exp_inv_x_antialiasing_size_x8 = null;
-        DoubleDouble sin_y_antialiasing_size_x3 = null, sin_inv_y_antialiasing_size_x3 = null, sin_y_antialiasing_size_x4 = null, sin_inv_y_antialiasing_size_x4 = null, sin_y_antialiasing_size_x5 = null, sin_inv_y_antialiasing_size_x5 = null, sin_y_antialiasing_size_x6 = null, sin_inv_y_antialiasing_size_x6 = null, sin_y_antialiasing_size_x7 = null, sin_inv_y_antialiasing_size_x7 = null, sin_y_antialiasing_size_x8 = null, sin_inv_y_antialiasing_size_x8 = null;
-        DoubleDouble cos_y_antialiasing_size_x3 = null, cos_inv_y_antialiasing_size_x3 = null, cos_y_antialiasing_size_x4 = null, cos_inv_y_antialiasing_size_x4 = null, cos_y_antialiasing_size_x5 = null, cos_inv_y_antialiasing_size_x5 = null, cos_y_antialiasing_size_x6 = null, cos_inv_y_antialiasing_size_x6 = null, cos_y_antialiasing_size_x7 = null, cos_inv_y_antialiasing_size_x7 = null, cos_y_antialiasing_size_x8 = null, cos_inv_y_antialiasing_size_x8 = null;
-
-
-        DoubleDouble _2cos_y_antialiasing_size_x2 = null;
-        if(max_samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            exp_x_antialiasing_size_x3 = exp_x_antialiasing_size_x2.multiply(exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x3 = exp_x_antialiasing_size_x3.reciprocal();
-
-            _2cos_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2.multiply(2);
-            sin_y_antialiasing_size_x3 = _2cos_y_antialiasing_size_x2.add(one).multiply(sin_y_antialiasing_size);
-            cos_y_antialiasing_size_x3 = _2cos_y_antialiasing_size_x2.subtract(one).multiply(cos_y_antialiasing_size);
-
-            sin_inv_y_antialiasing_size_x3 = sin_y_antialiasing_size_x3.negate();
-            cos_inv_y_antialiasing_size_x3 = cos_y_antialiasing_size_x3;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            exp_x_antialiasing_size_x4 = exp_x_antialiasing_size_x2.sqr();
-            exp_inv_x_antialiasing_size_x4 = exp_x_antialiasing_size_x4.reciprocal();
-
-            cos_y_antialiasing_size_x4 = _2cos_y_antialiasing_size_x2.multiply(cos_y_antialiasing_size_x2).subtract(one);
-            sin_y_antialiasing_size_x4 = sin_y_antialiasing_size_x2.multiply(_2cos_y_antialiasing_size_x2);
-
-            sin_inv_y_antialiasing_size_x4 = sin_y_antialiasing_size_x4.negate();
-            cos_inv_y_antialiasing_size_x4 = cos_y_antialiasing_size_x4;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            exp_x_antialiasing_size_x5 = exp_x_antialiasing_size_x4.multiply(exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x5 = exp_x_antialiasing_size_x5.reciprocal();
-
-            cos_y_antialiasing_size_x5 = cos_y_antialiasing_size.multiply(cos_y_antialiasing_size_x4.subtract(cos_y_antialiasing_size_x2).multiply(2).add(one));
-            sin_y_antialiasing_size_x5 = _2cos_y_antialiasing_size_x2.multiply(sin_y_antialiasing_size_x4).subtract(sin_y_antialiasing_size_x3);
-
-            sin_inv_y_antialiasing_size_x5 = sin_y_antialiasing_size_x5.negate();
-            cos_inv_y_antialiasing_size_x5 = cos_y_antialiasing_size_x5;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            exp_x_antialiasing_size_x6 = exp_x_antialiasing_size_x3.sqr();
-            exp_inv_x_antialiasing_size_x6 = exp_x_antialiasing_size_x6.reciprocal();
-
-            cos_y_antialiasing_size_x6 = cos_y_antialiasing_size_x3.sqr().multiply(2).subtract(one);
-            sin_y_antialiasing_size_x6 = cos_y_antialiasing_size_x3.multiply(2).multiply(sin_y_antialiasing_size_x3);
-
-            sin_inv_y_antialiasing_size_x6 = sin_y_antialiasing_size_x6.negate();
-            cos_inv_y_antialiasing_size_x6 = cos_y_antialiasing_size_x6;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            exp_x_antialiasing_size_x7 = exp_x_antialiasing_size_x6.multiply(exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x7 = exp_x_antialiasing_size_x7.reciprocal();
-
-            DoubleDouble temp = cos_y_antialiasing_size_x2.add(cos_y_antialiasing_size_x6);
-            cos_y_antialiasing_size_x7 = cos_y_antialiasing_size.multiply(temp.subtract(cos_y_antialiasing_size_x4).multiply(2).subtract(one));
-            sin_y_antialiasing_size_x7 = sin_y_antialiasing_size.multiply(temp.add(cos_y_antialiasing_size_x4).multiply(2).add(one));
-
-            sin_inv_y_antialiasing_size_x7 = sin_y_antialiasing_size_x7.negate();
-            cos_inv_y_antialiasing_size_x7 = cos_y_antialiasing_size_x7;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            exp_x_antialiasing_size_x8 = exp_x_antialiasing_size_x4.sqr();
-            exp_inv_x_antialiasing_size_x8 = exp_x_antialiasing_size_x8.reciprocal();
-
-            cos_y_antialiasing_size_x8 = cos_y_antialiasing_size_x4.sqr().multiply(2).subtract(one);
-            sin_y_antialiasing_size_x8 = cos_y_antialiasing_size_x4.multiply(2).multiply(sin_y_antialiasing_size_x4);
-
-            sin_inv_y_antialiasing_size_x8 = sin_y_antialiasing_size_x8.negate();
-            cos_inv_y_antialiasing_size_x8 = cos_y_antialiasing_size_x8;
-        }
-
-        DoubleDouble zero = new DoubleDouble();
-
-        DoubleDouble[][] data;
-        if(!adaptive) {
-
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, one, one, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
-
-
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
-                    zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
-                    sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
-
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
-                    one, one, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
-                    cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
-
-
-            data = new DoubleDouble[][] {temp_x, temp_y_sin, temp_y_cos};
-        }
-        else {
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,                      one,                       one,
-                    exp_inv_x_antialiasing_size_x2,exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,  exp_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one
-
-            };
-
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    zero, zero, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size, zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size
-
-            };
-
-
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    one, one, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size, one, one, cos_inv_y_antialiasing_size, cos_y_antialiasing_size
-
-
-            };
-
-            data = new DoubleDouble[][] {temp_x, temp_y_sin, temp_y_cos};
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            //Not implemented for adaptive
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, one, one, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3,
-                    exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3,
-                    exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3
-            };
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size_x3, zero, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, zero, sin_y_antialiasing_size_x3,
-                    sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size
-            };
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size_x3, one, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, one, cos_y_antialiasing_size_x3,
-                    cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size
-            };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            //Not implemented for adaptive
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, one, one, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4,
-                    exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4
-            };
-
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x4,
-                    sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size_x3
-            };
-
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x4,
-                    cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size_x3
-            };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            //Not implemented for adaptive
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, };
-
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, };
-
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            //Not implemented for adaptive
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, };
-
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, };
-
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            //Not implemented for adaptive
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, };
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7,};
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            //Not implemented for adaptive
-            DoubleDouble[] temp_x = {exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, };
-            DoubleDouble[] temp_y_sin = {sin_inv_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_y_antialiasing_size_x8, };
-            DoubleDouble[] temp_y_cos = {cos_inv_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_y_antialiasing_size_x8, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        return data;
-    }
-
-    private void precalculateJitterToAntialiasingPolarStepsMpfrBigNum(MpfrBigNum[][] steps, MpfrBigNum ddx_antialiasing_size, MpfrBigNum ddy_antialiasing_size) {
-
-        MpfrBigNum[] temp_x = steps[0];
-        MpfrBigNum[] temp_y_sin = steps[1];
-        MpfrBigNum[] temp_y_cos = steps[2];
-
-        precalculatedJitterDataPolarMpfrBigNum = new MpfrBigNum[NUMBER_OF_AA_JITTER_KERNELS][steps.length][temp_x.length];
-
-        for(int k = 0; k < NUMBER_OF_AA_JITTER_KERNELS; k++) {
-            for (int i = 0; i < temp_x.length; i++) {
-
-                MpfrBigNum tempexp = ddx_antialiasing_size.mult(aaJitterKernelX[k][i]);
-                tempexp.exp(tempexp);
-                tempexp.mult(temp_x[i], tempexp);
-                precalculatedJitterDataPolarMpfrBigNum[k][0][i] = tempexp;
-
-                MpfrBigNum temp = ddy_antialiasing_size.mult(aaJitterKernelY[k][i]);
-                MpfrBigNum[] sin_cos = temp.sin_cos();
-                MpfrBigNum cosJitter = sin_cos[1];
-                MpfrBigNum sinJitter = sin_cos[0];
-
-                MpfrBigNum tempSin = temp_y_sin[i].mult(cosJitter);
-                tempSin.add(temp_y_cos[i].mult(sinJitter), tempSin);
-
-                MpfrBigNum tempCos = temp_y_cos[i].mult(cosJitter);
-                tempCos.sub(temp_y_sin[i].mult(sinJitter), tempCos);
-
-                precalculatedJitterDataPolarMpfrBigNum[k][1][i] = tempSin;
-                precalculatedJitterDataPolarMpfrBigNum[k][2][i] = tempCos;
-            }
-        }
-    }
-
-    public MpfrBigNum[][] createAntialiasingPolarStepsMpfrBigNum(MpfrBigNum ddmulx, MpfrBigNum ddmuly, boolean adaptive, boolean jitter, int samples) {
-
-        MpfrBigNum ddy_antialiasing_size;
-        MpfrBigNum ddx_antialiasing_size;
-
-        if(samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            ddy_antialiasing_size = ddmuly.shift2toi(-4);
-            ddx_antialiasing_size = ddmulx.shift2toi(-4);
-        }
-        else if(samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            MpfrBigNum oneFourteenth = new MpfrBigNum(14.0);
-            oneFourteenth.reciprocal(oneFourteenth);
-            ddy_antialiasing_size = ddmuly.mult(oneFourteenth);
-            ddx_antialiasing_size = ddmulx.mult(oneFourteenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            MpfrBigNum oneTwelveth = new MpfrBigNum(12.0);
-            oneTwelveth.reciprocal(oneTwelveth);
-            ddy_antialiasing_size = ddmuly.mult(oneTwelveth);
-            ddx_antialiasing_size = ddmulx.mult(oneTwelveth);
-        }
-        else if(samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            MpfrBigNum oneTenth = new MpfrBigNum(10.0);
-            oneTenth.reciprocal(oneTenth);
-            ddy_antialiasing_size = ddmuly.mult(oneTenth);
-            ddx_antialiasing_size = ddmulx.mult(oneTenth);
-        }
-        else if(samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            ddy_antialiasing_size = ddmuly.shift2toi(-3);
-            ddx_antialiasing_size = ddmulx.shift2toi(-3);
-        }
-        else if(samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            MpfrBigNum oneSixth = new MpfrBigNum(6.0);
-            oneSixth.reciprocal(oneSixth);
-            ddy_antialiasing_size = ddmuly.mult(oneSixth);
-            ddx_antialiasing_size = ddmulx.mult(oneSixth);
-        }
-        else {
-            ddy_antialiasing_size = ddmuly.divide4();
-            ddx_antialiasing_size = ddmulx.divide4();
-        }
-
-        MpfrBigNum[][] steps = createAntialiasingPolarStepsMpfrBigNumGrid(ddx_antialiasing_size, ddy_antialiasing_size, adaptive, samples);
-
-        if(jitter) {
-            precalculateJitterToAntialiasingPolarStepsMpfrBigNum(steps, ddx_antialiasing_size, ddy_antialiasing_size);
-        }
-
-        return steps;
-    }
-
-    public MpfrBigNum[][] createAntialiasingPolarStepsMpfrBigNumGrid(MpfrBigNum ddx_antialiasing_size, MpfrBigNum ddy_antialiasing_size, boolean adaptive, int max_samples) {
-
-        MpfrBigNum exp_x_antialiasing_size = ddx_antialiasing_size.exp();
-        MpfrBigNum exp_inv_x_antialiasing_size = exp_x_antialiasing_size.reciprocal();
-
-        MpfrBigNum exp_x_antialiasing_size_x2 = exp_x_antialiasing_size.square();
-        MpfrBigNum exp_inv_x_antialiasing_size_x2 = exp_x_antialiasing_size_x2.reciprocal();
-
-        MpfrBigNum one = new MpfrBigNum(1);
-
-        MpfrBigNum[] res = ddy_antialiasing_size.sin_cos();
-
-        MpfrBigNum sin_y_antialiasing_size = res[0];
-        MpfrBigNum cos_y_antialiasing_size = res[1];
-
-        MpfrBigNum sin_inv_y_antialiasing_size = sin_y_antialiasing_size.negate();
-        MpfrBigNum cos_inv_y_antialiasing_size = new MpfrBigNum(cos_y_antialiasing_size);
-
-        MpfrBigNum _2cos_y_antialiasing_size = cos_y_antialiasing_size.mult2();
-
-        MpfrBigNum sin_y_antialiasing_size_x2 = sin_y_antialiasing_size.mult(_2cos_y_antialiasing_size);
-
-        MpfrBigNum cos_y_antialiasing_size_x2 = _2cos_y_antialiasing_size.mult(cos_y_antialiasing_size);
-        cos_y_antialiasing_size_x2.sub(1, cos_y_antialiasing_size_x2);
-
-        MpfrBigNum sin_inv_y_antialiasing_size_x2 = sin_y_antialiasing_size_x2.negate();
-        MpfrBigNum cos_inv_y_antialiasing_size_x2 = new MpfrBigNum(cos_y_antialiasing_size_x2);
-
-        MpfrBigNum exp_x_antialiasing_size_x3 = null, exp_inv_x_antialiasing_size_x3 = null, exp_x_antialiasing_size_x4 = null, exp_inv_x_antialiasing_size_x4 = null, exp_x_antialiasing_size_x5 = null, exp_inv_x_antialiasing_size_x5 = null, exp_x_antialiasing_size_x6 = null, exp_inv_x_antialiasing_size_x6 = null, exp_x_antialiasing_size_x7 = null, exp_inv_x_antialiasing_size_x7 = null, exp_x_antialiasing_size_x8 = null, exp_inv_x_antialiasing_size_x8 = null;
-        MpfrBigNum sin_y_antialiasing_size_x3 = null, sin_inv_y_antialiasing_size_x3 = null, sin_y_antialiasing_size_x4 = null, sin_inv_y_antialiasing_size_x4 = null, sin_y_antialiasing_size_x5 = null, sin_inv_y_antialiasing_size_x5 = null, sin_y_antialiasing_size_x6 = null, sin_inv_y_antialiasing_size_x6 = null, sin_y_antialiasing_size_x7 = null, sin_inv_y_antialiasing_size_x7 = null, sin_y_antialiasing_size_x8 = null, sin_inv_y_antialiasing_size_x8 = null;
-        MpfrBigNum cos_y_antialiasing_size_x3 = null, cos_inv_y_antialiasing_size_x3 = null, cos_y_antialiasing_size_x4 = null, cos_inv_y_antialiasing_size_x4 = null, cos_y_antialiasing_size_x5 = null, cos_inv_y_antialiasing_size_x5 = null, cos_y_antialiasing_size_x6 = null, cos_inv_y_antialiasing_size_x6 = null, cos_y_antialiasing_size_x7 = null, cos_inv_y_antialiasing_size_x7 = null, cos_y_antialiasing_size_x8 = null, cos_inv_y_antialiasing_size_x8 = null;
-
-
-        MpfrBigNum _2cos_y_antialiasing_size_x2 = null;
-        if(max_samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            exp_x_antialiasing_size_x3 = exp_x_antialiasing_size_x2.mult(exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x3 = exp_x_antialiasing_size_x3.reciprocal();
-
-            _2cos_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2.mult2();
-            MpfrBigNum temp = _2cos_y_antialiasing_size_x2.add(1);
-            sin_y_antialiasing_size_x3 = temp.mult(sin_y_antialiasing_size, temp);
-
-            temp = _2cos_y_antialiasing_size_x2.sub(1);
-            cos_y_antialiasing_size_x3 = temp.mult(cos_y_antialiasing_size, temp);
-
-            sin_inv_y_antialiasing_size_x3 = sin_y_antialiasing_size_x3.negate();
-            cos_inv_y_antialiasing_size_x3 = cos_y_antialiasing_size_x3;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            exp_x_antialiasing_size_x4 = exp_x_antialiasing_size_x2.square();
-            exp_inv_x_antialiasing_size_x4 = exp_x_antialiasing_size_x4.reciprocal();
-
-            MpfrBigNum temp = _2cos_y_antialiasing_size_x2.mult(cos_y_antialiasing_size_x2);
-            cos_y_antialiasing_size_x4 = temp.sub(1, temp);
-            sin_y_antialiasing_size_x4 = sin_y_antialiasing_size_x2.mult(_2cos_y_antialiasing_size_x2);
-
-            sin_inv_y_antialiasing_size_x4 = sin_y_antialiasing_size_x4.negate();
-            cos_inv_y_antialiasing_size_x4 = cos_y_antialiasing_size_x4;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            exp_x_antialiasing_size_x5 = exp_x_antialiasing_size_x4.mult(exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x5 = exp_x_antialiasing_size_x5.reciprocal();
-
-            MpfrBigNum temp = cos_y_antialiasing_size_x4.sub(cos_y_antialiasing_size_x2);
-            temp.mult2(temp);
-            temp.add(1, temp);
-            temp.mult(cos_y_antialiasing_size, temp);
-            cos_y_antialiasing_size_x5 = temp;
-
-            temp = _2cos_y_antialiasing_size_x2.mult(sin_y_antialiasing_size_x4);
-            temp.sub(sin_y_antialiasing_size_x3, temp);
-            sin_y_antialiasing_size_x5 = temp;
-
-            sin_inv_y_antialiasing_size_x5 = sin_y_antialiasing_size_x5.negate();
-            cos_inv_y_antialiasing_size_x5 = cos_y_antialiasing_size_x5;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            exp_x_antialiasing_size_x6 = exp_x_antialiasing_size_x3.square();
-            exp_inv_x_antialiasing_size_x6 = exp_x_antialiasing_size_x6.reciprocal();
-
-            MpfrBigNum temp = cos_y_antialiasing_size_x3.square();
-            temp.mult2(temp);
-            temp.sub(one, temp);
-            cos_y_antialiasing_size_x6 = temp;
-
-            temp = cos_y_antialiasing_size_x3.mult2();
-            temp.mult(sin_y_antialiasing_size_x3, temp);
-            sin_y_antialiasing_size_x6 = temp;
-
-            sin_inv_y_antialiasing_size_x6 = sin_y_antialiasing_size_x6.negate();
-            cos_inv_y_antialiasing_size_x6 = cos_y_antialiasing_size_x6;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            exp_x_antialiasing_size_x7 = exp_x_antialiasing_size_x6.mult(exp_x_antialiasing_size);
-            exp_inv_x_antialiasing_size_x7 = exp_x_antialiasing_size_x7.reciprocal();
-
-            MpfrBigNum temp = cos_y_antialiasing_size_x2.add(cos_y_antialiasing_size_x6);
-
-            MpfrBigNum temp2 = temp.sub(cos_y_antialiasing_size_x4);
-            temp2.mult2(temp2);
-            temp2.sub(one, temp2);
-            temp2.mult(cos_y_antialiasing_size, temp2);
-            cos_y_antialiasing_size_x7 = temp2;
-
-            temp2 = temp.add(cos_y_antialiasing_size_x4);
-            temp2.mult2(temp2);
-            temp2.add(one, temp2);
-            temp2.mult(sin_y_antialiasing_size, temp2);
-            sin_y_antialiasing_size_x7 = temp2;
-
-            sin_inv_y_antialiasing_size_x7 = sin_y_antialiasing_size_x7.negate();
-            cos_inv_y_antialiasing_size_x7 = cos_y_antialiasing_size_x7;
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            exp_x_antialiasing_size_x8 = exp_x_antialiasing_size_x4.square();
-            exp_inv_x_antialiasing_size_x8 = exp_x_antialiasing_size_x8.reciprocal();
-
-            MpfrBigNum temp = cos_y_antialiasing_size_x4.square();
-            temp.mult2(temp);
-            temp.sub(one, temp);
-            cos_y_antialiasing_size_x8 = temp;
-
-            temp = cos_y_antialiasing_size_x4.mult2();
-            temp.mult(sin_y_antialiasing_size_x4, temp);
-            sin_y_antialiasing_size_x8 = temp;
-
-            sin_inv_y_antialiasing_size_x8 = sin_y_antialiasing_size_x8.negate();
-            cos_inv_y_antialiasing_size_x8 = cos_y_antialiasing_size_x8;
-        }
-
-        MpfrBigNum zero = new MpfrBigNum();
-
-        MpfrBigNum[][] data;
-
-        if(!adaptive) {
-
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, one, one, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
-
-
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
-                    zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
-                    sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
-
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
-                    one, one, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
-                    cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
-
-
-            data = new MpfrBigNum[][] {temp_x, temp_y_sin, temp_y_cos};
-        }
-        else {
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2,
-                    exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,                      one,                       one,
-                    exp_inv_x_antialiasing_size_x2,exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,  exp_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size,
-                    exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, one, one
-
-            };
-
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    zero, zero, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size, zero, zero, sin_inv_y_antialiasing_size, sin_y_antialiasing_size
-
-            };
-
-
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    one, one, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size, one, one, cos_inv_y_antialiasing_size, cos_y_antialiasing_size
-
-
-            };
-
-            data = new MpfrBigNum[][] {temp_x, temp_y_sin, temp_y_cos};
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_24 && !adaptive) {
-            //Not implemented for adaptive
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, one, one, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3,
-                    exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3,
-                    exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3
-            };
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size_x3, zero, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, zero, sin_y_antialiasing_size_x3,
-                    sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2,
-                    sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x3, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size
-            };
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size_x3, one, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, one, cos_y_antialiasing_size_x3,
-                    cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2,
-                    cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x3, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size
-            };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_48 && !adaptive) {
-            //Not implemented for adaptive
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, one, one, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4,
-                    exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4
-            };
-
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x2, zero, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x4,
-                    sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x4, sin_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size_x3
-            };
-
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x2, one, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x4,
-                    cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x4, cos_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size_x3
-            };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_80 && !adaptive) {
-            //Not implemented for adaptive
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, };
-
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, };
-
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_120 && !adaptive) {
-            //Not implemented for adaptive
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, };
-
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, };
-
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_168 && !adaptive) {
-            //Not implemented for adaptive
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, };
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, };
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        if(max_samples > MAX_AA_SAMPLES_224 && !adaptive) {
-            //Not implemented for adaptive
-            MpfrBigNum[] temp_x = {exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x8, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x7, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x6, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x5, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x4, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x3, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, one, one, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x3, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x4, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x5, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x6, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x7, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, exp_x_antialiasing_size_x8, };
-            MpfrBigNum[] temp_y_sin = {sin_inv_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x8, sin_inv_y_antialiasing_size_x7, sin_inv_y_antialiasing_size_x6, sin_inv_y_antialiasing_size_x5, sin_inv_y_antialiasing_size_x4, sin_inv_y_antialiasing_size_x3, sin_inv_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, zero, sin_y_antialiasing_size, sin_y_antialiasing_size_x2, sin_y_antialiasing_size_x3, sin_y_antialiasing_size_x4, sin_y_antialiasing_size_x5, sin_y_antialiasing_size_x6, sin_y_antialiasing_size_x7, sin_y_antialiasing_size_x8, };
-            MpfrBigNum[] temp_y_cos = {cos_inv_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x8, cos_inv_y_antialiasing_size_x7, cos_inv_y_antialiasing_size_x6, cos_inv_y_antialiasing_size_x5, cos_inv_y_antialiasing_size_x4, cos_inv_y_antialiasing_size_x3, cos_inv_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, one, cos_y_antialiasing_size, cos_y_antialiasing_size_x2, cos_y_antialiasing_size_x3, cos_y_antialiasing_size_x4, cos_y_antialiasing_size_x5, cos_y_antialiasing_size_x6, cos_y_antialiasing_size_x7, cos_y_antialiasing_size_x8, };
-
-            data[0] = merge(data[0], temp_x);
-            data[1] = merge(data[1], temp_y_sin);
-            data[2] = merge(data[2], temp_y_cos);
-        }
-
-        return data;
-
     }
 
     // http://www.burtleburtle.net/bob/hash/integer.html

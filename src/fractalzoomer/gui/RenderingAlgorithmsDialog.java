@@ -392,6 +392,12 @@ public class RenderingAlgorithmsDialog extends JDialog {
         centered_pattern.setFocusable(false);
         centered_pattern.setToolTipText("Centers the pattern.");
 
+        JCheckBox pulse_pattern = new JCheckBox("Pulse");
+        pulse_pattern.setBackground(MainWindow.bg_color);
+        pulse_pattern.setSelected(TaskRender.PATTERN_PULSE);
+        pulse_pattern.setFocusable(false);
+        pulse_pattern.setToolTipText("Creates a pulsing effect.");
+
 //        JCheckBox pattern_follows_zoom_center = new JCheckBox("Follow Zoom Center");
 //        pattern_follows_zoom_center.setBackground(MainWindow.bg_color);
 //        pattern_follows_zoom_center.setSelected(MainWindow.PATTERNED_RENDER_FOLLOWS_ZOOM_TO_CURSOR);
@@ -419,6 +425,7 @@ public class RenderingAlgorithmsDialog extends JDialog {
         panel4.add(repeat_pattern);
         panel4.add(revert_pattern);
         panel4.add(centered_pattern);
+        panel4.add(pulse_pattern);
        // panel4.add(pattern_follows_zoom_center);
 
         panel4.setBorder( LAFManager.createTitledBorder( "Pattern Options"));
@@ -559,6 +566,13 @@ public class RenderingAlgorithmsDialog extends JDialog {
             double oldNnorm = TaskRender.PATTERN_N;
             TaskRender.PATTERN_N = temp;
             if(TaskRender.PATTERN_N != oldNnorm) {
+                PatternedBruteForceRender.clear();
+                PatternedBruteForceRender.clearFastJulia();
+            }
+
+            boolean oldPulsePattern = TaskRender.PATTERN_PULSE;
+            TaskRender.PATTERN_PULSE = pulse_pattern.isSelected();
+            if(oldPulsePattern != TaskRender.PATTERN_PULSE) {
                 PatternedBruteForceRender.clear();
                 PatternedBruteForceRender.clearFastJulia();
             }

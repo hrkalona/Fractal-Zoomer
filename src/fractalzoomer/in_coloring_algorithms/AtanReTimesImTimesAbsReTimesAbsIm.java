@@ -3,6 +3,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.utils.InColorData;
 
 
 /**
@@ -22,9 +23,10 @@ public class AtanReTimesImTimesAbsReTimesAbsIm extends InColorAlgorithm {
     }
     
     @Override
-    public double getResult(Object[] object) {
-        
-        return max_iterations + Math.abs(Math.atan(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400;
+    public double getResult(InColorData data) {
+
+        Complex z = data.z;
+        return max_iterations + Math.abs(Math.atan(z.getRe() * z.getIm() * z.getAbsRe() * z.getAbsIm())) * 400;
          
     }
     

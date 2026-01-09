@@ -35,6 +35,7 @@ public class FiltersSettings {
     public int quadtree_threshold_calculation;
 
     public boolean quadtree_merge_nodes;
+    public int aaType;
     
     public FiltersSettings() {
         
@@ -52,6 +53,7 @@ public class FiltersSettings {
     
     public void defaultFilters(boolean reset_checked) {
 
+        aaType = 0;
         aaSigmaR = 0;
         bluringSigmaR = 0;
         bluringSigmaS = 0;

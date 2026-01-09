@@ -1,9 +1,14 @@
 package fractalzoomer.functions.formulas.m_like_generalization;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MpfrBigNumComplex;
+import fractalzoomer.core.numerics.MpirBigNumComplex;
 import fractalzoomer.core.reference.ReferenceData;
 import fractalzoomer.core.reference.ReferenceDeepData;
+import fractalzoomer.core.reference.ReferenceOrbit;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -149,38 +154,38 @@ public class Formula47 extends Julia {
     @Override
     public Complex perturbationFunction(Complex z, Complex c, int RefIteration) {
 
-        return getArrayValue(reference, RefIteration).times2_mutable().plus_mutable(z).times_mutable(z).plus_mutable(dcPrecalc);
+        return getReferenceValue(reference, RefIteration).times2_mutable().plus_mutable(z).times_mutable(z).plus_mutable(dcPrecalc);
 
     }
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
-        return getArrayValue(data.Reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+        return getReferenceValue(data.Reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, ReferenceDeepData data, int RefIteration) {
-        return getArrayDeepValue(data.Reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+        return getReferenceDeepValue(data.Reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
-        return getArrayDeepValue(referenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(dcPrecalcDeep);
+        return getReferenceDeepValue(referenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN).plus_mutable(dcPrecalcDeep);
 
     }
 
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
-        return getArrayValue(reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+        return getReferenceValue(reference, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
 
     }
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, int RefIteration) {
 
-        return getArrayDeepValue(referenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
+        return getReferenceDeepValue(referenceDeep, RefIteration).times2_mutable().plus_mutable(DeltaSubN).times_mutable(DeltaSubN);
 
     }
 
@@ -270,6 +275,25 @@ public class Formula47 extends Julia {
     @Override
     public double getPower() {
         return 2;
+    }
+
+    @Override
+    public void setReference(ReferenceOrbit refOrbit, ReferenceOrbit secondRefOrbit, Location loc) {
+        super.setReference(refOrbit, secondRefOrbit, loc);
+        if (referenceOrbit.c != null) {
+            GenericComplex c2 = referenceOrbit.c.times2();
+            if(referenceDeep != null) {
+                C2Deep = loc.getMantExpComplex(c2);
+                C2 = C2Deep.toComplex();
+            } else {
+                C2 = c2.toComplex();
+            }
+        }
+    }
+
+    @Override
+    public boolean supportsReferenceSavingOrLoading() {
+        return true;
     }
 
 }

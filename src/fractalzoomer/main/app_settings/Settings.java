@@ -1,18 +1,21 @@
 
 package fractalzoomer.main.app_settings;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fractalzoomer.bailout_conditions.NNormBailoutCondition;
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.convergent_bailout_conditions.KFNNormDistanceBailoutCondition;
 import fractalzoomer.convergent_bailout_conditions.NNormDistanceBailoutCondition;
 import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
+import fractalzoomer.core.PostProcessing;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PaletteColorSmooth;
 import fractalzoomer.palettes.PresetPalette;
@@ -201,16 +204,18 @@ public class Settings implements Constants {
     private void defaultProcessingOrder() {
 
         post_processing_order[0] = HISTOGRAM_COLORING;
-        post_processing_order[1] = OFFSET_COLORING;
-        post_processing_order[2] = ENTROPY_COLORING;
-        post_processing_order[3] = RAINBOW_PALETTE;
-        post_processing_order[4] = NUMERICAL_DISTANCE_ESTIMATOR;
-        post_processing_order[5] = CONTOUR_COLORING;
-        post_processing_order[6] = GREYSCALE_COLORING;
-        post_processing_order[7] = BUMP_MAPPING;
-        post_processing_order[8] = LIGHT;
-        post_processing_order[9] = SLOPES;
-        post_processing_order[10] = FAKE_DISTANCE_ESTIMATION;
+        post_processing_order[1] = TEXTURE;
+        post_processing_order[2] = OFFSET_COLORING;
+        post_processing_order[3] = ENTROPY_COLORING;
+        post_processing_order[4] = RAINBOW_PALETTE;
+        post_processing_order[5] = NUMERICAL_DISTANCE_ESTIMATOR;
+        post_processing_order[6] = CONTOUR_COLORING;
+        post_processing_order[7] = GREYSCALE_COLORING;
+        post_processing_order[8] = BUMP_MAPPING;
+        post_processing_order[9] = LIGHT;
+        post_processing_order[10] = SLOPES;
+        post_processing_order[11] = BLINN_LIGHT;
+        post_processing_order[12] = FAKE_DISTANCE_ESTIMATION;
 
     }
 
@@ -1927,6 +1932,72 @@ public class Settings implements Constants {
             pps.ndes.applyWidthScaling = ((SettingsFractals1094)settings).getNdesApplyWidthScaling();
         }
 
+        if(version < 1095) {
+            fns.preffs.mobiusA = defaults.fns.preffs.mobiusA;
+            fns.preffs.mobiusB = defaults.fns.preffs.mobiusB;
+            fns.postffs.mobiusA = defaults.fns.postffs.mobiusA;
+            fns.postffs.mobiusB = defaults.fns.postffs.mobiusB;
+            fs.aaType = defaults.fs.aaType;
+            pps.bls.ambient = defaults.pps.bls.ambient;
+            pps.bls.colorAmbient = defaults.pps.bls.colorAmbient;
+            pps.bls.diffuse = defaults.pps.bls.diffuse;
+            pps.bls.specular = defaults.pps.bls.specular;
+            pps.bls.shininess = defaults.pps.bls.shininess;
+            pps.bls.polarAngle = defaults.pps.bls.polarAngle;
+            pps.bls.azimuthAngle = defaults.pps.bls.azimuthAngle;
+            pps.bls.color = defaults.pps.bls.color;
+            pps.bls.materialSpecularColor = defaults.pps.bls.materialSpecularColor;
+            pps.bls.heightTransferFactor = defaults.pps.bls.heightTransferFactor;
+            pps.bls.heightTransfer = defaults.pps.bls.heightTransfer;
+            pps.bls.fractionalTransfer = defaults.pps.bls.fractionalTransfer;
+            pps.bls.fractionalSmoothing = defaults.pps.bls.fractionalSmoothing;
+            pps.bls.fractionalTransferMode = defaults.pps.bls.fractionalTransferMode;
+            pps.bls.fractionalTransferScale = defaults.pps.bls.fractionalTransferScale;
+            pps.bls.bls_noise_reducing_factor = defaults.pps.bls.bls_noise_reducing_factor;
+            pps.bls.lighting = defaults.pps.bls.lighting;
+            pps.ts.textureImg = defaults.pps.ts.textureImg;
+            pps.ts.applyTexture = defaults.pps.ts.applyTexture;
+            pps.ts.texture_noise_reducing_factor = defaults.pps.ts.texture_noise_reducing_factor;
+            pps.ts.texture_blending = defaults.pps.ts.texture_blending;
+            pps.ts.texture_color_blending = defaults.pps.ts.texture_color_blending;
+            pps.ts.texture_reverse_color_blending = defaults.pps.ts.texture_reverse_color_blending;
+            pps.ts.textureScaleX = defaults.pps.ts.textureScaleX;
+            pps.ts.textureScaleY = defaults.pps.ts.textureScaleY;
+            pps.ts.textureOffset = defaults.pps.ts.textureOffset;
+        } else {
+            fns.preffs.mobiusA = ((SettingsFractals1095)settings).getPreMobiusA();
+            fns.preffs.mobiusB = ((SettingsFractals1095)settings).getPreMobiusB();
+            fns.postffs.mobiusA = ((SettingsFractals1095)settings).getPostMobiusA();
+            fns.postffs.mobiusB = ((SettingsFractals1095)settings).getPostMobiusB();
+            fs.aaType = ((SettingsFractals1095)settings).getAaType();
+            pps.bls.ambient = ((SettingsFractals1095)settings).getBlsAmbient();
+            pps.bls.colorAmbient = ((SettingsFractals1095)settings).getBlsColorAmbient();
+            pps.bls.diffuse = ((SettingsFractals1095)settings).getBlsDiffuse();
+            pps.bls.specular = ((SettingsFractals1095)settings).getBlsSpecular();
+            pps.bls.shininess = ((SettingsFractals1095)settings).getBlsShininess();
+            pps.bls.polarAngle = ((SettingsFractals1095)settings).getBlsPolarAngle();
+            pps.bls.azimuthAngle = ((SettingsFractals1095)settings).getBlsAzimuthAngle();
+            pps.bls.color = ((SettingsFractals1095)settings).getBlsColor();
+            pps.bls.materialSpecularColor = ((SettingsFractals1095)settings).getBlsMaterialSpecularColor();
+            pps.bls.heightTransferFactor = ((SettingsFractals1095)settings).getBlsHeightTransferFactor();
+            pps.bls.heightTransfer = ((SettingsFractals1095)settings).getBlsHeightTransfer();
+            pps.bls.fractionalTransfer = ((SettingsFractals1095)settings).getBlsFractionalTransfer();
+            pps.bls.fractionalSmoothing = ((SettingsFractals1095)settings).getBlsFractionalSmoothing();
+            pps.bls.fractionalTransferMode = ((SettingsFractals1095)settings).getBlsFractionalTransferMode();
+            pps.bls.fractionalTransferScale = ((SettingsFractals1095)settings).getBlsFractionalTransferScale();
+            pps.bls.bls_noise_reducing_factor = ((SettingsFractals1095)settings).getBlsNoiseReducingFactor();
+            pps.bls.lighting = ((SettingsFractals1095)settings).getBlsLighting();
+            pps.ts.textureImg = ((SettingsFractals1095)settings).getTextureImage();
+            pps.ts.applyTexture = ((SettingsFractals1095)settings).getApplyTexture();
+            pps.ts.texture_noise_reducing_factor = ((SettingsFractals1095)settings).getTextureNoiseReducingFactor();
+            pps.ts.texture_blending = ((SettingsFractals1095)settings).getTextureBlending();
+            pps.ts.texture_color_blending = ((SettingsFractals1095)settings).getTextureColorBlending();
+            pps.ts.texture_reverse_color_blending = ((SettingsFractals1095)settings).getTextureReverseColorBlending();
+            pps.ts.textureScaleX = ((SettingsFractals1095)settings).getTextureScaleX();
+            pps.ts.textureScaleY = ((SettingsFractals1095)settings).getTextureScaleY();
+            pps.ts.textureOffset = ((SettingsFractals1095)settings).getTextureOffset();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -2377,14 +2448,18 @@ public class Settings implements Constants {
 
         file_temp.close();
 
-        if (!silent) {
-            loadedSettings(filename, parent, version);
-        }
-
         if (supportsPerturbationTheory() && !TaskRender.PERTURBATION_THEORY && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) <= 0) {
             TaskRender.PERTURBATION_THEORY = true;
+        } else if (!supportsPerturbationTheory() && TaskRender.PERTURBATION_THEORY) {
+            TaskRender.PERTURBATION_THEORY = false;
         }
-        else if(!supportsPerturbationTheory() && TaskRender.PERTURBATION_THEORY) {
+
+        boolean togglePerturbationOn = true;
+        if (!silent) {
+            togglePerturbationOn = loadedSettings(filename, parent, version);
+        }
+
+        if (!togglePerturbationOn) {
             TaskRender.PERTURBATION_THEORY = false;
         }
     }
@@ -2408,7 +2483,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1094(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW, TaskRender.SPLIT_INTO_RECTANGLE_AREAS, TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM, TaskRender.AREA_DIMENSION_X, TaskRender.AREA_DIMENSION_Y);
+            SettingsFractals settings = new SettingsFractals1095(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW, TaskRender.SPLIT_INTO_RECTANGLE_AREAS, TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM, TaskRender.AREA_DIMENSION_X, TaskRender.AREA_DIMENSION_Y);
             file_temp.writeObject(settings);
             file_temp.flush();
             file_temp.close();
@@ -2812,6 +2887,7 @@ public class Settings implements Constants {
             case FORMULA35:
             case FORMULA36:
             case FORMULA37:
+            case FORMULA52:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(6);
@@ -2938,12 +3014,21 @@ public class Settings implements Constants {
 
     public boolean isMagnetType() {
 
-        return fns.function == MAGNET1 || fns.function == MAGNET2 || fns.function == MAGNET13 || fns.function == MAGNET14 || fns.function == MAGNET23 || fns.function == MAGNET24;
+        return fns.function == MAGNET1
+                || fns.function == MAGNET2
+                || fns.function == MAGNET13
+                || fns.function == MAGNET14
+                || fns.function == MAGNET23
+                || fns.function == MAGNET24;
 
     }
 
     public boolean isEscapingOrConvergingType() {
-        return (fns.function == USER_FORMULA && fns.bail_technique == 2) || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 2) || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 2) || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 2);
+        return (fns.function == USER_FORMULA && fns.bail_technique == 2)
+                || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 2)
+                || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 2)
+                || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 2)
+                || fns.function == FORMULA52;
     }
 
     public static boolean isRootFindingMethod(int function ) {
@@ -3410,14 +3495,15 @@ public class Settings implements Constants {
                 || fns.function ==  PERPENDICULAR_MANDELBROT || fns.function == BUFFALO_MANDELBROT || fns.function == CELTIC_MANDELBROT
                 || fns.function ==  PERPENDICULAR_BURNING_SHIP || fns.function == PERPENDICULAR_CELTIC_MANDELBROT || fns.function == PERPENDICULAR_BUFFALO_MANDELBROT
                 || fns.function == FORMULA48 || fns.function == FORMULA50
-                || fns.function == MANDELBARCUBED);
+                || fns.function == MANDELBARCUBED || fns.function == FORMULA52);
     }
 
     public static boolean usesPerturbationWithDivision(int function) {
         return function == MAGNET1 || function == NEWTON_THIRD_DEGREE_PARAMETER_SPACE
                 || function == NEWTON3 || function == NOVA ||
                 function == MAGNET_PATAKI2 || function == MAGNET_PATAKI3
-                || function == MAGNET_PATAKI4 || function == MAGNET_PATAKI5 || function == FORMULA48;
+                || function == MAGNET_PATAKI4 || function == MAGNET_PATAKI5
+                || function == FORMULA48 || function == FORMULA52;
     }
 
     public boolean isPertubationTheoryInUse() {
@@ -3445,7 +3531,7 @@ public class Settings implements Constants {
     }
 
     private boolean needsSmoothing() {
-        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bms.bump_map || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || statisticNeedsSmoothing()) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
+        return (fns.smoothing || ((pps.ndes.useNumericalDem || pps.ls.lighting || pps.ss.slopes || pps.bls.lighting || pps.bms.bump_map || pps.ts.applyTexture || pps.cns.contour_coloring || pps.ens.entropy_coloring || pps.rps.rainbow_palette || pps.fdes.fake_de || statisticNeedsSmoothing()) && TaskRender.USE_SMOOTHING_FOR_PROCESSING_ALGS));
     }
     private boolean requiresSmoothingCalculation() {
         return !TaskRender.SMOOTH_DATA && needsSmoothing();
@@ -3529,7 +3615,9 @@ public class Settings implements Constants {
                 || pps.ens.entropy_coloring
                 || pps.ofs.offset_coloring
                 || pps.gss.greyscale_coloring
-                || pps.cns.contour_coloring;
+                || pps.cns.contour_coloring
+                || pps.ts.applyTexture
+                || pps.bls.lighting;
     }
 
     public boolean supportsBilinearApproximation() {
@@ -3572,7 +3660,7 @@ public class Settings implements Constants {
         return TaskRender.APPROXIMATION_ALGORITHM == 5 && supportsBilinearApproximation3();
     }
 
-    public void loadedSettings(String file, Component parent, int version) {
+    public boolean loadedSettings(String file, Component parent, int version) {
         String temp2 = "" + version;
         String versionStr = "";
 
@@ -3582,7 +3670,19 @@ public class Settings implements Constants {
         }
         versionStr += temp2.charAt(i);
 
-        JOptionPane.showMessageDialog(parent, file + " (version:  " + versionStr + ")\nwas successfully loaded.", "Settings Loaded", JOptionPane.INFORMATION_MESSAGE);
+        final JCheckBox renderWithPerturbation = new JCheckBox("Render With Perturbation Theory");
+        renderWithPerturbation.setSelected(true);
+        renderWithPerturbation.setFocusable(false);
+        renderWithPerturbation.setToolTipText("Renders the current settings by using perturbation theory.");
+
+        Object[] message = {
+                file + " (version:  " + versionStr + ")\nwas successfully loaded.",
+                isPertubationTheoryInUse() ? " " : null,
+                isPertubationTheoryInUse() ? renderWithPerturbation : null};
+
+        JOptionPane.showMessageDialog(parent, message, "Settings Loaded", JOptionPane.INFORMATION_MESSAGE);
+
+        return renderWithPerturbation.isSelected();
     }
 
     public static double[] fromDDArray(Apfloat[] array) {
@@ -3598,7 +3698,7 @@ public class Settings implements Constants {
         return (
                 (!ds.domain_coloring && isAnyPostProcessingEnabled())
                 ||
-                (ds.domain_coloring && (pps.ls.lighting || pps.bms.bump_map || pps.ss.slopes))
+                (ds.domain_coloring && (pps.ls.lighting || pps.bms.bump_map || pps.ss.slopes || pps.bls.lighting))
         ) && !useDirectColor;
     }
     public boolean needsExtraData() {

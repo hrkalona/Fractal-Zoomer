@@ -1,10 +1,10 @@
 package fractalzoomer.core.location.delta;
 
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MpfrBigNumComplex;
 import fractalzoomer.core.location.normal.PolarLocationNormalMpfrBigNumArbitrary;
-import fractalzoomer.core.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MpfrBigNumComplex;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
@@ -56,10 +56,7 @@ public class PolarLocationDeltaGenericMpfrBigNum extends PolarLocationNormalMpfr
     @Override
     public MantExp getMaxSizeInImage() {
 
-        MpfrBigNum temp = ddmulx.mult(width * 0.5);
-        temp.add(ddcenter, temp);
-        temp.exp(temp);
-        return temp.getMantExp();
+        return ddsize.mult(Math.exp(mulx * width * 0.5)).getMantExp();
 
     }
 

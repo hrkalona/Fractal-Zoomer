@@ -1,7 +1,10 @@
 package fractalzoomer.core.approximation.la_zhuoran;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfo;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.core.reference.*;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.ApproximationDefaultSettings;
@@ -22,12 +25,11 @@ public class LAReference {
     public static boolean CONVERT_TO_DOUBLE_WHEN_POSSIBLE = false;
     public static boolean CREATE_AT = true;
 
-    public static int fakePeriodLimit = ApproximationDefaultSettings.fakePeriodLimit;
-    public static double rootDivisor = ApproximationDefaultSettings.RootDivisor;
+    public static double fakePeriodLimit = ApproximationDefaultSettings.fakePeriodLimit;
+    private double rootDivisor;
 
     private static final MantExp doubleRadiusLimit = new MantExp(0x1.0p-896);
     public static MantExp doubleThresholdLimit = new MantExp(ApproximationDefaultSettings.DoubleThresholdLimit);
-    public static int NthRootOption = ApproximationDefaultSettings.NthRootOption;
     public boolean UseAT;
 
     public static Fractal f;
@@ -61,6 +63,8 @@ public class LAReference {
         isValid = false;
         LAStages = new LAStageInfo[MaxLAStages];
         LAcurrentIndex = 0;
+
+        rootDivisor = Math.log(fakePeriodLimit);
 
         LAs = new GenericLAInfo[DEFAULT_SIZE];
 
@@ -123,16 +127,13 @@ public class LAReference {
         }
     }
 
-    private int getNthRoot(double val) {
-        if(NthRootOption == 0) {//Original
-            double NthRoot = Math.round(log2(val) / 4.0);
-            NthRoot = NthRoot < 1 ? 1 : NthRoot;
-            return  (int)Math.round(Math.pow(val, 1.0 / NthRoot));
-        }
-
-        double NthRoot = log2(val) / rootDivisor;
-        NthRoot = NthRoot < 1 ? 1 : NthRoot;
-        return  (int)Math.round(Math.pow(val, 1.0 / NthRoot));
+    private double getNthRoot(double val) {
+//Original
+//            double NthRoot = Math.round(log2(val) / rootDivisor);
+//            NthRoot = NthRoot < 1 ? 1 : NthRoot;
+//            return  (int)Math.round(Math.pow(val, 1.0 / NthRoot));
+        double N = Math.max(0, Math.ceil(Math.log(val) / rootDivisor) - 1);
+        return Math.pow(val, 1 / (N + 1));
     }
 
     private boolean CreateLAFromOrbitMagnitudeBased(DoubleReference ref, DeepReference refDeep, int maxRefIteration, boolean deepZoom, Fractal f) throws Exception {
@@ -181,7 +182,7 @@ public class LAReference {
         if (Period == 0) {
             if (maxRefIteration > fakePeriodLimit) {
                 popLA();
-                Period = getNthRoot(maxRefIteration);
+                Period = (int)Math.round(getNthRoot(maxRefIteration));
                 i = 0;
             } else {
                 LAStages[0].End = LAStages[0].Begin + 1;
@@ -192,9 +193,9 @@ public class LAReference {
 
                 return false;
             }
-        } else if (Period > fakePeriodLimit) {
+        } else if (Period > fakePeriodLimit * fakePeriodLimit) {
             popLA();
-            Period = getNthRoot(Period);
+            Period = (int)Math.round(getNthRoot(Period));
             i = 0;
         }
 
@@ -279,7 +280,7 @@ public class LAReference {
                 LA = GenericLAInfo.create(maxRefIteration, deepZoom, 0, referenceDecompressor).Step(1, referenceDecompressor);
                 i = 2;
 
-                Period = getNthRoot(maxRefIteration);
+                Period = (int)Math.round(getNthRoot(maxRefIteration));
             } else {
                 addToLAS(LA);
 
@@ -291,13 +292,13 @@ public class LAReference {
 
                 return false;
             }
-        } else if (Period > fakePeriodLimit) {
+        } else if (Period > fakePeriodLimit * fakePeriodLimit) {
             popLA();
 
             LA = GenericLAInfo.create(maxRefIteration, deepZoom, 0, referenceDecompressor).Step(1, referenceDecompressor);
             i = 2;
 
-            Period = getNthRoot(Period);
+            Period = (int)Math.round(getNthRoot(Period));
         }
 
         for (; i < maxRefIteration; i++) {
@@ -314,10 +315,10 @@ public class LAReference {
                 GenericLAInfo LAi = GenericLAInfo.create(maxRefIteration, deepZoom, i, referenceDecompressor);
 
                 if(deepZoom) {
-                    detected = NewLA.DetectDip(f.getArrayDeepValue(referenceDecompressor, refDeep, ip1));
+                    detected = NewLA.DetectDip(f.getReferenceDeepValue(referenceDecompressor, refDeep, ip1));
                 }
                 else {
-                    detected = NewLA.DetectDip(f.getArrayValue(referenceDecompressor, ref, ip1));
+                    detected = NewLA.DetectDip(f.getReferenceValue(referenceDecompressor, ref, ip1));
                 }
 
                 if (detected || ip1 >= maxRefIteration) {
@@ -422,7 +423,7 @@ public class LAReference {
                 LA = GenericLAInfo.create(maxRefIteration, deepZoom, 0, referenceDecompressor).Step(1, referenceDecompressor);
                 i = 2;
 
-                Period = getNthRoot(maxRefIteration);
+                Period = (int)Math.round(getNthRoot(maxRefIteration));
             } else {
                 addToLAS(LA);
 
@@ -434,13 +435,13 @@ public class LAReference {
 
                 return false;
             }
-        } else if (Period > fakePeriodLimit) {
+        } else if (Period > fakePeriodLimit * fakePeriodLimit) {
             popLA();
 
             LA = GenericLAInfo.create(maxRefIteration, deepZoom, 0, referenceDecompressor).Step(1, referenceDecompressor);
             i = 2;
 
-            Period = getNthRoot(Period);
+            Period = (int)Math.round(getNthRoot(Period));
         }
 
         Runnable[] Tasks = new Runnable[ThreadCount];
@@ -488,9 +489,9 @@ public class LAReference {
                             GenericLAInfo LAi = GenericLAInfo.create(maxRefIteration, deepZoom, i, referenceDecompressor);
 
                             if (deepZoom) {
-                                detected = NewLA.DetectDip(f.getArrayDeepValue(referenceDecompressor, refDeep, ip1));
+                                detected = NewLA.DetectDip(f.getReferenceDeepValue(referenceDecompressor, refDeep, ip1));
                             } else {
-                                detected = NewLA.DetectDip(f.getArrayValue(referenceDecompressor, ref, ip1));
+                                detected = NewLA.DetectDip(f.getReferenceValue(referenceDecompressor, ref, ip1));
                             }
 
                             if (detected || ip1 >= maxRefIteration) {
@@ -652,10 +653,10 @@ public class LAReference {
                                 GenericLAInfo LAj = GenericLAInfo.create(maxRefIteration, deepZoom, j, referenceDecompressor);
 
                                 if(deepZoom) {
-                                    detected = NewLA.DetectDip(f.getArrayDeepValue(referenceDecompressor, refDeep, jp1));
+                                    detected = NewLA.DetectDip(f.getReferenceDeepValue(referenceDecompressor, refDeep, jp1));
                                 }
                                 else {
-                                    detected = NewLA.DetectDip(f.getArrayValue(referenceDecompressor, ref, jp1));
+                                    detected = NewLA.DetectDip(f.getReferenceValue(referenceDecompressor, ref, jp1));
                                 }
 
                                 if (detected || jp1 >= maxRefIteration) {
@@ -815,7 +816,7 @@ public class LAReference {
                 popLA();
                 i = PrevStageBegin;
                 double Ratio = ((double)(maxRefIteration)) / PrevStageStepLength;
-                Period = PrevStageStepLength * getNthRoot(Ratio);
+                Period = (int)Math.round(PrevStageStepLength * getNthRoot(Ratio));
             } else {
                 LAStages[CurrentStage].End = LAStages[CurrentStage].Begin + 1;
                 addToLAS(LAs[PrevStageEnd]);
@@ -826,7 +827,7 @@ public class LAReference {
             popLA();
             i = PrevStageBegin;
             double Ratio = ((double)(Period)) / PrevStageStepLength;
-            Period = PrevStageStepLength * getNthRoot(Ratio);
+            Period = (int)Math.round(PrevStageStepLength * getNthRoot(Ratio));
         }
 
         MagnitudeDetectionBase threshold = MagnitudeDetectionBase.getThreshold(prevMinMagnitude, minMagnitude);
@@ -914,7 +915,7 @@ public class LAReference {
                 j += 2;
 
                 double Ratio = ((double)(maxRefIteration)) / PrevStageLA.StepLength;
-                Period = PrevStageLA.StepLength * getNthRoot(Ratio);
+                Period = (int)Math.round(PrevStageLA.StepLength * getNthRoot(Ratio));
             } else {
                 addToLAS(LA);
 
@@ -937,7 +938,7 @@ public class LAReference {
             j += 2;
 
             double Ratio = ((double)(Period)) / PrevStageLA.StepLength;
-            Period = PrevStageLA.StepLength * getNthRoot(Ratio);
+            Period = (int)Math.round(PrevStageLA.StepLength * getNthRoot(Ratio));
         }
 
         for (; j < PrevStageEnd; j++) {
@@ -1089,7 +1090,7 @@ public class LAReference {
             }
 
             //Recreate data to save memory
-            if (deepZoom && (refData.Reference == null || refData.Reference.dataLength() != maxRefIteration + 1) && (convertedToDouble || performDoublePrecisionSimplePerturbation)) {
+            if (deepZoom && !f.usesReferenceSavingOrLoading() && (refData.Reference == null || refData.Reference.dataLength() != maxRefIteration + 1) && (convertedToDouble || performDoublePrecisionSimplePerturbation)) {
                 f.createLowPrecisionOrbit(maxRefIteration + 1, refData, refDeepData);
             }
         }
@@ -1284,12 +1285,6 @@ public class LAReference {
 
     }
 
-    private static double log2 = Math.log(2);
-
-    private double log2(double x) {
-        return Math.log(x) / log2;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -1301,8 +1296,8 @@ public class LAReference {
 
     public static void main(String[] args) {
 
-        long mem;
-        int length = 20000000;
+        //long mem;
+        //int length = 20000000;
 //        mem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 //
 //        LAInfo[] temp = new LAInfo[length];

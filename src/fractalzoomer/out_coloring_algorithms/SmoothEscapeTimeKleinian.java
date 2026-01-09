@@ -2,7 +2,7 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 public class SmoothEscapeTimeKleinian extends OutColorAlgorithm {
     private double u;
@@ -17,14 +17,14 @@ public class SmoothEscapeTimeKleinian extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        return (int)object[0] + getFractionalPart(object);
+        return data.iterations + getFractionalPart(data);
 
     }
 
     @Override
-    public double getFractionalPart(Object[] object) {
-        return Math.log(((Complex)object[1]).sub_i(u).norm());
+    public double getFractionalPart(OutColorData data) {
+        return Math.log((data.z).sub_i(u).norm());
     }
 }

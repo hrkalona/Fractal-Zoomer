@@ -2,8 +2,8 @@
 package fractalzoomer.fractal_options.initial_value;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.MantExpComplex;
 import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.fractal_options.PlanePointOption;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;

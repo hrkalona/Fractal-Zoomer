@@ -2,8 +2,10 @@
 
 package fractalzoomer.planes.general;
 
-import fractalzoomer.core.*;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.NumericLibrary;
+import fractalzoomer.core.numerics.*;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.planes.Plane;
 

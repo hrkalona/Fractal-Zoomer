@@ -2,9 +2,10 @@
 
 package fractalzoomer.fractal_options;
 
-import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.numerics.*;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 

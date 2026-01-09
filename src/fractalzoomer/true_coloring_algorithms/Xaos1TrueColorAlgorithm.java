@@ -3,6 +3,7 @@ package fractalzoomer.true_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.utils.ColorSpaceConverter;
+import fractalzoomer.utils.TrueColorData;
 
 /**
  *
@@ -15,8 +16,9 @@ public class Xaos1TrueColorAlgorithm extends TrueColorAlgorithm {
     }
 
     @Override
-    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, Complex pixel, double stat, double trap, boolean escaped, double fractional_part) {
+    public int createColor(TrueColorData data) {
 
+        Complex z = data.z;
         double re = z.getRe();
         double im = -z.getIm();
         

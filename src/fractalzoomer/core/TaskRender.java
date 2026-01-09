@@ -2,21 +2,28 @@
 package fractalzoomer.core;
 
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
-import fractalzoomer.core.blending.*;
+import fractalzoomer.core.approximation.la_zhuoran.LAReference;
+import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
+import fractalzoomer.core.blending.Blending;
+import fractalzoomer.core.blending.BlendingFactory;
 import fractalzoomer.core.domain_coloring.*;
 import fractalzoomer.core.interpolation.*;
 import fractalzoomer.core.iteration_algorithm.FractalIterationAlgorithm;
 import fractalzoomer.core.iteration_algorithm.IterationAlgorithm;
 import fractalzoomer.core.iteration_algorithm.JuliaIterationAlgorithm;
-import fractalzoomer.core.approximation.la_zhuoran.LAReference;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
 import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
-import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
-import fractalzoomer.core.mpfr.LibMpfr;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.LibMpir;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.numerics.BigIntNum;
+import fractalzoomer.core.numerics.BigNum;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MyApfloat;
+import fractalzoomer.core.numerics.mpfr.LibMpfr;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.LibMpir;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
+import fractalzoomer.core.reference.ReferenceOrbit;
+import fractalzoomer.core.reference.ReferenceOrbitBundle;
 import fractalzoomer.core.rendering_algorithms.BoundaryTracingRender;
 import fractalzoomer.core.rendering_algorithms.QueueBasedRender;
 import fractalzoomer.core.rendering_algorithms.SuccessiveRefinementGuessingRender;
@@ -26,8 +33,8 @@ import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.FractalFactory;
 import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.*;
@@ -41,13 +48,16 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -84,6 +94,8 @@ public abstract class TaskRender implements Runnable {
     protected int FROMy;
     protected int TOy;
 
+    protected int max_samples;
+
     public static double LCHab_CONSTANT_L = 50;
     public static double LCHab_CONSTANT_C = 100;
 
@@ -110,12 +122,18 @@ public abstract class TaskRender implements Runnable {
     protected static ExpandingQueueSquare rectangleAreasQueueu;
 
     public static int SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM = 0;
+    public static boolean SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS = true;
 
-    public static boolean COMPRESS_REFERENCE_IF_POSSIBLE = false;
+    public static boolean COMPRESS_REFERENCE = false;
 
     public static boolean TWO_PASS_SUCCESSIVE_REFINEMENT = false;
     public static boolean TWO_PASS_CHECK_CENTER = true;
     public static int SQUARE_RECT_CHUNK_AGGERAGATION = 0;
+    public static boolean SAVE_REFERENCE = false;
+    public static boolean LOAD_REFERENCE = false;
+    public static String SAVE_REFERENCE_FILE_PATH = null;
+    public static String LOAD_REFERENCE_FILE_PATH = null;
+    public static boolean LOADED_REFERENCE = false;
 
     protected static int[] SUCCESSIVE_REFINEMENT_CHUNK_X;
     protected static int[] SUCCESSIVE_REFINEMENT_CHUNK_Y;
@@ -145,6 +163,9 @@ public abstract class TaskRender implements Runnable {
 
     public static boolean INCLUDE_AA_DATA_ON_RANK_ORDER = false;
 
+    public static boolean USE_INTERPOLATION_BINARY_SEARCH = true;
+    public static int BINARY_SEARCH_HYBRID_DIFF = 0;
+
     public static LongAccumulator PostProcessingCalculationTime;
 
     protected static int[] rendering_done_per_task;
@@ -163,6 +184,8 @@ public abstract class TaskRender implements Runnable {
 
     public static int[] algorithm_colors;
     protected static int[] algorithm_colors2;
+
+    protected Location location;
 
     protected int taskId;
     protected String doneByThreadName;
@@ -402,6 +425,9 @@ public abstract class TaskRender implements Runnable {
     private PaletteGradientMergingSettings pbs;
     private HistogramColoringSettings hss;
 
+    private TextureSettings ts;
+    private BlinnLightSettings bls;
+
     /**
      * **********************
      */
@@ -471,6 +497,7 @@ public abstract class TaskRender implements Runnable {
 
     private Blending hss_blending;
     private Blending ofs_blending;
+    private Blending texture_blending;
 
     private InterpolationMethod method;
 
@@ -514,7 +541,6 @@ public abstract class TaskRender implements Runnable {
     public static boolean USE_THREADS_FOR_BLA2 = true;
     public static boolean USE_THREADS_FOR_BLA3 = true;
     public static boolean DETECT_PERIOD = true;
-    public static int PERIOD_DETECTION_ALGORITHM = 2;
     public static boolean STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
     public static int PERTUBATION_PIXEL_ALGORITHM = 0;
     public static int BLA_STARTING_LEVEL = ApproximationDefaultSettings.BLA_STARTING_LEVEL;
@@ -547,6 +573,7 @@ public abstract class TaskRender implements Runnable {
     public static boolean PATTERN_REVERT_ALG = false;
     public static boolean PATTERN_REPEAT_ALG = false;
     public static boolean PATTERN_CENTER = true;
+    public static boolean PATTERN_PULSE = false;
     public static double PATTERN_REPEAT_SPACING = 25;
     public static double PATTERN_N = 2.0;
     public static boolean LOAD_RENDERING_ALGORITHM_FROM_SAVES = false;
@@ -682,6 +709,8 @@ public abstract class TaskRender implements Runnable {
         gss = pps.gss;
         ofs = pps.ofs;
         ndes = pps.ndes;
+        ts = pps.ts;
+        bls = pps.bls;
 
         setPostProcessingBlending();
     }
@@ -689,66 +718,66 @@ public abstract class TaskRender implements Runnable {
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
-        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts, ts, bls);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
         settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, fns.laguerre_deg, color_blending, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, pbs, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, Settings.toComplex(fns.zenex_re, fns.zenex_im));
     }
 
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
-        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts, ts, bls);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
         settingsFractalMinimalRenderer(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, fns.laguerre_deg, color_blending, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, pbs, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.root_initialization_method, fns.preffs, fns.postffs, fns.ips, fns.defaultNovaInitialValue, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.period, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, Settings.toComplex(fns.zenex_re, fns.zenex_im));
     }
 
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, boolean quickRender, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
-        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts, ts, bls);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
         settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickRender, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, Settings.toComplex(fns.zenex_re, fns.zenex_im), xJuliaCenter, yJuliaCenter);
     }
 
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MinimalRendererWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
-        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts, ts, bls);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
         settingsJuliaMinimalRenderer(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, Settings.toComplex(fns.zenex_re, fns.zenex_im), xJuliaCenter, yJuliaCenter);
     }
 
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
-        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts, ts, bls);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
         settingsJuliaMap(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, Settings.toComplex(fns.zenex_re, fns.zenex_im));
     }
 
     public TaskRender(int FROMx, int TOx, int FROMy, int TOy, Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, boolean polar_projection, double circle_period, boolean inverse_dem, double color_intensity, int transfer_function, double color_density, double color_intensity2, int transfer_function2, double color_density2, boolean usePaletteForInColoring, BlendingSettings color_blending, int[] post_processing_order, PaletteGradientMergingSettings pbs, int gradient_offset, double contourFactor, GeneratedPaletteSettings gps, JitterSettings js, PostProcessSettings pps, Apfloat xJuliaCenter, Apfloat yJuliaCenter) {
         this.contourFactor = contourFactor;
         setPostProcessingData(pps);
-        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts);
+        SMOOTH_DATA = needsSmoothing(fns, ndes, ls, ss, bms, cns, ens, rps, fdes, sts, ts, bls);
         banded = fns.banded;
         this.gps = gps;
         this.js = js;
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
         settingsJuliaPreview(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, SMOOTH_DATA, fs, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_center_hp, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, polar_projection, circle_period, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_density, color_intensity2, transfer_function2, color_density2, usePaletteForInColoring, color_blending, post_processing_order, pbs, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_dddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue, fns.lpns.lyapunovInitializationIteratons, fns.lpns.lyapunovskipBailoutCheck, fns.preffs, fns.postffs, fns.ips, fns.juliter, fns.juliterIterations, fns.juliterIncludeInitialIterations, fns.defaultNovaInitialValue, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.perturbation_user_formula, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.initial_value_user_formula, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.cbs, fns.useGlobalMethod, fns.globalMethodFactor, fns.variable_re, fns.variable_im, fns.inflections_re, fns.inflections_im, fns.inflectionsPower, Settings.toComplex(fns.zenex_re, fns.zenex_im), xJuliaCenter, yJuliaCenter);
     }
     //Fractal
@@ -1385,9 +1414,11 @@ public abstract class TaskRender implements Runnable {
         this.bms = new BumpMapSettings(bms);
         this.ls = new LightSettings(ls);
         this.ss = new SlopeSettings(ss);
+        this.bls = new BlinnLightSettings(bls);
+
         this.pbs = pbs;
 
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, bms, ls, ss, bls);
 
         domain_coloring = ds.domain_coloring;
         ColorAlgorithm.DomainColoringBypass = domain_coloring;
@@ -1442,7 +1473,7 @@ public abstract class TaskRender implements Runnable {
 
         setPostProcessingData(pps);
 
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
 
         this.pbs = pbs;
 
@@ -1550,7 +1581,7 @@ public abstract class TaskRender implements Runnable {
 
         setPostProcessingData(pps);
 
-        pp = new PostProcessing(this, max_iterations, gradient_offset, pps);
+        pp = new PostProcessing(this, max_iterations, gradient_offset, pps, null, null, null, null);
 
         this.pbs = pbs;
 
@@ -1700,18 +1731,15 @@ public abstract class TaskRender implements Runnable {
             return null;
         }
 
-        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-
-        int supersampling_num;
+        int totalSamples;
         if(!filters[MainWindow.ANTIALIASING]) {
-            supersampling_num = 1;
+            totalSamples = 1;
         }
         else {
-            supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod) + 1;
+            totalSamples = max_samples + 1;
         }
 
-        return new TaskStatistic(taskId, doneByThreadName, pixel_calculation_time_per_task, post_processing_calculation_time_per_task, task_calculated, task_calculated_extra, task_completed, task_post_processed, WIDTH * HEIGHT, supersampling_num, new Color(algorithm_colors[(int)(getRandomThreadId() % algorithm_colors.length)]));
+        return new TaskStatistic(taskId, doneByThreadName, pixel_calculation_time_per_task, post_processing_calculation_time_per_task, task_calculated, task_calculated_extra, task_completed, task_post_processed, WIDTH * HEIGHT, totalSamples, new Color(algorithm_colors[(int)(getRandomThreadId() % algorithm_colors.length)]));
     }
 
     private long getRandomThreadId() {
@@ -1745,11 +1773,7 @@ public abstract class TaskRender implements Runnable {
         }
 
         if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
-
-            image_iterations = null;
-            escaped = null;
-
-            applyFilters();
+            applyFilters(image);
 
             progress.setValue(progress.getMaximum());
 
@@ -1767,6 +1791,15 @@ public abstract class TaskRender implements Runnable {
 
     private String _getBigNumLibPrecString(long val) {
         return "<li>BigNum Precision: <b>" + val + " bits</b><br>";
+    }
+
+    private String getLocationTypeName() {
+        String locationTypeName = location.getClass().getName();
+        int index = locationTypeName.lastIndexOf(".");
+        if(index != -1) {
+            locationTypeName = locationTypeName.substring(index + 1);
+        }
+        return locationTypeName;
     }
 
     private String getFloatExpString(boolean isDeep) {
@@ -1831,18 +1864,18 @@ public abstract class TaskRender implements Runnable {
         return "";
     }
 
-    private String getPixelsString(long total, long total_calculated_pixels, long total_calculated_extra_pixels, long total_completed_pixels, long total_pp, int supersampling_num) {
+    private String getPixelsString(long total, long total_calculated_pixels, long total_calculated_extra_pixels, long total_completed_pixels, long total_pp, int totalSamples) {
         if(filters[MainWindow.ANTIALIASING] && !quickRender) {
 
-            long totalWithSuperSampling = total * supersampling_num;
-            long totalCalculatedWithSuperSampling = total_calculated_pixels * supersampling_num;
-            long totalExtraWithSuperSampling = total_calculated_extra_pixels * supersampling_num;
-            long totalCompletedWithSuperSampling = total_completed_pixels * supersampling_num;
-            long totalPPWithSuperSampling = total_pp * supersampling_num;
+            long totalWithSuperSampling = total * totalSamples;
+            long totalCalculatedWithSuperSampling = total_calculated_pixels * totalSamples;
+            long totalExtraWithSuperSampling = total_calculated_extra_pixels * totalSamples;
+            long totalCompletedWithSuperSampling = total_completed_pixels * totalSamples;
+            long totalPPWithSuperSampling = total_pp * totalSamples;
 
-            String val = "<li>Anti-Aliasing Samples: <b>" +  supersampling_num + "x</b><br>" +
+            String val = "<li>Anti-Aliasing Samples: <b>" +  totalSamples + "x</b><br>" +
                     (d3 && image != null ? "<li>Actual Image Size: <b>" + image.getWidth() + "x" +  image.getHeight() + " (" + (image.getWidth() * image.getHeight()) + " Pixels)</b><br>" : "") +
-                    IMAGE_SIZE_LABEL + supersampling_num + "x" +  WIDTH + "x" +  HEIGHT + " (" + (supersampling_num * WIDTH * HEIGHT) + " Pixels)</b><br>" +
+                    IMAGE_SIZE_LABEL + totalSamples + "x" +  WIDTH + "x" +  HEIGHT + " (" + (totalSamples * WIDTH * HEIGHT) + " Pixels)</b><br>" +
                     PIXELS_CALCULATED_COUNT_LABEL +  totalCalculatedWithSuperSampling + " / " + totalWithSuperSampling + " (" +String.format("%f", (((double) totalCalculatedWithSuperSampling) / totalWithSuperSampling) * 100) + "%)</b><br>";
 
             if(totalCompletedWithSuperSampling >= 0) {
@@ -1887,20 +1920,20 @@ public abstract class TaskRender implements Runnable {
         }
     }
 
-    private String getPixelStringSmall(boolean juliaMap, boolean afterAA, long total, long total_pp, int supersampling_num) {
+    private String getPixelStringSmall(boolean juliaMap, boolean afterAA, long total, long total_pp, int totalSamples) {
 
         long total_calculated_pixels = total;
         long total_completed_pixels = total;
 
         if(filters[MainWindow.ANTIALIASING] && (juliaMap || afterAA)) {
 
-            long totalWithSuperSampling = total * supersampling_num;
-            long totalCalculatedWithSuperSampling = total_calculated_pixels * supersampling_num;
-            long totalCompletedWithSuperSampling = total_completed_pixels * supersampling_num;
-            long totalPPWithSuperSampling = total_pp * supersampling_num;
+            long totalWithSuperSampling = total * totalSamples;
+            long totalCalculatedWithSuperSampling = total_calculated_pixels * totalSamples;
+            long totalCompletedWithSuperSampling = total_completed_pixels * totalSamples;
+            long totalPPWithSuperSampling = total_pp * totalSamples;
 
-            String val = "<li>Anti-Aliasing Samples: <b>" +  supersampling_num + "x</b><br>" +
-                    IMAGE_SIZE_LABEL + supersampling_num + "x" +  WIDTH + "x" +  HEIGHT + " (" + (supersampling_num * WIDTH * HEIGHT) + " Pixels)</b><br>" +
+            String val = "<li>Anti-Aliasing Samples: <b>" +  totalSamples + "x</b><br>" +
+                    IMAGE_SIZE_LABEL + totalSamples + "x" +  WIDTH + "x" +  HEIGHT + " (" + (totalSamples * WIDTH * HEIGHT) + " Pixels)</b><br>" +
                     (juliaMap ? PIXELS_CALCULATED_COUNT_LABEL +  totalCalculatedWithSuperSampling + " / " + totalWithSuperSampling + " (" +String.format("%f", (((double) totalCalculatedWithSuperSampling) / totalWithSuperSampling) * 100) + "%)</b><br>" : "") +
                     PIXELS_COMPLETED_COUNT_LABEL + totalCompletedWithSuperSampling + " / " + (totalWithSuperSampling) + " (" + String.format("%f", (((double) totalCompletedWithSuperSampling) / (totalWithSuperSampling)) * 100) + "%)</b><br>";
 
@@ -1925,7 +1958,7 @@ public abstract class TaskRender implements Runnable {
     }
 
     public static final String PIXEL_GROUPING_STRING_LABEL = "Guessed Pixels Group";
-    private String getPixelGroupingString(int supersampling_num) {
+    private String getPixelGroupingString(int totalSamples) {
 
         String result = "";
 
@@ -1934,11 +1967,11 @@ public abstract class TaskRender implements Runnable {
             total += a.sum();
         }
 
-        total = total * supersampling_num;
+        total = total * totalSamples;
 
         int i = 1;
         for(LongAdder a : total_pixel_grouping) {
-            long v = a.sum() * supersampling_num;
+            long v = a.sum() * totalSamples;
             if(v != 0) {
                 result += "<li>" + PIXEL_GROUPING_STRING_LABEL + " " + i + ": <b>" + v + " / " + total + " (" +String.format("%f", (((double) v) / total) * 100) + "%)" + "</b><br>";
             }
@@ -2057,19 +2090,17 @@ public abstract class TaskRender implements Runnable {
         long time =  ptr != null ? ptr.getCalculationTime() : ptrMinimalRenderer.getCalculationTime();
         int threads = ptr != null ? ptr.getNumberOfThreads() : ptrMinimalRenderer.getNumberOfThreads();
 
-        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        int supersampling_num;
+        int totalSamples;
 
         if(!filters[MainWindow.ANTIALIASING]) {
-            supersampling_num = 1;
+            totalSamples = 1;
         }
         else {
-            supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod) + 1;
+            totalSamples = max_samples + 1;
         }
 
         if(quickRender) {
-            supersampling_num = 1;
+            totalSamples = 1;
         }
 
         long total_calculated_pixels = total_calculated.sum();
@@ -2095,8 +2126,8 @@ public abstract class TaskRender implements Runnable {
             oldValue = oldValue.replace("</html>", "");
         }
 
-        int refPointIterations = fractal.getReferenceFinalIterationNumber(false, Fractal.referenceData) + 1;
-        int secondRefPointIterations = Fractal.secondReferenceData.MaxRefIteration + 1;
+        int refPointIterations = fractal.getReferenceFinalIterationNumber(false) + 1;
+        int secondRefPointIterations = Fractal.secondReferenceOrbit.MaxRefIteration + 1;
 
         boolean supportsPerturbation = fractal.supportsPerturbationTheory() && !domain_coloring;
 
@@ -2105,13 +2136,14 @@ public abstract class TaskRender implements Runnable {
         boolean usesBLA = (APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()) ||  (APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2()) || (APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3());
 
         progress.setToolTipText("<html>" + TOTAL_ELAPSED_TIME_STRING_LABEL + total_time + " ms</b><br>" +
-                getPixelsString(total, total_calculated_pixels, total_calculated_extra_pixels, total_completed_pixels, total_pp, supersampling_num) +
+                getPixelsString(total, total_calculated_pixels, total_calculated_extra_pixels, total_completed_pixels, total_pp, totalSamples) +
                 "<li>Logical Processors: <b>" + Runtime.getRuntime().availableProcessors() + "</b><br>" +
                 "<li>Threads Used: <b>" + threads + "</b><br>" +
                 getAlgorithmUsed() +
                 ((PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && supportsPerturbation ? "<li>Arbitrary Precision: <b>" + MyApfloat.precision + " digits</b><br>" : "") +
                 getBigNumString(bigNumLib, arbitraryLib) +
                 getFloatExpString(isDeep) +
+                "<li>Location Implementation: <b>" + getLocationTypeName() + "</b><br>" +
                 PIXEL_CALCULATION_ELAPSED_TIME_STRING_LABEL + max_pixel_calculation_time.get() + " ms</b><br>" +
                 (!quickRender && total_pp > 0 && PostProcessingCalculationTime.get() != Long.MIN_VALUE ? POST_PROCESSING_ELAPSED_TIME_STRING_LABEL + PostProcessingCalculationTime.get() + " ms</b><br>" : "") +
                 (!quickRender && FilterCalculationTime > 0? IMAGE_FILTERS_TIME_STRING_LABEL + FilterCalculationTime + " ms</b><br>" : "")+
@@ -2123,42 +2155,42 @@ public abstract class TaskRender implements Runnable {
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 ? JULIA_EXTRA_REFERENCE_CALCULATION_ELAPSED_TIME_STRING_LABEL + Fractal.SecondReferenceCalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() ? JULIA_EXTRA_REFERENCE_POINT_ITERATIONS_STRING_LABEL + secondRefPointIterations + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation  && fractal.needsSecondReference() && Fractal.SecondReferenceCalculationTime > 0 && Fractal.calculatedSecondReferenceIterations > 0 ? "<li>Julia Extra Reference Point Iterations per second: <b>" + String.format("%.4f", Fractal.calculatedSecondReferenceIterations / (Fractal.SecondReferenceCalculationTime / 1000.0)) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && COMPRESS_REFERENCE_IF_POSSIBLE && fractal.supportsReferenceCompression() ? getCompressionInfo(refPointIterations, secondRefPointIterations) : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && DETECT_PERIOD && fractal.supportsPeriod()  ? "<li>Detected Period: <b>" + (Fractal.DetectedPeriod != 0 ? Fractal.DetectedPeriod : "N/A") + "</b><br>" : "") + //&& Fractal.DetectedPeriod != 0
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && COMPRESS_REFERENCE && fractal.supportsReferenceCompression() ? getCompressionInfo(refPointIterations, secondRefPointIterations) : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && DETECT_PERIOD && fractal.supportsPeriod()  ? "<li>Detected Period: <b>" + (Fractal.referenceOrbit.DetectedPeriod != 0 ? Fractal.referenceOrbit.DetectedPeriod : "N/A") + "</b><br>" : "") + //&& Fractal.DetectedPeriod != 0
                 //(!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && DETECT_PERIOD && fractal.supportsPeriod() && Fractal.DetectedPeriod != Fractal.DetectedAtomPeriod ? "<li>Detected Atom Period: <b>" + Fractal.DetectedAtomPeriod + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && fractal.supportsPeriod() && fractal.getPeriod()  != 0 && Fractal.SAskippedIterations == 0 ? "<li>Used Period: <b>" + fractal.getPeriod() + "</b><br>" : "") +
                 getApproximationString(supportsPerturbation) +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.SATerms != 0 && Fractal.SACalculationTime > 0? SA_CALCULATION_ELAPSED_TIME_LABEL + Fractal.SACalculationTime + " ms</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.SATerms != 0 ? "<li>SA Terms Used: <b>" + Fractal.SATerms + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.SATerms != 0 ? SA_SKIPPED_ITERATIONS_STRING_LABEL + Fractal.SAskippedIterations + "</b><br>": "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.sa != null && Fractal.sa.SATerms != 0 && Fractal.SACalculationTime > 0? SA_CALCULATION_ELAPSED_TIME_LABEL + Fractal.SACalculationTime + " ms</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.sa != null && Fractal.sa.SATerms != 0 ? "<li>SA Terms Used: <b>" + Fractal.sa.SATerms + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation() && Fractal.SAskippedIterations != 0 && Fractal.sa != null && Fractal.sa.SATerms != 0 ? SA_SKIPPED_ITERATIONS_STRING_LABEL + Fractal.SAskippedIterations + "</b><br>": "") +
 
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() && Fractal.Nanomb1CalculationTime > 0 ? NANOMB1_CALCULATION_ELAPSED_TIME_LABEL + Fractal.Nanomb1CalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 M: <b>" + NANOMB1_M + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 N: <b>" + NANOMB1_N + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? NANOMB1_SKIPPED_ITERATIONS_PER_PIXEL_STRING_LABEL + String.format("%.4f", Fractal.total_nanomb1_skipped_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>": "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? NANOMB1_SKIPPED_ITERATIONS_PER_PIXEL_STRING_LABEL + String.format("%.4f", Fractal.total_nanomb1_skipped_iterations_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>": "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && (usesBLA && Fractal.BLACalculationTime > 0) ? BLA_CALCULATION_ELAPSED_TIME_LABEL + Fractal.BLACalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Precision: <b>" + TaskRender.BLA_BITS + " bits</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Starting Level: <b>" + TaskRender.BLA_STARTING_LEVEL + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3()  ? "<li>BLA Starting Level: <b>" + TaskRender.BLA3_STARTING_LEVEL + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Entries: <b>" + fractal.getBLAEntries() + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? BLA_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_bla_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? BLA_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_bla_iterations_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps_sum() == 0 ? "N/A" : String.format("%.4f", Fractal.total_bla_iterations_sum() / ((double)Fractal.total_bla_steps_sum()))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? PERTURBATION_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_perturb_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.4f", Fractal.total_bla_steps_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.4f", (Fractal.total_bla_steps_sum() + Fractal.total_perturb_iterations_sum()) / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? SCALED_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_scaled_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && !isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_realigns_sum() / ((double) total_calculated_pixels * (supersampling_num)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.4f", Fractal.total_rebases_sum() / ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
-                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? AVERAGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", (Fractal.total_iterations_sum())/ ((double) total_calculated_pixels * (supersampling_num))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? PERTURBATION_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_perturb_iterations_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.4f", Fractal.total_bla_steps_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.4f", (Fractal.total_bla_steps_sum() + Fractal.total_perturb_iterations_sum()) / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? SCALED_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_scaled_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && !isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_realigns_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.4f", Fractal.total_rebases_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? AVERAGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", (Fractal.total_iterations_sum())/ ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
                 (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? MINIMUM_ITERATIONS_STRING_LABEL +  Fractal.total_min_iterations_get() + "</b><br>" : "") +
                 (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? MAXIMUM_ITERATIONS_STRING_LABEL +  Fractal.total_max_iterations_get() + "</b><br>" : "") +
                 (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? MAXIMUM_ITERATIONS_IGNORE_NOT_ESCAPED_STRING_LABEL +  Fractal.total_max_iterations_ignore_max_iter_get() + "</b><br>" : "") +
-                getPixelGroupingString(supersampling_num) +
+                getPixelGroupingString(totalSamples) +
 
 
 
@@ -2232,15 +2264,13 @@ public abstract class TaskRender implements Runnable {
             threads = ptr != null ? ptr.getNumberOfThreads() : ptrMinimalRenderer.getNumberOfThreads();
         }
 
-        int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
-        int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
-        int supersampling_num;
+        int totalSamples;
 
         if(!filters[MainWindow.ANTIALIASING]) {
-            supersampling_num = 1;
+            totalSamples = 1;
         }
         else {
-            supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod) + 1;
+            totalSamples = max_samples + 1;
         }
 
         long total_time = System.currentTimeMillis() - time;
@@ -2250,7 +2280,7 @@ public abstract class TaskRender implements Runnable {
         long total_pp = total_post_processed.sum();
 
         progress.setToolTipText("<html>" + TOTAL_ELAPSED_TIME_STRING_LABEL + total_time + " ms</b><br>" +
-                getPixelStringSmall(juliaMap, afterAA, total, total_pp, supersampling_num) +
+                getPixelStringSmall(juliaMap, afterAA, total, total_pp, totalSamples) +
                 "<li>Logical Processors: <b>" + Runtime.getRuntime().availableProcessors() + "</b><br>" +
                 "<li>Threads Used: <b>" + threads + "</b><br>" +
                 (juliaMap ? "<li>Using <b>Double Precision</b><br>" : "" )+
@@ -2310,10 +2340,7 @@ public abstract class TaskRender implements Runnable {
         }
 
         if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
-            image_iterations = null;
-            escaped = null;
-
-            applyFilters();
+            applyFilters(image);
 
             progress.setValue(progress.getMaximum());
 
@@ -2358,10 +2385,7 @@ public abstract class TaskRender implements Runnable {
         }
 
         if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
-            image_iterations = null;
-            escaped = null;
-
-            applyFilters();
+            applyFilters(image);
 
             progress.setValue(progress.getMaximum());
 
@@ -2407,10 +2431,7 @@ public abstract class TaskRender implements Runnable {
         }
 
         if (finalize_sync.incrementAndGet() == ptrMinimalRenderer.getNumberOfThreads()) {
-            image_iterations = null;
-            escaped = null;
-
-            applyFilters();
+            applyFilters(image);
 
             progress.setValue(progress.getMaximum());
 
@@ -2485,7 +2506,10 @@ public abstract class TaskRender implements Runnable {
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
             BoundaryTracingRender.examined = null;
             SuccessiveRefinementGuessingRender.examined = null;
-            applyFilters();
+
+            if (!d3) {
+                applyFilters(image);
+            }
 
             updateMode(ptr, d3, iteration_algorithm.isJulia(), false, false);
 
@@ -2604,7 +2628,9 @@ public abstract class TaskRender implements Runnable {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            applyFilters();
+            if (!d3) {
+                applyFilters(image);
+            }
 
             updateMode(ptr, d3, false, false, true);
 
@@ -2730,7 +2756,9 @@ public abstract class TaskRender implements Runnable {
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
             BoundaryTracingRender.examined = null;
             SuccessiveRefinementGuessingRender.examined = null;
-            applyFilters();
+            if (!d3) {
+                applyFilters(image);
+            }
 
             updateMode(ptr, d3, iteration_algorithm.isJulia(), false, false);
 
@@ -2777,7 +2805,9 @@ public abstract class TaskRender implements Runnable {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            applyFilters();
+            if (!d3) {
+                applyFilters(image);
+            }
 
             updateMode(ptr, d3, false, false, true);
 
@@ -2842,7 +2872,7 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    public boolean isMaximumIterations(double result) {
+    public static boolean isMaximumIterations(double result) {
         result = Math.abs(result);
         return result == ColorAlgorithm.MAXIMUM_ITERATIONS || result == ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
     }
@@ -3397,7 +3427,7 @@ public abstract class TaskRender implements Runnable {
 
     protected void quickRenderDomain(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
         int tempx, tempy;
 
@@ -3416,8 +3446,8 @@ public abstract class TaskRender implements Runnable {
             long time = System.nanoTime();
             AtomicInteger ai = quick_render_rendering_algorithm_pixel[id];
 
-            int image_width_tile = image_width % current_chunk_size  == 0 ? image_width / current_chunk_size : image_width / current_chunk_size + 1;
-            int image_height_tile = image_height % current_chunk_size  == 0 ? image_height / current_chunk_size : image_height / current_chunk_size + 1;
+            int image_width_tile = (image_width + current_chunk_size - 1) / current_chunk_size;
+            int image_height_tile = (image_height + current_chunk_size - 1) / current_chunk_size;
             int condition = (image_width_tile) * (image_height_tile);
             int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
 
@@ -3452,13 +3482,15 @@ public abstract class TaskRender implements Runnable {
 
                         task_calculated++;
 
-                        tempx = Math.min(image_width, x + current_chunk_size);
-                        tempy = Math.min(image_height, y + current_chunk_size);
+                        if (SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS) {
+                            tempx = Math.min(image_width, x + current_chunk_size);
+                            tempy = Math.min(image_height, y + current_chunk_size);
 
-                        for (int i = y; i < tempy; i++) {
-                            for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
-                                if (loc3 != loc2) {
-                                    rgbs[loc3] = color;
+                            for (int i = y; i < tempy; i++) {
+                                for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
+                                    if (loc3 != loc2) {
+                                        rgbs[loc3] = color;
+                                    }
                                 }
                             }
                         }
@@ -3503,7 +3535,7 @@ public abstract class TaskRender implements Runnable {
             }
 
             WaitOnCondition.WaitOnCyclicBarrier(reference_sync);
-            location.setReference(Fractal.refPoint);
+            location.setReference(Fractal.referenceOrbit.refPoint);
         }
     }
 
@@ -3513,7 +3545,7 @@ public abstract class TaskRender implements Runnable {
                 calculateReference(location);
             }
             WaitOnCondition.WaitOnCyclicBarrier(reference_sync);
-            location.setReference(Fractal.refPoint);
+            location.setReference(Fractal.referenceOrbit.refPoint);
         }
         else if(HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory()) {
             if (reference_calc_sync.getAndIncrement() == 0) {
@@ -3525,7 +3557,7 @@ public abstract class TaskRender implements Runnable {
 
     protected void quickRender(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initialize(location);
 
@@ -3550,8 +3582,8 @@ public abstract class TaskRender implements Runnable {
             long time = System.nanoTime();
             AtomicInteger ai = quick_render_rendering_algorithm_pixel[id];
 
-            int image_width_tile = image_width % current_chunk_size  == 0 ? image_width / current_chunk_size : image_width / current_chunk_size + 1;
-            int image_height_tile = image_height % current_chunk_size  == 0 ? image_height / current_chunk_size : image_height / current_chunk_size + 1;
+            int image_width_tile = (image_width + current_chunk_size - 1) / current_chunk_size;
+            int image_height_tile = (image_height + current_chunk_size - 1) / current_chunk_size;
             int condition = (image_width_tile) * (image_height_tile);
             int chunk_size = THREAD_CHUNK_SIZE_PER_LEVEL[id];
 
@@ -3581,13 +3613,15 @@ public abstract class TaskRender implements Runnable {
 
                         task_calculated++;
 
-                        tempx = Math.min(image_width, x + current_chunk_size);
-                        tempy = Math.min(image_height, y + current_chunk_size);
+                        if (SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS) {
+                            tempx = Math.min(image_width, x + current_chunk_size);
+                            tempy = Math.min(image_height, y + current_chunk_size);
 
-                        for (int i = y; i < tempy; i++) {
-                            for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
-                                if (loc3 != loc2) {
-                                    rgbs[loc3] = color;
+                            for (int i = y; i < tempy; i++) {
+                                for (int j = x, loc3 = i * image_width + j; j < tempx; j++, loc3++) {
+                                    if (loc3 != loc2) {
+                                        rgbs[loc3] = color;
+                                    }
                                 }
                             }
                         }
@@ -3617,7 +3651,7 @@ public abstract class TaskRender implements Runnable {
 
     protected void renderDomain(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
         int pixel_percent = (image_width * image_height) / 100;
 
@@ -3681,10 +3715,10 @@ public abstract class TaskRender implements Runnable {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         int pixel_percent = (image_width * image_height) / 100;
 
@@ -3693,9 +3727,9 @@ public abstract class TaskRender implements Runnable {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -3740,7 +3774,7 @@ public abstract class TaskRender implements Runnable {
                     aa.initialize(color);
 
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < max_samples; i++) {
                         val = iteration_algorithm.calculateDomain(location.getAntialiasingComplex(i, loc));
                         color = domain_color.getDomainColor(val);
 
@@ -3852,7 +3886,7 @@ public abstract class TaskRender implements Runnable {
 
     protected void render3D(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initialize(location);
 
@@ -3923,7 +3957,7 @@ public abstract class TaskRender implements Runnable {
 
     protected void renderDomain3D(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
         int image_size = Math.min(image_width, image_height);
         int w2x = (int)(image_width * 0.5);
@@ -3989,10 +4023,10 @@ public abstract class TaskRender implements Runnable {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         initialize(location);
 
@@ -4010,9 +4044,9 @@ public abstract class TaskRender implements Runnable {
         int condition = detail * detail;
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int temp_samples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(temp_samples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -4047,19 +4081,19 @@ public abstract class TaskRender implements Runnable {
                 color = getFinalColor(f_val, escaped_val);
 
                 if(storeExtraData) {
-                    pixelData[loc].set(0, color, f_val, escaped_val, temp_samples);
+                    pixelData[loc].set(0, color, f_val, escaped_val, totalSamples);
                 }
 
                 aa.initialize(color);
 
                 //Supersampling
-                for (int k = 0; k < supersampling_num; k++) {
+                for (int k = 0; k < max_samples; k++) {
                     temp = iteration_algorithm.calculate3D(location.getAntialiasingComplex(k, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp[1], escaped_val);
 
                     if(storeExtraData) {
-                        pixelData[loc].set(k + 1, color, temp[1], escaped_val, temp_samples);
+                        pixelData[loc].set(k + 1, color, temp[1], escaped_val, totalSamples);
                     }
 
                     height += temp[0];
@@ -4069,7 +4103,7 @@ public abstract class TaskRender implements Runnable {
                     }
                 }
 
-                vert[x][y] = fractional_transfer_3d((height / temp_samples));
+                vert[x][y] = fractional_transfer_3d((height / totalSamples));
                 vert_color[x][y] = aa.getColor();
 
                 rendering_done_per_task[taskId]++;
@@ -4102,10 +4136,10 @@ public abstract class TaskRender implements Runnable {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         int image_size = Math.min(image_width, image_height);
         int w2x = (int)(image_width * 0.5);
@@ -4121,9 +4155,9 @@ public abstract class TaskRender implements Runnable {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int temp_samples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(temp_samples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -4159,13 +4193,13 @@ public abstract class TaskRender implements Runnable {
                 color = domain_color.getDomainColor(a);
 
                 if(storeExtraData) {
-                    pixelData[loc].set(0, color, f_val, true, temp_samples);
+                    pixelData[loc].set(0, color, f_val, true, totalSamples);
                 }
 
                 aa.initialize(color);
 
                 //Supersampling
-                for (int k = 0; k < supersampling_num; k++) {
+                for (int k = 0; k < max_samples; k++) {
                     a = iteration_algorithm.calculateDomain(location.getAntialiasingComplex(k, loc));
 
                     color = domain_color.getDomainColor(a);
@@ -4174,7 +4208,7 @@ public abstract class TaskRender implements Runnable {
 
                     if(storeExtraData) {
                         f_val = scaleDomainHeight(heightVal);
-                        pixelData[loc].set(k + 1, color, f_val, true, temp_samples);
+                        pixelData[loc].set(k + 1, color, f_val, true, totalSamples);
                     }
 
                     if(!aa.addSample(color)) {
@@ -4182,7 +4216,7 @@ public abstract class TaskRender implements Runnable {
                     }
                 }
 
-                vert[x][y] = fractional_transfer_3d((height / temp_samples));
+                vert[x][y] = fractional_transfer_3d((height / totalSamples));
                 vert_color[x][y] = aa.getColor();
 
                 rendering_done_per_task[taskId]++;
@@ -4251,7 +4285,7 @@ public abstract class TaskRender implements Runnable {
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             if (fast_julia_filters) {
-                applyFilters();
+                applyFiltersNoProgress();
             }
 
             Graphics2D graphics = image.createGraphics();
@@ -4294,15 +4328,15 @@ public abstract class TaskRender implements Runnable {
         }
     }
 
-    protected void applyPostProcessingOnPixel(int index, int x, int y, int image_width, int image_height, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, int[] modified, double sizeCorr, double lightx, double lighty, Location location) {
+    protected void applyPostProcessingOnPixel(int index, int x, int y, int image_width, int image_height, double[] image_iterations, boolean[] escaped, PixelExtraData[] pixelData, AntialiasingAlgorithm aa, double sizeCorr, double lightx, double lighty, Location location) {
 
+        int[] modified;
         if(aa != null && pixelData != null) {
             modified = pixelData[index].rgb_values;
-        }
-        else if (d3) {
-            modified[0] = vert_color[x][y];
+        } else if (d3) {
+            modified = new int[] {vert_color[x][y]};
         } else {
-            modified[0] = rgbs[index];
+            modified = new int[] {rgbs[index]};
         }
 
         for (int i = 0; i < post_processing_order.length; i++) {
@@ -4320,6 +4354,13 @@ public abstract class TaskRender implements Runnable {
                         int[] original_color = modified;
                         modified = pp.light(image_iterations, pixelData, original_color, y, x, image_width, image_height, location, aa);
                         modified = pp.postProcessingSmoothing(modified, image_iterations, pixelData, original_color, y, x, image_width, image_height, ls.l_noise_reducing_factor, location, aa);
+                    }
+                    break;
+                case MainWindow.BLINN_LIGHT:
+                    if (bls.lighting) {
+                        int[] original_color = modified;
+                        modified = pp.blin_light(image_iterations, pixelData, original_color, y, x, image_width, image_height, location, aa);
+                        modified = pp.postProcessingSmoothing(modified, image_iterations, pixelData, original_color, y, x, image_width, image_height, bls.bls_noise_reducing_factor, location, aa);
                     }
                     break;
                 case MainWindow.NUMERICAL_DISTANCE_ESTIMATOR:
@@ -4348,6 +4389,13 @@ public abstract class TaskRender implements Runnable {
                         int[] original_color = modified;
                         modified = pp.entropyColoring(image_iterations, pixelData, y, x, image_width, image_height, original_color, escaped, location, aa);
                         modified = pp.postProcessingSmoothing(modified, image_iterations, pixelData, original_color, y, x, image_width, image_height, ens.en_noise_reducing_factor, location, aa);
+                    }
+                    break;
+                case MainWindow.TEXTURE:
+                    if (ts.applyTexture && !domain_coloring) {
+                        int[] original_color = modified;
+                        modified = pp.texture(image_iterations, pixelData, original_color, y, x, image_width, image_height, location, aa);
+                        modified = pp.postProcessingSmoothing(modified, image_iterations, pixelData, original_color, y, x, image_width, image_height, ts.texture_noise_reducing_factor, location, aa);
                     }
                     break;
                 case MainWindow.RAINBOW_PALETTE:
@@ -4427,11 +4475,7 @@ public abstract class TaskRender implements Runnable {
             lighty = Math.sin(lightAngleRadians) * gradCorr;
         }
 
-
-        int[] modified = new int[1];
-
         if(aa != null) {
-            modified = new int[aa.getTotalSamples()];
             aa.setNeedsAllSamples(false);
         }
 
@@ -4452,7 +4496,7 @@ public abstract class TaskRender implements Runnable {
             for (int y = FROMy; y < TOy; y++) {
                 for (int x = FROMx; x < TOx; x++) {
                     int index = y * image_width + x;
-                    applyPostProcessingOnPixel(index, x, y, image_width, image_height, image_iterations, escaped, pixelData, aa, modified, sizeCorr, lightx, lighty, location);
+                    applyPostProcessingOnPixel(index, x, y, image_width, image_height, image_iterations, escaped, pixelData, aa, sizeCorr, lightx, lighty, location);
                 }
             }
             iteration++;
@@ -4519,6 +4563,10 @@ public abstract class TaskRender implements Runnable {
 
             if(ccs.slope_cycling_adjusting_value != 0 && ss.slopes) {
                 CommonFunctions.adjustSlopeOffset(ss, ccs.slope_cycling_adjusting_value);
+            }
+
+            if(ccs.blinn_light_cycling_adjusting_value != 0 && bls.lighting) {
+                CommonFunctions.adjustBlinnLightOffset(bls, ccs.blinn_light_cycling_adjusting_value);
             }
 
             int iteration = 0;
@@ -4589,9 +4637,6 @@ public abstract class TaskRender implements Runnable {
         max_pixel_calculation_time.accumulate(pixel_calculation_time_per_task);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            applyFiltersNoProgress();
-
-            ptr.setOptions(true);
             ptr.setWholeImageDone(true);
             ptr.getMainPanel().repaint();
             progress.setValue(progress.getMaximum());
@@ -4600,6 +4645,8 @@ public abstract class TaskRender implements Runnable {
 
             if(tile_size > 1) {
                 ptr.createCompleteImage(QUICK_RENDER_DELAY, true, false, false);
+            } else {
+                ptr.setOptions(true);
             }
         }
 
@@ -4619,8 +4666,6 @@ public abstract class TaskRender implements Runnable {
         max_pixel_calculation_time.accumulate(pixel_calculation_time_per_task);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            applyFilters();
-
             ptr.setOptions(true);
             ptr.setWholeImageDone(true);
             ptr.getMainPanel().repaint();
@@ -4645,7 +4690,7 @@ public abstract class TaskRender implements Runnable {
         max_pixel_calculation_time.accumulate(pixel_calculation_time_per_task);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            applyFilters();
+            applyFilters(image);
 
             ptr.setOptions(true);
             ptr.setWholeImageDone(true);
@@ -4671,7 +4716,7 @@ public abstract class TaskRender implements Runnable {
         max_pixel_calculation_time.accumulate(pixel_calculation_time_per_task);
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            applyFilters();
+            applyFilters(image);
 
             ptr.setOptions(true);
             ptr.setWholeImageDone(true);
@@ -4693,8 +4738,8 @@ public abstract class TaskRender implements Runnable {
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        int totalSamples = supersampling_num + 1;
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = pixelData != null && pixelData.length > 0 && pixelData[0].rgb_values != null ? pixelData[0].rgb_values.length - 1 : supersampling_num;
 
         forcePostProcessing = true;
 
@@ -4705,7 +4750,7 @@ public abstract class TaskRender implements Runnable {
         }
 
         if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-            applyFilters();
+            applyFilters(image);
 
             ptr.setOptions(true);
             ptr.setWholeImageDone(true);
@@ -4772,8 +4817,8 @@ public abstract class TaskRender implements Runnable {
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        int totalSamples = supersampling_num + 1;
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = pixelData != null && pixelData.length > 0 && pixelData[0].rgb_values != null ? pixelData[0].rgb_values.length - 1 : supersampling_num;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -4806,8 +4851,9 @@ public abstract class TaskRender implements Runnable {
 
                     aa.initialize(color);
 
+                    int length = data.getActualLength() - 1;
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < length; i++) {
                         data.update_rgb(i + 1, color = getFinalColor(data.values[i + 1], data.escaped[i + 1]));
 
                         if (!aa.addSample(color)) {
@@ -4854,7 +4900,7 @@ public abstract class TaskRender implements Runnable {
         max_pixel_calculation_time.accumulate(pixel_calculation_time_per_task);
 
         if (finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
-            applyFilters();
+            applyFilters(image);
 
             updateMode(ptr, false, false, true, false);
             ptr.setOptions(true);
@@ -4886,7 +4932,7 @@ public abstract class TaskRender implements Runnable {
         max_pixel_calculation_time.accumulate(pixel_calculation_time_per_task);
 
         if (finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
-            applyFilters();
+            applyFilters(image);
 
             updateMode(ptr, false, false, true, false);
             ptr.setOptions(true);
@@ -4902,7 +4948,7 @@ public abstract class TaskRender implements Runnable {
 
     private void juliaMap(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, TOx - FROMx, TOy - FROMy, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, TOx - FROMx, TOy - FROMy, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
 
         int pixel_percent = (image_width * image_height) / 100;
 
@@ -4943,10 +4989,10 @@ public abstract class TaskRender implements Runnable {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, TOx - FROMx, TOy - FROMy, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, TOx - FROMx, TOy - FROMy, circle_period, rotation_center, rotation_vals, fractal, js, polar, false);
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         int pixel_percent = (image_width * image_height) / 100;
 
@@ -4957,9 +5003,9 @@ public abstract class TaskRender implements Runnable {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -4985,7 +5031,7 @@ public abstract class TaskRender implements Runnable {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -5175,6 +5221,10 @@ public abstract class TaskRender implements Runnable {
         return ss;
     }
 
+    public BlinnLightSettings getBlinnLightSettings() {
+        return bls;
+    }
+
     public int getColorCyclingLocationOutColoring() {
 
         return color_cycling_location_outcoloring;
@@ -5193,7 +5243,7 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    private void applyFilters() {
+    private void applyFilters(BufferedImage img) {
 
         int active_filters_count = 0;
         for (int i = 0; i < filters.length; i++) {
@@ -5212,7 +5262,7 @@ public abstract class TaskRender implements Runnable {
             progress.setString("Image Filters: " + 0 + "/" + active_filters_count);
 
             long time = System.currentTimeMillis();
-            ImageFilters.filter(image, filters, filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, filters_order, fs, progress);
+            ImageFilters.filter(img, filters, filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, filters_order, fs, progress);
             FilterCalculationTime = System.currentTimeMillis() - time;
 
             progress.setString(null);
@@ -5719,9 +5769,24 @@ public abstract class TaskRender implements Runnable {
         return Math.max(Math.max(val0, val1), val2);
     }
 
+    private static BufferedImage img_3d;
+    public static int[] raster_3d;
+
+
    protected void paint3D(int image_size, int w2x, int w2y, boolean updateProgress, int tile_size) {
 
-        ptr.setP3Render(true);
+        if (updateProgress) {
+            img_3d = new BufferedImage(detail, detail, BufferedImage.TYPE_INT_ARGB);
+            raster_3d = ((DataBufferInt) img_3d.getRaster().getDataBuffer()).getData();
+            IntStream.range(0, detail * detail).parallel().forEach(p -> {
+                int i = p / detail;
+                int j = p % detail;
+                raster_3d[p] = vert_color[j][i];
+            });
+
+            applyFilters(img_3d);
+            ptr.setP3Render(true);
+        }
 
         long time = System.currentTimeMillis();
 
@@ -5813,18 +5878,21 @@ public abstract class TaskRender implements Runnable {
                         yPol[1] = w2y - (int)(v_ip1_j_1);
                         yPol[2] = w2y - (int)(v_ip1_jp1_1);
 
-                        red1 = (((vert_color[i][j]) >> 16) & 0xff);
-                        green1 = (((vert_color[i][j]) >> 8) & 0xff);
-                        blue1 = ((vert_color[i][j]) & 0xff);
+                        int colora = raster_3d[j * detail + i];
+                        red1 = (((colora) >> 16) & 0xff);
+                        green1 = (((colora) >> 8) & 0xff);
+                        blue1 = ((colora) & 0xff);
 
                         if(D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1 || D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 2) {
-                            red2 = (((vert_color[ip1][j]) >> 16) & 0xff);
-                            green2 = (((vert_color[ip1][j]) >> 8) & 0xff);
-                            blue2 = ((vert_color[ip1][j]) & 0xff);
+                            int colorb = raster_3d[j * detail + ip1];
+                            red2 = (((colorb) >> 16) & 0xff);
+                            green2 = (((colorb) >> 8) & 0xff);
+                            blue2 = ((colorb) & 0xff);
 
-                            red3 = (((vert_color[ip1][jp1]) >> 16) & 0xff);
-                            green3 = (((vert_color[ip1][jp1]) >> 8) & 0xff);
-                            blue3 = ((vert_color[ip1][jp1]) & 0xff);
+                            int colorc = raster_3d[jp1 * detail + ip1];
+                            red3 = (((colorc) >> 16) & 0xff);
+                            green3 = (((colorc) >> 8) & 0xff);
+                            blue3 = ((colorc) & 0xff);
 
                             if(D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
                                 Color color1 = new Color(getModifiedColor(red1, green1, blue1, Norm1z[i][j][0], d3s.d3_color_type, color_3d_blending, false));
@@ -5894,18 +5962,21 @@ public abstract class TaskRender implements Runnable {
                         yPol[1] = w2y - (int)(v_i_jp1_1);
                         yPol[2] = w2y - (int)(v_ip1_jp1_1);
 
-                        red1 = (((vert_color[i][j]) >> 16) & 0xff);
-                        green1 = (((vert_color[i][j]) >> 8) & 0xff);
-                        blue1 = ((vert_color[i][j]) & 0xff);
+                        int colora = raster_3d[j * detail + i];
+                        red1 = (((colora) >> 16) & 0xff);
+                        green1 = (((colora) >> 8) & 0xff);
+                        blue1 = ((colora) & 0xff);
 
                         if(D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1 || D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 2) {
-                            red2 = (((vert_color[i][jp1]) >> 16) & 0xff);
-                            green2 = (((vert_color[i][jp1]) >> 8) & 0xff);
-                            blue2 = ((vert_color[i][jp1]) & 0xff);
+                            int colorb = raster_3d[jp1 * detail + i];
+                            red2 = (((colorb) >> 16) & 0xff);
+                            green2 = (((colorb) >> 8) & 0xff);
+                            blue2 = ((colorb) & 0xff);
 
-                            red3 = (((vert_color[ip1][jp1]) >> 16) & 0xff);
-                            green3 = (((vert_color[ip1][jp1]) >> 8) & 0xff);
-                            blue3 = ((vert_color[ip1][jp1]) & 0xff);
+                            int colorc = raster_3d[jp1 * detail + ip1];
+                            red3 = (((colorc) >> 16) & 0xff);
+                            green3 = (((colorc) >> 8) & 0xff);
+                            blue3 = ((colorc) & 0xff);
 
 
                             if(D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS == 1) {
@@ -6013,14 +6084,14 @@ public abstract class TaskRender implements Runnable {
 
     protected boolean needsPostProcessing() {
         return (
-                (!domain_coloring && (hss.histogramColoring || ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring))
-                || (domain_coloring && (ss.slopes || bms.bump_map || ls.lighting))
+                (!domain_coloring && (hss.histogramColoring || ndes.useNumericalDem || ss.slopes || ls.lighting || bls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring || ts.applyTexture))
+                || (domain_coloring && (ss.slopes || bms.bump_map || ls.lighting || bls.lighting))
         ) && !USE_DIRECT_COLOR;
     }
 
-    protected boolean needsSmoothing(FunctionSettings fns, NumericalDistanceEstimatorSettings ndes, LightSettings ls, SlopeSettings ss, BumpMapSettings bms, ContourColoringSettings cns, EntropyColoringSettings ens, RainbowPaletteSettings rps, FakeDistanceEstimationSettings fdes, StatisticsSettings sts) {
+    protected boolean needsSmoothing(FunctionSettings fns, NumericalDistanceEstimatorSettings ndes, LightSettings ls, SlopeSettings ss, BumpMapSettings bms, ContourColoringSettings cns, EntropyColoringSettings ens, RainbowPaletteSettings rps, FakeDistanceEstimationSettings fdes, StatisticsSettings sts, TextureSettings ts, BlinnLightSettings bls) {
         return fns.smoothing
-                || ((ndes.useNumericalDem || ss.slopes || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || statisticNeedsSmoothing(sts)) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
+                || ((ndes.useNumericalDem || ss.slopes || bls.lighting || ls.lighting || bms.bump_map || cns.contour_coloring || ens.entropy_coloring || rps.rainbow_palette || fdes.fake_de || ts.applyTexture || statisticNeedsSmoothing(sts)) && USE_SMOOTHING_FOR_PROCESSING_ALGS);
     }
 
     protected boolean statisticNeedsSmoothing(StatisticsSettings sts) {
@@ -6361,8 +6432,8 @@ public abstract class TaskRender implements Runnable {
 
         task_calculated_extra++;
 
-        int totalSamples = aa.getTotalSamples();
-        int supersampling_num = totalSamples - 1;
+        max_samples = location.getMaxSamples(aa.getTotalSamples() - 1);
+        int totalSamples = max_samples + 1;
         PixelExtraData data = new PixelExtraData();
 
         if(domain_coloring) {
@@ -6381,7 +6452,7 @@ public abstract class TaskRender implements Runnable {
 
         int hash = c.hashCode();
 
-        for(int i = 0; i < supersampling_num; i++) {
+        for(int i = 0; i < max_samples; i++) {
             if(domain_coloring) {
                 Complex cval = iteration_algorithm.calculateDomain(location.getAntialiasingComplex(i, hash));
                 data.set(i + 1, 0, scaleDomainHeight(getDomainHeight(cval)), true, totalSamples);
@@ -6666,13 +6737,21 @@ public abstract class TaskRender implements Runnable {
         vert = null;
         vert_color = null;
         Norm1z = null;
+        img_3d = null;
+        raster_3d = null;
 
-        if(image_iterations == null || image_iterations.length != width * height) {
+        if(image_iterations == null
+                || image_iterations.length != width * height
+                || escaped == null
+                || escaped.length != width * height) {
             image_iterations = new double[width * height];
             escaped = new boolean[width * height];
         }
 
-        if(image_iterations_fast_julia == null || image_iterations_fast_julia.length != FAST_JULIA_IMAGE_SIZE * FAST_JULIA_IMAGE_SIZE) {
+        if(image_iterations_fast_julia == null
+                || image_iterations_fast_julia.length != FAST_JULIA_IMAGE_SIZE * FAST_JULIA_IMAGE_SIZE
+                || escaped_fast_julia == null
+                || escaped_fast_julia.length != FAST_JULIA_IMAGE_SIZE * FAST_JULIA_IMAGE_SIZE) {
             image_iterations_fast_julia = new double[FAST_JULIA_IMAGE_SIZE * FAST_JULIA_IMAGE_SIZE];
             escaped_fast_julia = new boolean[FAST_JULIA_IMAGE_SIZE * FAST_JULIA_IMAGE_SIZE];
         }
@@ -7111,7 +7190,7 @@ public abstract class TaskRender implements Runnable {
 
     }
 
-    public void calculateReferenceFastJulia(Location loc) {
+    private void calculateReferenceFastJulia(Location loc) {
 
         Fractal.ReferenceCalculationTime = 0;
         Fractal.SecondReferenceCalculationTime = 0;
@@ -7130,7 +7209,7 @@ public abstract class TaskRender implements Runnable {
         GenericComplex temp = loc.getReferencePoint();
 
         Fractal.clearReferences(true, false);
-        fractal.calculateReferencePoint(temp, size, useExtendedRange(size, fractal), fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, null);
+        fractal.calculateReferenceOrbit(temp, size, useExtendedRange(size, fractal), fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, null);
 
     }
 
@@ -7151,7 +7230,46 @@ public abstract class TaskRender implements Runnable {
         Arrays.fill(Fractal.total_max_iterations_ignore_max_iter,  Long.MIN_VALUE);
     }
 
-    public void calculateReference(Location loc) {
+    private GenericComplex loadReference(GenericComplex newRef, Location loc, boolean deepZoom) {
+        try {
+            if (LOAD_REFERENCE_FILE_PATH == null) {
+                return LOADED_REFERENCE ? Fractal.referenceOrbit.refPoint : newRef;
+            }
+            ObjectInputStream file_temp = new ObjectInputStream(new FileInputStream(LOAD_REFERENCE_FILE_PATH));
+            ReferenceOrbitBundle referenceOrbitBundle = (ReferenceOrbitBundle) file_temp.readObject();
+            if(referenceOrbitBundle.referenceOrbits == null || referenceOrbitBundle.referenceOrbits.length == 0 || referenceOrbitBundle.referenceOrbits[0] == null || referenceOrbitBundle.referenceOrbits[0].isJulia) {
+                System.out.println("The loaded reference is not valid");
+                return newRef;
+            }
+            if (fractal.isJulia() && (referenceOrbitBundle.referenceOrbits.length < 2 || referenceOrbitBundle.referenceOrbits[1] == null || !referenceOrbitBundle.referenceOrbits[1].isJulia)) {
+                System.out.println("The loaded reference is not valid");
+                return newRef;
+            }
+            ReferenceOrbit refOrbit = referenceOrbitBundle.referenceOrbits[0];
+            refOrbit.build(NumericLibrary.getBignumImplementation(size, fractal));
+            ReferenceOrbit secondRefOrbit = null;
+            if (fractal.isJulia()) {
+                secondRefOrbit = referenceOrbitBundle.referenceOrbits[1];
+                secondRefOrbit.build(NumericLibrary.getBignumImplementation(size, fractal));
+            }
+            if (refOrbit.isValid(newRef, fractal, deepZoom)) { //Just check the main ref
+                LOADED_REFERENCE = true;
+                fractal.setReference(refOrbit, secondRefOrbit, loc);
+                return refOrbit.refPoint;
+            } else {
+                System.out.println("The loaded reference is not valid");
+            }
+        }
+        catch (Exception ex) {
+            System.out.println("Failed to load the reference: " + ex.getMessage());
+        }
+        finally {
+            LOAD_REFERENCE_FILE_PATH = null;
+        }
+        return newRef;
+    }
+
+    private void calculateReference(Location loc) {
 
         Fractal.ReferenceCalculationTime = 0;
         Fractal.SecondReferenceCalculationTime = 0;
@@ -7182,48 +7300,51 @@ public abstract class TaskRender implements Runnable {
         int old_max = progress.getMaximum();
         int cur_val = progress.getValue();
 
-        GenericComplex temp = loc.getReferencePoint();
+        GenericComplex refPoint = loc.getReferencePoint();
 
         boolean isDeep = useExtendedRange(size, fractal);
+
+        if (fractal.supportsReferenceSavingOrLoading() && (LOAD_REFERENCE_FILE_PATH != null || LOADED_REFERENCE)) {
+            refPoint = loadReference(refPoint, loc, isDeep);
+        }
 
         int max_ref_iterations = fractal.getReferenceMaxIterations();
 
         boolean referencesArePresent = !(Fractal.referenceDeep == null && isDeep) && !(Fractal.reference == null && !isDeep);
-        boolean refTypeIsTheSame = Fractal.refPoint != null && temp.getClass().equals(Fractal.refPoint.getClass()) && Fractal.RefType.equals(fractal.getRefType());
-        boolean detectPeriod = TaskRender.DETECT_PERIOD && fractal.supportsPeriod() && fractal.getUserPeriod() == 0;
-        boolean hasStoppedReferenceCalculation = detectPeriod && TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD && Fractal.DetectedPeriod != 0 &&  fractal.getUserPeriod() == 0 && fractal.canStopOnDetectedPeriod();
+        boolean refTypeIsTheSame = Fractal.referenceOrbit.refPoint != null && refPoint.getClass().equals(Fractal.referenceOrbit.refPoint.getClass()) && Fractal.referenceOrbit.RefType.equals(fractal.getRefType());
+        boolean detectPeriod = fractal.detectPeriod();
+        boolean hasStoppedReferenceCalculation = fractal.stopReferenceCalculationOnDetectedPeriod() && Fractal.referenceOrbit.DetectedPeriod != 0;
 
-        if(refTypeIsTheSame && referencesArePresent && temp.compare(Fractal.refPoint) == 0) {
+        if(refTypeIsTheSame && referencesArePresent && refPoint.compare(Fractal.referenceOrbit.refPoint) == 0) {
 
             if(!hasStoppedReferenceCalculation && max_ref_iterations > fractal.getReferenceLength()) {
-                fractal.calculateReferencePoint(temp, size, isDeep, fractal.getNextIterations(), fractal.getSecondNextIterations(), loc, progress);
+                fractal.calculateReferenceOrbit(refPoint, size, isDeep, fractal.getNextIterations(), fractal.getSecondNextIterations(), loc, progress);
             }
-            else if(detectPeriod && CALCULATE_PERIOD_EVERY_TIME_FROM_START && (size.compareTo(Fractal.LastCalculationSize) != 0 || fractal.getPeriod() == 0)) {
+            else if(detectPeriod && CALCULATE_PERIOD_EVERY_TIME_FROM_START && (size.compareTo(Fractal.referenceOrbit.LastCalculationSize) != 0 || fractal.getPeriod() == 0)) {
                 Fractal.clearReferences(true, false);
-                fractal.calculateReferencePoint(temp, size, isDeep, fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, progress);
+                fractal.calculateReferenceOrbit(refPoint, size, isDeep, fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, progress);
             }
-            else if(detectPeriod && !CALCULATE_PERIOD_EVERY_TIME_FROM_START && (size.compareTo(Fractal.LastCalculationSize) < 0 || fractal.getPeriod() == 0) && fractal.shouldRecalculateForPeriodDetection(isDeep, loc)) {
-                if(fractal.getPeriodDetectionAlgorithm() == 1
-                        && hasStoppedReferenceCalculation
+            else if(detectPeriod && !CALCULATE_PERIOD_EVERY_TIME_FROM_START && (size.compareTo(Fractal.referenceOrbit.LastCalculationSize) < 0 || fractal.getPeriod() == 0) && fractal.shouldRecalculateForPeriodDetection(isDeep, loc)) {
+                if(hasStoppedReferenceCalculation
                         && !(APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1())
                         && !(APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation())
-                        && ((isDeep && Fractal.referenceData.mdzdc != null) || (!isDeep && Fractal.referenceData.dzdc != null))
+                        && ((isDeep && Fractal.referenceOrbit.mdzdc != null) || (!isDeep && Fractal.referenceOrbit.dzdc != null))
                 ) {
-                    Fractal.DetectedPeriod = 0;
-                    fractal.calculateReferencePoint(temp, size, isDeep, fractal.getNextIterations(), fractal.getSecondNextIterations(), loc, progress);
+                    Fractal.referenceOrbit.DetectedPeriod = 0;
+                    fractal.calculateReferenceOrbit(refPoint, size, isDeep, fractal.getNextIterations(), fractal.getSecondNextIterations(), loc, progress);
                 }
                 else {
                     Fractal.clearReferences(true, false);
-                    fractal.calculateReferencePoint(temp, size, isDeep, fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, progress);
+                    fractal.calculateReferenceOrbit(refPoint, size, isDeep, fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, progress);
                 }
             }
             else {
                 if (APPROXIMATION_ALGORITHM == 1 && fractal.supportsSeriesApproximation()
                         && size.compareTo(MyApfloat.SA_START_SIZE) <= 0
-                && (Fractal.coefficients == null || Fractal.SAMaxSkip != TaskRender.SERIES_APPROXIMATION_MAX_SKIP_ITER
+                        && (Fractal.sa == null || Fractal.SAMaxSkip != TaskRender.SERIES_APPROXIMATION_MAX_SKIP_ITER
                         || Fractal.SAOOMDiff != TaskRender.SERIES_APPROXIMATION_OOM_DIFFERENCE
-                        || Fractal.SATerms != TaskRender.SERIES_APPROXIMATION_TERMS
-                        || Fractal.SASize != loc.getMaxSizeInImage().log2approx()
+                        || Fractal.sa.SATerms != TaskRender.SERIES_APPROXIMATION_TERMS
+                        || Fractal.sa.SASize != loc.getMaxSizeInImage().log2approx()
                         || Fractal.SAskippedIterations == 0)
                 ) {
                     fractal.calculateSeriesWrapper(size, isDeep, loc, progress);
@@ -7238,13 +7359,14 @@ public abstract class TaskRender implements Runnable {
                     fractal.calculateBLAWrapper(isDeep, loc, progress);
                 }
                 else if(APPROXIMATION_ALGORITHM == 4 && fractal.supportsBilinearApproximation2()
-                 && (loc.getSize().compareToBothPositive(Fractal.BLA2Size) != 0
-                     || fractal.BLA2ParamsDiffer()
-                    || (isDeep && fractal.useFullFloatExp() != Fractal.BLA2UsedFullFloatExp)
-                        || Fractal.laReference == null || !Fractal.laReference.isValid)) {
+                 && (Fractal.laReference == null
+                        || loc.getSize().compareToBothPositive(Fractal.BLA2Size) != 0
+                        || fractal.BLA2ParamsDiffer()
+                        || (isDeep && fractal.useFullFloatExp() != Fractal.BLA2UsedFullFloatExp)
+                        || !Fractal.laReference.isValid)) {
 
-                    if(Fractal.laReference == null ||
-                            !Fractal.laReference.isValid
+                    if(Fractal.laReference == null
+                            || !Fractal.laReference.isValid
                             || fractal.BLA2ParamsDiffer()
                             || (isDeep && fractal.useFullFloatExp() != Fractal.BLA2UsedFullFloatExp)
                             //|| (isDeep && !fractal.useFullFloatExp())
@@ -7258,9 +7380,11 @@ public abstract class TaskRender implements Runnable {
                     }
                 }
                 else if(APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3()
-                        && (MipLAStep.ValidRadiusScale != Fractal.BLA3UsedScale
-                 || BLA3_STARTING_LEVEL != Fractal.BLA3StartingLevel)) {
+                        && (Fractal.mLA == null || MipLAStep.ValidRadiusScale != Fractal.BLA3UsedScale
+                        || BLA3_STARTING_LEVEL != Fractal.BLA3StartingLevel)) {
                     fractal.calculateBLA3Wrapper(isDeep, progress);
+                } else if(TaskRender.APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() && Fractal.nanomb1 == null) {
+                    fractal.calculateNanomb1Wrapper(isDeep, progress);
                 }
 
                 fractal.clearUnusedReferences(isDeep);
@@ -7282,7 +7406,7 @@ public abstract class TaskRender implements Runnable {
         else {
             Fractal.clearReferences(true, false);
         }
-        fractal.calculateReferencePoint(temp, size, isDeep, fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, progress);
+        fractal.calculateReferenceOrbit(refPoint, size, isDeep, fractal.getStartingIterations(), fractal.getSecondStartingIterations(), loc, progress);
 
         progress.setString(null);
         progress.setMaximum(old_max);
@@ -7495,6 +7619,10 @@ public abstract class TaskRender implements Runnable {
         return ofs_blending;
     }
 
+    public Blending getTextureBlending() {
+        return texture_blending;
+    }
+
     public Blending getHSSBlending() {
         return hss_blending;
     }
@@ -7511,7 +7639,7 @@ public abstract class TaskRender implements Runnable {
         return ndes_blending;
     }
 
-    protected boolean skipTrapPostProcessing(double val) {
+    protected boolean skipPostProcessing(double val) {
         return (!ots.useTraps || !ots.trapIncludeNotEscaped) && !usesTrueColorIn && isMaximumIterations(val);
     }
 
@@ -7535,6 +7663,9 @@ public abstract class TaskRender implements Runnable {
 
         ofs_blending = BlendingFactory.blendingFactory(COLOR_SMOOTHING_METHOD, ofs.of_color_blending, COLOR_SPACE);
         ofs_blending.setReverseColors(ofs.of_reverse_color_blending);
+
+        texture_blending = BlendingFactory.blendingFactory(COLOR_SMOOTHING_METHOD, ts.texture_color_blending, COLOR_SPACE);
+        texture_blending.setReverseColors(ts.texture_reverse_color_blending);
 
     }
 
@@ -7607,5 +7738,10 @@ public abstract class TaskRender implements Runnable {
 
         WaitOnCondition.WaitOnCyclicBarrier(initialize_jobs_sync3);
 
+    }
+
+    public static void cleanUp() {
+        image_iterations = null;
+        escaped = null;
     }
 }

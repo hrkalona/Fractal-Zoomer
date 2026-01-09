@@ -1,7 +1,7 @@
 package fractalzoomer.core.approximation.nanomb1;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
 
 public class biPoly {
     int m_m, m_n;

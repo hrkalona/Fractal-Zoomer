@@ -29,7 +29,8 @@ public class RenderingTimeChartPanel extends JPanel implements ActionListener {
             TaskRender.PIXEL_CALCULATION_ELAPSED_TIME_STRING_LABEL,
             TaskRender.POST_PROCESSING_ELAPSED_TIME_STRING_LABEL,
             TaskRender.IMAGE_FILTERS_TIME_STRING_LABEL,
-            "Image Save Elapsed Time"
+            "Image Save Elapsed Time",
+            "Files Save Elapsed Time"
     };
     private final XYSeries[] times;
     private final boolean[] has_data;

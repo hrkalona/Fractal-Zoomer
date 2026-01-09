@@ -40,21 +40,24 @@ package fractalzoomer.main;
  import fractalzoomer.convergent_bailout_conditions.NNormDistanceBailoutCondition;
  import fractalzoomer.convergent_bailout_conditions.SkipConvergentBailoutCondition;
  import fractalzoomer.core.*;
+ import fractalzoomer.core.approximation.la_zhuoran.LAReference;
  import fractalzoomer.core.approximation.la_zhuoran.MagnitudeDetection;
  import fractalzoomer.core.approximation.la_zhuoran.MagnitudeDetectionDeep;
- import fractalzoomer.core.interpolation.CosineInterpolation;
- import fractalzoomer.core.approximation.la_zhuoran.LAReference;
  import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfo;
  import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfoDeep;
+ import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
  import fractalzoomer.core.location.Location;
  import fractalzoomer.core.location.normal.CartesianLocationNormalApfloatArbitrary;
  import fractalzoomer.core.location.normal.PolarLocationNormalApfloatArbitrary;
- import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
+ import fractalzoomer.core.numerics.BigComplex;
+ import fractalzoomer.core.numerics.BigNum;
+ import fractalzoomer.core.numerics.MantExp;
+ import fractalzoomer.core.numerics.MyApfloat;
  import fractalzoomer.core.reference.ReferenceCompressor;
  import fractalzoomer.core.rendering_algorithms.*;
  import fractalzoomer.functions.Fractal;
- import fractalzoomer.gui.ColorChooserDialog;
  import fractalzoomer.gui.*;
+ import fractalzoomer.gui.ColorChooserDialog;
  import fractalzoomer.main.app_settings.*;
  import fractalzoomer.palettes.CustomPalette;
  import fractalzoomer.palettes.PaletteColorSmooth;
@@ -64,6 +67,7 @@ package fractalzoomer.main;
  import fractalzoomer.parser.ParserException;
  import fractalzoomer.planes.Plane;
  import fractalzoomer.utils.*;
+ import fractalzoomer.utils.sampling.BlueNoiseSampling;
  import org.apfloat.Apfloat;
  import org.imgscalr.Scalr;
  import processing.core.PApplet;
@@ -87,13 +91,12 @@ package fractalzoomer.main;
  import java.net.URI;
  import java.net.URL;
  import java.nio.charset.StandardCharsets;
- import java.nio.file.FileSystem;
  import java.nio.file.*;
+ import java.nio.file.FileSystem;
  import java.time.LocalDateTime;
  import java.time.format.DateTimeFormatter;
- import java.util.List;
- import java.util.Timer;
  import java.util.*;
+ import java.util.Timer;
  import java.util.concurrent.ExecutionException;
  import java.util.concurrent.Executors;
  import java.util.concurrent.Future;
@@ -102,14 +105,23 @@ package fractalzoomer.main;
  import java.util.concurrent.locks.ReentrantLock;
  import java.util.stream.IntStream;
  import java.util.stream.Stream;
-
- import static fractalzoomer.main.app_settings.GeneratedPaletteSettings.DEFAULT_LARGE_LENGTH;
+ import java.util.zip.ZipInputStream;
 
  /**
  *
  * @author hrkalona
  */
 public class MainWindow extends JFrame implements Constants {
+
+     private static void extractFile(ZipInputStream zipIn, Path filePath) throws IOException {
+         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
+             byte[] bytesIn = new byte[4096];
+             int read;
+             while ((read = zipIn.read(bytesIn)) != -1) {
+                 bos.write(bytesIn, 0, read);
+             }
+         }
+     }
 
     static {
         try {
@@ -169,6 +181,7 @@ public class MainWindow extends JFrame implements Constants {
     public static boolean REUSE_DATA_ON_ITERATION_CHANGE = true;
     public static boolean FIRST_RUN = true;
     public static float JPEG_QUALITY = 0.75f;
+    public static Color D3_BG_COLOR = Color.BLACK;
 
     public static String SaveSettingsPath = "";
     public static String SaveImagesPath = "";
@@ -273,27 +286,18 @@ public class MainWindow extends JFrame implements Constants {
     private Cursor rotate_cursor;
     private CommonFunctions common;
 
-    private List<P3DHeightMap> heightMapFrames = new ArrayList<>();
-
     private int i;
     private Object[] compilationStatus;
     public static boolean AUTO_REPAINT_IMAGE = true;
 
     private boolean P3D_AA = true;
-    private int P3D_AA_SAMPLES = 16;
+    private int P3D_AA_SAMPLES = 8;
 
     private boolean initialized;
 
     Lock start_rendering_mutex = new ReentrantLock();
     private Object new_calculation_mutex = new Object();
     public Object image_reset_mutex = new Object();
-
-//    public static HashMap<String, Hint> hints;
-//    private Hint firstHint;
-//
-//    static {
-//        hints = new HashMap<>();
-//    }
 
     /**
      * *****************************
@@ -515,11 +519,7 @@ public class MainWindow extends JFrame implements Constants {
         addWindowFocusListener(new WindowFocusListener() {
             @Override
             public void windowGainedFocus(WindowEvent e) {
-                for(P3DHeightMap heightMapFrame : heightMapFrames) {
-                    if (heightMapFrame.isValid()) {
-                        heightMapFrame.bringToBack();
-                    }
-                }
+                P3DHeightMap.bringAllFramesToBack();
             }
 
             @Override
@@ -1150,10 +1150,6 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-//    public void showHints() {
-//        HintManager.showHint(firstHint);
-//    }
-
     private boolean isInBounds(double x1, double y1) {
         return x1 >= 0 && x1 < image_width && y1 >= 0 && y1 < image_height;
     }
@@ -1303,7 +1299,7 @@ public class MainWindow extends JFrame implements Constants {
                 temp += "   Lambert W Variation";
                 break;
             case NEWTON_THIRD_DEGREE_PARAMETER_SPACE:
-                temp += "   Newton Third Degree Parameter Space";
+                temp += "   Newton Parameter Space (z - 1)(z + 1)(z - c)";
                 break;
             case NOVA:
                 temp += "   Nova-" + Constants.novaMethods[s.fns.nova_method] + ", e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
@@ -1534,10 +1530,13 @@ public class MainWindow extends JFrame implements Constants {
                 temp += "   z = z^2 + c^2";
                 break;
             case FORMULA50:
-                temp += "   z = 2*z^2 - z^3 + c";
+                temp += "   z = 2z^2 - z^3 + c";
                 break;
             case FORMULA51:
                 temp += "   Zenex";
+                break;
+            case FORMULA52:
+                temp += "   z = (z^3)/(z + c)";
                 break;
             case PERPENDICULAR_MANDELBROT:
                 temp += "   Perpendicular Mandelbrot";
@@ -2000,7 +1999,7 @@ public class MainWindow extends JFrame implements Constants {
                 fileName = fileName + ".kfr";
             }
 
-            writeBasicKFR(fileName);
+            KFParamsAdapter.writeBasicKFR(fileName, s);
         }
 
         main_panel.repaint();
@@ -2306,6 +2305,7 @@ public class MainWindow extends JFrame implements Constants {
 
             options_menu.getFakeDistanceEstimation().setEnabled(false);
             options_menu.getNumericalDistanceEstimator().setEnabled(false);
+            options_menu.getTexture().setEnabled(false);
             options_menu.getContourColoring().setEnabled(false);
 
             options_menu.getEntropyColoring().setEnabled(false);
@@ -2616,11 +2616,11 @@ public class MainWindow extends JFrame implements Constants {
             String filename = file.toString();
             try {
                 if(location) {
-                    if(!parseKFRLocation(filename)) {
+                    if(!KFParamsAdapter.parseKFRLocation(filename, s, ptr)) {
                         return;
                     }
                 } else {
-                    if(!parseKFR(filename)) {
+                    if(!KFParamsAdapter.parseKFR(filename, s, ptr)) {
                         return;
                     }
                 }
@@ -2645,7 +2645,7 @@ public class MainWindow extends JFrame implements Constants {
                 if (s.d3s.d3) {
                     s.d3s.fiX = 0.64;
                     s.d3s.fiY = 0.82;
-                    ArraysFillColor(image, Color.BLACK.getRGB());
+                    ArraysFillColor(image, D3_BG_COLOR.getRGB());
                 }
 
                 createTasks(false, true, false, false);
@@ -2710,7 +2710,7 @@ public class MainWindow extends JFrame implements Constants {
                 if (s.d3s.d3) {
                     s.d3s.fiX = 0.64;
                     s.d3s.fiY = 0.82;
-                    ArraysFillColor(image, Color.BLACK.getRGB());
+                    ArraysFillColor(image, D3_BG_COLOR.getRGB());
                 }
 
                 createTasks(false, true, false, false);
@@ -2890,7 +2890,7 @@ public class MainWindow extends JFrame implements Constants {
         Graphics2D graphics = last_used.createGraphics();
 
         if (s.d3s.d3) {
-            ArraysFillColor(last_used, Color.BLACK.getRGB());
+            ArraysFillColor(last_used, D3_BG_COLOR.getRGB());
         } else {
             ArraysFillColor(last_used, 0);
         }
@@ -3015,7 +3015,7 @@ public class MainWindow extends JFrame implements Constants {
         if (s.d3s.d3) {
             s.d3s.fiX = 0.64;
             s.d3s.fiY = 0.82;
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if (s.julia_map) {
@@ -3059,7 +3059,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -3247,7 +3247,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -5288,7 +5288,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetImage();
 
-        ArraysFillColor(image, Color.BLACK.getRGB());
+        ArraysFillColor(image, D3_BG_COLOR.getRGB());
 
         createTasksRotate3DModel();
 
@@ -5410,7 +5410,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -5501,7 +5501,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -5590,7 +5590,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -5798,6 +5798,8 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getFakeDistanceEstimation().setEnabled(option);
 
             options_menu.getNumericalDistanceEstimator().setEnabled(option);
+
+            options_menu.getTexture().setEnabled(option);
 
             options_menu.getEntropyColoring().setEnabled(option);
 
@@ -6292,7 +6294,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
@@ -6349,7 +6351,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -6397,7 +6399,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -6484,7 +6486,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -6520,10 +6522,16 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setWholeImageDone(Boolean temp) {
+    public void setWholeImageDone(boolean temp) {
 
         whole_image_done = temp;
 
+    }
+
+    public void updateImageSize(int width, int height) {
+        image_width = width;
+        image_height = height;
+        updateDataOnImageSizeChange();
     }
 
     public void updateDataOnImageSizeChange() {
@@ -6564,10 +6572,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setSizeOfImagePost(int width, int height) {
         whole_image_done = false;
 
-        image_width = width;
-        image_height = height;
-
-        updateDataOnImageSizeChange();
+        updateImageSize(width, height);
 
         setOptions(false);
 
@@ -6578,7 +6583,7 @@ public class MainWindow extends JFrame implements Constants {
         clearThreads();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
         else {
             ArraysFillColor(image, EMPTY_COLOR);
@@ -6935,6 +6940,7 @@ public class MainWindow extends JFrame implements Constants {
                 s.pps.bms = new BumpMapSettings(tasks[0][0].getBumpMapSettings());
                 s.pps.ls = new LightSettings(tasks[0][0].getLightSettings());
                 s.pps.ss = new SlopeSettings(tasks[0][0].getSlopeSettings());
+                s.pps.bls = new BlinnLightSettings(tasks[0][0].getBlinnLightSettings());
                 s.gs.gradient_offset = tasks[0][0].getGradientOffset();
 
                 if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
@@ -7669,7 +7675,7 @@ public class MainWindow extends JFrame implements Constants {
 
 
             if (s.d3s.d3) {
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
             }
 
             if(s.julia_map) {
@@ -7699,7 +7705,7 @@ public class MainWindow extends JFrame implements Constants {
             scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2.0 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2.0));
 
             if (s.d3s.d3) {
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
             }
 
             if(s.julia_map) {
@@ -8250,7 +8256,7 @@ public class MainWindow extends JFrame implements Constants {
 
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -8290,7 +8296,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -8331,7 +8337,7 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -8781,7 +8787,7 @@ public class MainWindow extends JFrame implements Constants {
             resetImage();
 
             if (s.d3s.d3) {
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
             }
 
             if(s.julia_map) {
@@ -8823,7 +8829,7 @@ public class MainWindow extends JFrame implements Constants {
             resetImage();
 
             if (s.d3s.d3) {
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
             }
 
             if(s.julia_map) {
@@ -8868,6 +8874,7 @@ public class MainWindow extends JFrame implements Constants {
 
                     options_menu.getFakeDistanceEstimation().setEnabled(false);
                     options_menu.getNumericalDistanceEstimator().setEnabled(false);
+                    options_menu.getTexture().setEnabled(false);
                     options_menu.getContourColoring().setEnabled(false);
 
                     options_menu.getEntropyColoring().setEnabled(false);
@@ -8950,7 +8957,7 @@ public class MainWindow extends JFrame implements Constants {
                 resetImage();
 
                 if (s.d3s.d3) {
-                    ArraysFillColor(image, Color.BLACK.getRGB());
+                    ArraysFillColor(image, D3_BG_COLOR.getRGB());
                 }
 
                 createTasks(false, true, false, false);
@@ -9031,7 +9038,7 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             if (s.d3s.d3) {
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
             }
 
             createTasks(false, true, false, false);
@@ -9057,11 +9064,7 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void bring3dTofront() {
-        for(P3DHeightMap heightMapFrame : heightMapFrames) {
-            if (heightMapFrame.isValid()) {
-                heightMapFrame.bringToFront();
-            }
-        }
+        P3DHeightMap.bringAllFramesToFront();
     }
 
     public void set3DOptionPost(boolean d3) {
@@ -9186,7 +9189,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 resetImage();
 
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
 
                 createTasks(false, true, false, false);
 
@@ -9648,10 +9651,12 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("mariani_silver_wait_and_steal " + QueueBasedRender.WAIT_AND_STEAL);
             writer.println("mariani_silver_initial_work_stealing_enabled " + QueueBasedRender.INITIAL_WORK_STEALING_ENABLED);
             writer.println("mariani_silver_perimeter_accuracy " + QueueBasedRender.PERIMETER_ACCURACY);
+            writer.println("mariani_silver_use_global_queue " + QueueBasedRender.USE_GLOBAL_QUEUE);
             writer.println("guess_blocks_selection " + TaskRender.GUESS_BLOCKS_SELECTION);
             writer.println("greedy_successive_refinement_squares_and_rectangles_algorithm " + TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM);
             writer.println("two_pass_successive_refinement " + TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT);
             writer.println("two_pass_check_center " + TaskRender.TWO_PASS_CHECK_CENTER);
+            writer.println("successive_refinement_fill_unknown_areas " + TaskRender.SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS);
             writer.println("square_rect_chunk_aggregation " + TaskRender.SQUARE_RECT_CHUNK_AGGERAGATION);
             int color = TaskRender.SKIPPED_PIXELS_COLOR;
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
@@ -9698,12 +9703,12 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("mpir_win_architecture " + TaskRender.MPIR_WINDOWS_ARCHITECTURE);
             writer.println("#available architectures: " + String.join(", ", TaskRender.mpfrWinArchitecture));
             writer.println("mpfr_win_architecture " + TaskRender.MPFR_WINDOWS_ARCHITECTURE);
-            writer.println("period_detection_algorithm " + TaskRender.PERIOD_DETECTION_ALGORITHM);
             writer.println("pattern_compare_alg " + TaskRender.PATTERN_COMPARE_ALG);
             writer.println("pattern_revert_alg " + TaskRender.PATTERN_REVERT_ALG);
             writer.println("pattern_repeat_alg " + TaskRender.PATTERN_REPEAT_ALG);
             writer.println("pattern_repeat_spacing " + TaskRender.PATTERN_REPEAT_SPACING);
             writer.println("pattern_centered " + TaskRender.PATTERN_CENTER);
+            writer.println("pattern_pulse " + TaskRender.PATTERN_PULSE);
             writer.println("pattern_n " + TaskRender.PATTERN_N);
             writer.println("bla2_detection_method " + LAInfo.DETECTION_METHOD);
             writer.println("bla2_stage0_dip_detection_threshold " + LAInfo.Stage0DipDetectionThreshold);
@@ -9716,7 +9721,6 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("bla2_la_threshold_c_scale " + LAInfo.LAThresholdCScale);
             writer.println("bla2_double_threshold_limit " + LAReference.doubleThresholdLimit.toDouble());
             writer.println("bla2_convert_to_double_when_possible " + LAReference.CONVERT_TO_DOUBLE_WHEN_POSSIBLE);
-            writer.println("bla2_root_divisor " + LAReference.rootDivisor);
             writer.println("bla2_create_at " + LAReference.CREATE_AT);
             writer.println("bla2_fake_period_limit " + LAReference.fakePeriodLimit);
             writer.println("use_threads_for_bla2 " + TaskRender.USE_THREADS_FOR_BLA2);
@@ -9730,13 +9734,15 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("use_fast_delta_location " + TaskRender.USE_FAST_DELTA_LOCATION);
             writer.println("always_save_extra_pixel_data_on_aa " + TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA);
             writer.println("always_save_extra_pixel_data_on_aa_with_pp " + TaskRender.ALWAYS_SAVE_EXTRA_PIXEL_DATA_ON_AA_WITH_PP);
-            writer.println("reference_compression " + TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE);
+            writer.println("reference_compression " + TaskRender.COMPRESS_REFERENCE);
             writer.println("reference_compression_error " + ReferenceCompressor.CompressionError);
             writer.println("check_bailout_during_mip_bla_step " + TaskRender.CHECK_BAILOUT_DURING_MIP_BLA_STEP);
             writer.println("split_into_rectangle_areas " + TaskRender.SPLIT_INTO_RECTANGLE_AREAS);
             writer.println("rectangle_area_split_algorithm " + TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM);
             writer.println("area_dimension_x " + TaskRender.AREA_DIMENSION_X);
             writer.println("area_dimension_y " + TaskRender.AREA_DIMENSION_Y);
+            writer.println("save_reference " + TaskRender.SAVE_REFERENCE);
+            writer.println("save_reference_file_path " + TaskRender.SAVE_REFERENCE_FILE_PATH);
 
             writer.println();
             writer.println("[General]");
@@ -9749,6 +9755,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("pattern_draw_follows_zoom_to_cursor " + PATTERNED_RENDER_FOLLOWS_ZOOM_TO_CURSOR);
             writer.println("draw_image_preview " + TaskRender.RENDER_IMAGE_PREVIEW);
             writer.println("3d_apply_average_to_triangle_colors " + TaskRender.D3_APPLY_AVERAGE_TO_TRIANGLE_COLORS);
+            writer.println("3d_background_color " + D3_BG_COLOR.getRed() + " " + D3_BG_COLOR.getGreen() + " " + D3_BG_COLOR.getBlue());
             writer.println("load_drawing_algorithm_from_saves " + TaskRender.LOAD_RENDERING_ALGORITHM_FROM_SAVES);
             writer.println("p3d_aa " + P3D_AA);
             writer.println("p3d_aa_samples " + P3D_AA_SAMPLES);
@@ -9762,6 +9769,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("reuse_data_on_iteration_change " + REUSE_DATA_ON_ITERATION_CHANGE);
             writer.println("first_run " + false);
             writer.println("preset_palette_distance " + ColorPaletteEditorPanel.presetPaletteDistance);
+            writer.println("use_interpolation_binary_search " + TaskRender.USE_INTERPOLATION_BINARY_SEARCH);
 
             writer.println();
             writer.println("[Window]");
@@ -9814,6 +9822,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("light_cycling_adjusting_value " + ccs.light_cycling_adjusting_value);
             writer.println("bump_cycling_adjusting_value " + ccs.bump_cycling_adjusting_value);
             writer.println("slope_cycling_adjusting_value " + ccs.slope_cycling_adjusting_value);
+            writer.println("blinn_light_cycling_adjusting_value " + ccs.blinn_light_cycling_adjusting_value);
 
 
             writer.println();
@@ -9841,6 +9850,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("aa_jitter_size " + Location.AA_JITTER_SIZE);
             writer.println("aa_number_of_jitter_kernels " + Location.NUMBER_OF_AA_JITTER_KERNELS);
             writer.println("aa_fixed_jitter_size " + Location.FIXED_JITTER_SIZE);
+            writer.println("aa_rotated_grid_angle " + Location.ROTATED_GRID_ANGLE);
             writer.println("whitepoint " + ColorSpaceConverter.whitePointId);
             writer.println("seed " + TaskRender.SEED);
             writer.println("user_formula_derivative_method " + FunctionDerivative2ArgumentsExpressionNode.USER_FORMULA_DERIVATIVE_METHOD);
@@ -9941,23 +9951,12 @@ public class MainWindow extends JFrame implements Constants {
                         }
 
                     }
-                    else if (token.equals("bla2_root_divisor") && tokenizer.countTokens() == 1) {
+                    else if (token.equals("bla2_fake_period_limit") && tokenizer.countTokens() == 1) {
 
                         try {
                             double temp = Double.parseDouble(tokenizer.nextToken());
 
-                            if (temp > 0) {
-                                LAReference.rootDivisor = temp;
-                            }
-                        } catch (Exception ex) {
-                        }
-                    }
-                    else if (token.equals("bla2_fake_period_limit") && tokenizer.countTokens() == 1) {
-
-                        try {
-                            int temp = Integer.parseInt(tokenizer.nextToken());
-
-                            if (temp > 0) {
+                            if (temp >= 2) {
                                 LAReference.fakePeriodLimit = temp;
                             }
                         } catch (Exception ex) {
@@ -9992,6 +9991,13 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
+                    else if (token.equals("aa_rotated_grid_angle") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            Location.ROTATED_GRID_ANGLE = Double.parseDouble(tokenizer.nextToken());
+                        } catch (Exception ex) {
+                        }
+                    }
                     else if (token.equals("whitepoint") && tokenizer.countTokens() == 1) {
 
                         try {
@@ -10012,6 +10018,39 @@ public class MainWindow extends JFrame implements Constants {
                         }
                         else if(token.equalsIgnoreCase("true")) {
                             TaskRender.STOP_REFERENCE_CALCULATION_AFTER_DETECTED_PERIOD = true;
+                        }
+                    }
+                    else if(token.equals("save_reference") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.SAVE_REFERENCE = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.SAVE_REFERENCE = true;
+                        }
+                    }
+                    else if(token.equals("use_interpolation_binary_search") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.USE_INTERPOLATION_BINARY_SEARCH = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.USE_INTERPOLATION_BINARY_SEARCH = true;
+                        }
+                    }
+                    else if(token.equals("successive_refinement_fill_unknown_areas") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS = true;
                         }
                     }
                     else if(token.equals("use_threads_for_bla3") && tokenizer.countTokens() == 1) {
@@ -10056,6 +10095,17 @@ public class MainWindow extends JFrame implements Constants {
                         }
                         else if(token.equalsIgnoreCase("true")) {
                             QueueBasedRender.INITIAL_WORK_STEALING_ENABLED = true;
+                        }
+                    }
+                    else if(token.equals("mariani_silver_use_global_queue") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            QueueBasedRender.USE_GLOBAL_QUEUE = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            QueueBasedRender.USE_GLOBAL_QUEUE = true;
                         }
                     }
                     else if(token.equals("split_into_rectangle_areas") && tokenizer.countTokens() == 1) {
@@ -10328,10 +10378,10 @@ public class MainWindow extends JFrame implements Constants {
                         token = tokenizer.nextToken();
 
                         if(token.equalsIgnoreCase("false")) {
-                            TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE = false;
+                            TaskRender.COMPRESS_REFERENCE = false;
                         }
                         else if(token.equalsIgnoreCase("true")) {
-                            TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE = true;
+                            TaskRender.COMPRESS_REFERENCE = true;
                         }
                     }
                     else if (token.equals("reference_compression_error") && tokenizer.countTokens() == 1) {
@@ -10475,6 +10525,17 @@ public class MainWindow extends JFrame implements Constants {
                         }
                         else if(token.equalsIgnoreCase("true")) {
                             TaskRender.PATTERN_CENTER = true;
+                        }
+                    }
+                    else if(token.equals("pattern_pulse") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if(token.equalsIgnoreCase("false")) {
+                            TaskRender.PATTERN_PULSE = false;
+                        }
+                        else if(token.equalsIgnoreCase("true")) {
+                            TaskRender.PATTERN_PULSE = true;
                         }
                     }
                     else if(token.equals("calculate_period_every_time_from_start") && tokenizer.countTokens() == 1) {
@@ -10828,17 +10889,6 @@ public class MainWindow extends JFrame implements Constants {
                             TaskRender.USE_CUSTOM_FLOATEXP_REQUIREMENT = true;
                         }
                     }
-                    else if (token.equals("period_detection_algorithm") && tokenizer.countTokens() == 1) {
-
-                        try {
-                            int temp = Integer.parseInt(tokenizer.nextToken());
-
-                            if (temp >= 0 && temp <= 2) {
-                                TaskRender.PERIOD_DETECTION_ALGORITHM = temp;
-                            }
-                        } catch (Exception ex) {
-                        }
-                    }
                     else if (token.equals("perturbation_pixel_algorithm") && tokenizer.countTokens() == 1) {
 
                         try {
@@ -10912,6 +10962,17 @@ public class MainWindow extends JFrame implements Constants {
                             SaveSettingsPath = "";
                         }
 
+                    }
+                    else if (token.startsWith("save_reference_file_path") && tokenizer.countTokens() == 1) {
+                        TaskRender.SAVE_REFERENCE_FILE_PATH = tokenizer.nextToken();
+
+                        try {
+                            Path path = Paths.get(TaskRender.SAVE_REFERENCE_FILE_PATH);
+                            TaskRender.SAVE_REFERENCE_FILE_PATH = Files.notExists(path) || Files.isDirectory(path) ? null : TaskRender.SAVE_REFERENCE_FILE_PATH;
+                        }
+                        catch (Exception ex) {
+                            TaskRender.SAVE_REFERENCE_FILE_PATH = null;
+                        }
                     }
                     else if (token.startsWith("save_image_path") && tokenizer.countTokens() == 1) {
 
@@ -11045,7 +11106,21 @@ public class MainWindow extends JFrame implements Constants {
                             }
                         } catch (Exception ex) {
                         }
-                    } else if (token.equals("skipped_pixels_user_color") && tokenizer.countTokens() == 3) {
+                    }
+                    else if (token.equals("3d_background_color") && tokenizer.countTokens() == 3) {
+
+                        try {
+                            int red = Integer.parseInt(tokenizer.nextToken());
+                            int green = Integer.parseInt(tokenizer.nextToken());
+                            int blue = Integer.parseInt(tokenizer.nextToken());
+
+                            if (red >= 0 && red <= 255 && green >= 0 && green <= 255 && blue >= 0 && blue <= 255) {
+                                D3_BG_COLOR = new Color(red, green, blue);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("skipped_pixels_user_color") && tokenizer.countTokens() == 3) {
 
                         try {
                             int red = Integer.parseInt(tokenizer.nextToken());
@@ -11612,6 +11687,18 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
                     }
+                    else if (token.equals("blinn_light_cycling_adjusting_value") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >= -50 && temp <= 50) {
+                                ccs.blinn_light_cycling_adjusting_value = temp;
+                            }
+
+                        } catch (Exception ex) {
+                        }
+                    }
                     else if (token.equals("slope_cycling_adjusting_value") && tokenizer.countTokens() == 1) {
 
                         try {
@@ -11662,6 +11749,7 @@ public class MainWindow extends JFrame implements Constants {
         MyApfloat.setPrecision(MyApfloat.precision, s);
 
         Location.setJitter(TaskRender.SEED);
+        BlueNoiseSampling.setSeed(TaskRender.SEED);
 
         ColorSpaceConverter.init();
 
@@ -11823,7 +11911,7 @@ public class MainWindow extends JFrame implements Constants {
         }
     }
 
-    public void filtersOptionsChanged(int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, boolean[] activeFilters, boolean samplesChanged, boolean jitterChanged) {
+    public void filtersOptionsChanged(int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, boolean[] activeFilters, boolean samplesChanged, boolean jitterChanged, boolean patternChanged) {
 
         boolean oldAAValue = s.fs.filters[ANTIALIASING];
 
@@ -11866,7 +11954,7 @@ public class MainWindow extends JFrame implements Constants {
         if ((oldAAValue && TaskRender.GREEDY_ALGORITHM && TaskRender.GREEDY_ALGORITHM_SELECTION == MARIANI_SILVER) || s.fs.filters[ANTIALIASING] || s.requiresRecalculation(false)) {
 
             if(s.fs.filters[ANTIALIASING] && TaskRender.hasExtraData(image_width, image_height) && !s.d3s.d3 && !s.ds.domain_coloring
-                    && !samplesChanged && !jitterChanged) {
+                    && !samplesChanged && !jitterChanged && !patternChanged) {
                 createTasksPalettePostProcessAndFilterWithAAData(TaskRender.POST_PROCESSING_WITH_AA_AND_FILTER);
             }
             else {
@@ -12266,7 +12354,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -12467,7 +12555,7 @@ public class MainWindow extends JFrame implements Constants {
                 }
                 );
             } else if (d3) {
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
             } else {
                 ArraysFillColor(image, EMPTY_COLOR);
             }
@@ -12660,7 +12748,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -12766,7 +12854,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -12815,9 +12903,7 @@ public class MainWindow extends JFrame implements Constants {
                 tools_menu.get3D().setIcon(getIcon("3d.png"));
             }
 
-            if (!loadAutoSave()) {
-                prepareUI();
-            }
+            loadAutoSave();
 
             TaskRender.setDomainImageData(image_width, image_height, s.ds.domain_coloring);
 
@@ -12837,7 +12923,7 @@ public class MainWindow extends JFrame implements Constants {
             if (s.d3s.d3) {
                 s.d3s.fiX = 0.64;
                 s.d3s.fiY = 0.82;
-                ArraysFillColor(image, Color.BLACK.getRGB());
+                ArraysFillColor(image, D3_BG_COLOR.getRGB());
             }
 
             if(s.julia_map) {
@@ -12858,7 +12944,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setProcessingOrder() {
 
         resetOrbit();
-        new ProcessingOrderingDialog(ptr, s.post_processing_order, s.pps.fdes.fake_de, s.pps.ens.entropy_coloring, s.pps.ofs.offset_coloring, s.pps.rps.rainbow_palette, s.pps.gss.greyscale_coloring, s.pps.cns.contour_coloring, s.pps.bms.bump_map, s.pps.ls.lighting, s.pps.ss.slopes, s.pps.ndes.useNumericalDem, s.pps.hss.histogramColoring);
+        new ProcessingOrderingDialog(ptr, s.post_processing_order, s.pps.fdes.fake_de, s.pps.ens.entropy_coloring, s.pps.ofs.offset_coloring, s.pps.rps.rainbow_palette, s.pps.gss.greyscale_coloring, s.pps.cns.contour_coloring, s.pps.bms.bump_map, s.pps.ls.lighting, s.pps.ss.slopes, s.pps.ndes.useNumericalDem, s.pps.hss.histogramColoring, s.pps.ts.applyTexture, s.pps.bls.lighting);
 
     }
 
@@ -12904,24 +12990,28 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setLighting() {
-
         resetOrbit();
-
         new LightDialog(ptr, s, TaskRender.GREEDY_ALGORITHM, s.julia_map);
-
     }
+
+     public void setBlinnLighting() {
+         resetOrbit();
+         new BlinnLightDialog(ptr, s, TaskRender.GREEDY_ALGORITHM, s.julia_map);
+     }
 
     public void setNumericalDistanceEstimator() {
         resetOrbit();
-
         new NumericalDistanceEstimatorDialog(ptr, s, TaskRender.GREEDY_ALGORITHM, s.julia_map);
     }
-    public void setSlopes() {
 
+    public void setTexture() {
         resetOrbit();
+        new TextureDialog(ptr, s, TaskRender.GREEDY_ALGORITHM, s.julia_map);
+    }
 
+    public void setSlopes() {
+        resetOrbit();
         new SlopesDialog(ptr, s, TaskRender.GREEDY_ALGORITHM, s.julia_map);
-
     }
 
     public void setPostProcessingPost() {
@@ -13129,7 +13219,7 @@ public class MainWindow extends JFrame implements Constants {
         resetImage();
 
         if (s.d3s.d3) {
-            ArraysFillColor(image, Color.BLACK.getRGB());
+            ArraysFillColor(image, D3_BG_COLOR.getRGB());
         }
 
         if(s.julia_map) {
@@ -13163,6 +13253,7 @@ public class MainWindow extends JFrame implements Constants {
             exit(-1);
         }
 
+        prepareUI();
         return false;
 
     }
@@ -13234,6 +13325,9 @@ public class MainWindow extends JFrame implements Constants {
             if (s.fns.postffs.functionFilter == USER_FUNCTION_FILTER) {
                 new UserFunctionFilterDialog(ptr, s, oldSelection,  "User Post Function Filter", s.fns.postffs, options_menu.getPostFunctionFilters());
                 return;
+            } else if (s.fns.postffs.functionFilter == MOBIUS_FUNCTION_FILTER) {
+                new MobiusFunctionFilterDialog(ptr, s, oldSelection, "Mobius Post Function Filter", s.fns.postffs, options_menu.getPostFunctionFilters());
+                return;
             }
         }
         else {
@@ -13242,6 +13336,9 @@ public class MainWindow extends JFrame implements Constants {
 
             if (s.fns.preffs.functionFilter == USER_FUNCTION_FILTER) {
                 new UserFunctionFilterDialog(ptr, s, oldSelection,  "User Pre Function Filter", s.fns.preffs, options_menu.getPreFunctionFilters());
+                return;
+            } else if (s.fns.preffs.functionFilter == MOBIUS_FUNCTION_FILTER) {
+                new MobiusFunctionFilterDialog(ptr, s, oldSelection, "Mobius Pre Function Filter", s.fns.preffs, options_menu.getPreFunctionFilters());
                 return;
             }
         }
@@ -13348,8 +13445,6 @@ public class MainWindow extends JFrame implements Constants {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = file_chooser.getSelectedFile();
 
-            FileNameExtensionFilter filter = (FileNameExtensionFilter) file_chooser.getFileFilter();
-
             PrintWriter writer;
             try {
                 writer = new PrintWriter(file.toString());
@@ -13400,8 +13495,8 @@ public class MainWindow extends JFrame implements Constants {
     public void showP3D() {
         String[] processingArgs = {"HeightMap"};
         try {
-            P3DHeightMap heightMapFrame = new P3DHeightMap(ptr,700, Math.min(image_width, image_height), s.d3s.detail ,P3D_AA, P3D_AA_SAMPLES);
-            heightMapFrames.add(heightMapFrame);
+            P3DHeightMap heightMapFrame = new P3DHeightMap(ptr,700, Math.min(image_width, image_height), s.d3s.detail, P3D_AA, P3D_AA_SAMPLES);
+            P3DHeightMap.addFrame(heightMapFrame);
             PApplet.runSketch(processingArgs, heightMapFrame);
         }
         catch (Exception ex) {
@@ -13413,28 +13508,15 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     private void closeP3D() {
-        for(P3DHeightMap heightMapFrame : heightMapFrames) {
-            if (heightMapFrame.isValid()) {
-                heightMapFrame.close();
-            }
-        }
-        heightMapFrames.clear();
+        P3DHeightMap.closeAllFrames();
     }
 
     private void updateP3D() {
-        for(P3DHeightMap heightMapFrame : heightMapFrames) {
-            if (heightMapFrame.isValid()) {
-                heightMapFrame.update(Math.min(image_width, image_height), s.d3s.detail);
-            }
-        }
+        P3DHeightMap.updateAllFrames(image_width, image_height, s.d3s.detail);
     }
 
     public void setP3Render(boolean val) {
-        for(P3DHeightMap heightMapFrame : heightMapFrames) {
-            if (heightMapFrame.isValid()) {
-                heightMapFrame.setReadyToRender(val);
-            }
-        }
+        P3DHeightMap.setReadyAllFrames(val);
     }
 
     public SelectionRectangle getSelectionRectangle() {
@@ -13445,13 +13527,9 @@ public class MainWindow extends JFrame implements Constants {
         return options_menu.getAutoZoomToRectangleSelection().isSelected();
     }
 
-//    private void clearHints() {
-//        HintManager.hideAllHints();
-//    }
-
     public static Color activeColor = new Color(185, 223, 147);
 
-    public static void setLafOptions() {
+    public static void setLafOptions(String[] args) {
         FlatLaf.setSystemColorGetter( name -> name.equals( "accent" ) ? accentColor : null);
         changeAccentColor(7);
         Color c = Color.decode(accentColors[7] );
@@ -13490,7 +13568,10 @@ public class MainWindow extends JFrame implements Constants {
         UIManager.put( "Component.hideMnemonics", false );
 
         try {
-            if(SystemInfo.isMacOS) {
+            if (Arrays.asList(args).contains("defaultFont")) {
+                CommonFunctions.setUIFontSize(12);
+            }
+            else if(SystemInfo.isMacOS) {
                 String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
                 String fontToCheck = "Microsoft Sans Serif";
                 boolean fontExists = false;
@@ -13506,10 +13587,20 @@ public class MainWindow extends JFrame implements Constants {
                 }
                 CommonFunctions.setUIFontSize(12);
             } else {
-                Font f = Font.createFont(Font.TRUETYPE_FONT, MainWindow.class.getResourceAsStream("/fractalzoomer/fonts/segoeui.ttf"));
-                f = f.deriveFont(Font.PLAIN, 12);
-                UIManager.put("defaultFont", f);
-                GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(f);
+                Locale locale = Locale.getDefault();
+                boolean isChinese = locale.getLanguage().equals(Locale.CHINESE.getLanguage()) ||
+                        locale.getLanguage().equals(Locale.SIMPLIFIED_CHINESE.getLanguage()) ||
+                        locale.getLanguage().equals(Locale.TRADITIONAL_CHINESE.getLanguage());
+
+                Font f = null;
+                if (!isChinese) {
+                    f = Font.createFont(Font.TRUETYPE_FONT, MainWindow.class.getResourceAsStream("/fractalzoomer/fonts/segoeui.ttf"));
+                    f = f.deriveFont(Font.PLAIN, 12);
+                    UIManager.put("defaultFont", f);
+                    GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(f);
+                } else {
+                    CommonFunctions.setUIFontSize(12);
+                }
             }
         } catch (Exception ex) {
             CommonFunctions.setUIFontSize(12);
@@ -13520,7 +13611,7 @@ public class MainWindow extends JFrame implements Constants {
         return lastAction >= 0;
     }
 
-    public static void setLaf() {
+    public static void setLaf(String[] args) {
 
               /*try {
          UIManager.setLookAndFeel ( new WebLookAndFeel () );
@@ -13564,7 +13655,7 @@ public class MainWindow extends JFrame implements Constants {
                 }
 
                 FlatLightLaf.setup();
-                setLafOptions();
+                setLafOptions(args);
             }
         } catch( Exception ex ) {
             System.err.println( "Failed to initialize LaF" );
@@ -13616,1226 +13707,6 @@ public class MainWindow extends JFrame implements Constants {
         oldTranslateDragY = Double.MAX_VALUE;
         oldRotateDragX = Double.MAX_VALUE;
         oldRotateDragY = Double.MAX_VALUE;
-    }
-
-    private String convertToPowerFractalType(int function) {
-        switch (function) {
-            case MANDELBROT:
-                return "FractalType: " + (s.fns.burning_ship ? 1 : 0) + "\nPower: 2\n";
-            case MANDELBROTCUBED:
-                return "FractalType: " + (s.fns.burning_ship ? 1 : 0) + "\nPower: 3\n";
-            case MANDELBROTFOURTH:
-                return "FractalType: " + (s.fns.burning_ship ? 1 : 0) + "\nPower: 4\n";
-            case MANDELBROTFIFTH:
-                return "FractalType: " + (s.fns.burning_ship ? 1 : 0) + "\nPower: 5\n";
-            case MANDELBROTSIXTH:
-                return "FractalType: 0\nPower: 6\n";
-            case MANDELBROTSEVENTH:
-                return "FractalType: 0\nPower: 7\n";
-            case MANDELBROTEIGHTH:
-                return "FractalType: 0\nPower: 8\n";
-            case MANDELBROTNINTH:
-                return "FractalType: 0\nPower: 9\n";
-            case MANDELBROTTENTH:
-                return "FractalType: 0\nPower: 10\n";
-            case BUFFALO_MANDELBROT:
-                return "FractalType: 2\nPower: 2\n";
-            case CELTIC_MANDELBROT:
-                return "FractalType: 3\nPower: 2\n";
-            case MANDELBAR:
-                return "FractalType: 4\nPower: 2\n";
-            case MANDELBARCUBED:
-                return "FractalType: 4\nPower: 3\n";
-            case PERPENDICULAR_MANDELBROT:
-                return "FractalType: 6\nPower: 2\n";
-            case PERPENDICULAR_BURNING_SHIP:
-                return "FractalType: 7\nPower: 2\n";
-            case PERPENDICULAR_CELTIC_MANDELBROT:
-                return "FractalType: 8\nPower: 2\n";
-            case PERPENDICULAR_BUFFALO_MANDELBROT:
-                return "FractalType: 9\nPower: 2\n";
-            case FORMULA50:
-                return "FractalType: 44\nPower: 3\n";
-            case NOVA:
-                if(s.fns.relaxation[0] == 1 && s.fns.relaxation[1] == 0 && s.fns.defaultNovaInitialValue) {
-                    if (s.fns.nova_method == NOVA_NEWTON && (s.fns.z_exponent_nova[0] == 2 || s.fns.z_exponent_nova[0] == 3 || s.fns.z_exponent_nova[0] == 4 || s.fns.z_exponent_nova[0] == 5) && s.fns.z_exponent_nova[1] == 0) {
-                        if (s.fns.z_exponent_nova[0] == 3) {
-                            return "FractalType: 97\nPower: " + (int) s.fns.z_exponent_nova[0] + "\n";
-                        } else {
-                            return "FractalType: 98\nPower: " + (int) s.fns.z_exponent_nova[0] + "\n";
-                        }
-                    } else if (s.fns.nova_method == NOVA_HALLEY && (s.fns.z_exponent_nova[0] == 2 || s.fns.z_exponent_nova[0] == 3 || s.fns.z_exponent_nova[0] == 4 || s.fns.z_exponent_nova[0] == 5) && s.fns.z_exponent_nova[1] == 0) {
-                        return "FractalType: 99\nPower: " + (int) s.fns.z_exponent_nova[0] + "\n";
-                    } else if (s.fns.nova_method == NOVA_SCHRODER && (s.fns.z_exponent_nova[0] == 2 || s.fns.z_exponent_nova[0] == 3) && s.fns.z_exponent_nova[1] == 0) {
-                        return "FractalType: 100\nPower: " + (int) s.fns.z_exponent_nova[0] + "\n";
-                    } else if (s.fns.nova_method == NOVA_HOUSEHOLDER3 && (s.fns.z_exponent_nova[0] == 2 || s.fns.z_exponent_nova[0] == 3) && s.fns.z_exponent_nova[1] == 0) {
-                        return "FractalType: 101\nPower: " + (int) s.fns.z_exponent_nova[0] + "\n";
-                    } else if (s.fns.nova_method == NOVA_HOUSEHOLDER && s.fns.z_exponent_nova[0] == 3 && s.fns.z_exponent_nova[1] == 0) {
-                        return "FractalType: 102\nPower: 3\n";
-                    }
-                }
-                break;
-        }
-        return "";
-    }
-
-    private int convertToFunction(int Power, int FractalType) {
-
-        if(FractalType == 0) { //Multibrot
-            switch (Power) {
-                case 3:
-                    return MANDELBROTCUBED;
-                case 4:
-                    return MANDELBROTFOURTH;
-                case 5:
-                    return MANDELBROTFIFTH;
-                case 6:
-                    return MANDELBROTSIXTH;
-                case 7:
-                    return MANDELBROTSEVENTH;
-                case 8:
-                    return MANDELBROTEIGHTH;
-                case 9:
-                    return MANDELBROTNINTH;
-                case 10:
-                    return MANDELBROTTENTH;
-                case 2:
-                default:
-                    return MANDELBROT;
-            }
-        }
-        else if(FractalType == 1) { //Multibrot Burning-Ship
-            switch (Power) {
-                case 2:
-                    s.fns.burning_ship = true;
-                    return MANDELBROT;
-                case 3:
-                    s.fns.burning_ship = true;
-                    return MANDELBROTCUBED;
-                case 4:
-                    s.fns.burning_ship = true;
-                    return MANDELBROTFOURTH;
-                case 5:
-                    s.fns.burning_ship = true;
-                    return MANDELBROTFIFTH;
-            }
-        }
-        else if(FractalType == 2) { //Buffalo
-            switch (Power) {
-                case 2:
-                    return BUFFALO_MANDELBROT;
-            }
-        }
-        else if(FractalType == 3) { //Celtic
-            switch (Power) {
-                case 2:
-                    return CELTIC_MANDELBROT;
-            }
-        }
-        else if(FractalType == 4) { //Mandelbar
-            switch (Power) {
-                case 2:
-                    return MANDELBAR;
-                case 3:
-                    return MANDELBARCUBED;
-            }
-        }
-        else if(FractalType == 6) { //Perpendicular Mandelbrot
-            switch (Power) {
-                case 2:
-                    return PERPENDICULAR_MANDELBROT;
-            }
-        }
-        else if(FractalType == 7) { //Perpendicular Burning Ship
-            switch (Power) {
-                case 2:
-                    return PERPENDICULAR_BURNING_SHIP;
-            }
-        }
-        else if(FractalType == 8) { //Perpendicular Celtic
-            switch (Power) {
-                case 2:
-                    return PERPENDICULAR_CELTIC_MANDELBROT;
-            }
-        }
-        else if(FractalType == 9) { //Perpendicular Buffalo
-            switch (Power) {
-                case 2:
-                    return PERPENDICULAR_BUFFALO_MANDELBROT;
-            }
-        }
-        else if(FractalType == 97) { //Nova
-            switch (Power) {
-                case 3:
-                    s.fns.z_exponent_nova[0] = 3;
-                    s.fns.z_exponent_nova[1] = 0;
-                    s.fns.nova_method = NOVA_NEWTON;
-                    return NOVA;
-            }
-        }
-        else if(FractalType == 44) { //TheRedshiftRider 3
-            switch (Power) {
-                case 3:
-                    return FORMULA50;
-            }
-        }
-        else if(FractalType == 98) { //Newton Nova Mandelbrot
-            s.fns.z_exponent_nova[0] = Power;
-            s.fns.z_exponent_nova[1] = 0;
-            s.fns.nova_method = NOVA_NEWTON;
-            return NOVA;
-        }
-        else if(FractalType == 99) { //Halley Nova Mandelbrot
-            s.fns.z_exponent_nova[0] = Power;
-            s.fns.z_exponent_nova[1] = 0;
-            s.fns.nova_method = NOVA_HALLEY;
-            return NOVA;
-        }
-        else if(FractalType == 100) { //Schroder Nova Mandelbrot
-            s.fns.z_exponent_nova[0] = Power;
-            s.fns.z_exponent_nova[1] = 0;
-            s.fns.nova_method = NOVA_SCHRODER;
-            return NOVA;
-        }
-        else if(FractalType == 101) { //Householder 3 Nova Mandelbrot
-            s.fns.z_exponent_nova[0] = Power;
-            s.fns.z_exponent_nova[1] = 0;
-            s.fns.nova_method = NOVA_HOUSEHOLDER3;
-            return NOVA;
-        }
-        else if(FractalType == 102) { //Householder Nova Mandelbrot
-            s.fns.z_exponent_nova[0] = Power;
-            s.fns.z_exponent_nova[1] = 0;
-            s.fns.nova_method = NOVA_HOUSEHOLDER;
-            return NOVA;
-        }
-
-        return -1;
-    }
-
-    public void writeBasicKFR(String fileName) {
-        String im;
-        int ImagPointsUp;
-        if(s.flip_imaginary) {
-            im = s.yCenter.negate().toString(true);
-            ImagPointsUp = 0;
-        } else {
-            im = s.yCenter.toString(true);
-            ImagPointsUp = 1;
-        }
-
-        String kfr =
-                "Re: " + s.xCenter.toString(true) + "\n" +
-                "Im: " + im + "\n" +
-                "Zoom: " + MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, s.size).toString() + "\n" +
-                "Iterations: " + s.max_iterations + "\n" +
-                "ImagPointsUp: " + ImagPointsUp + "\n";
-
-        if(s.fns.plane_type == STRETCH_PLANE) {
-            kfr += "StretchAngle: " + s.fns.plane_transform_angle + "\n";
-            kfr += "StretchAmount: " + s.fns.plane_transform_amount + "\n";
-        }
-
-        if(s.fns.rotation != 0) {
-            kfr += "RotateAngle: " + (-s.fns.rotation) + "\n";
-        }
-
-        String FractalTypePower = convertToPowerFractalType(s.fns.function);
-
-        if(!FractalTypePower.isEmpty()) {
-            kfr += FractalTypePower;
-        }
-
-        kfr = kfr.replace("\n", "\r\n");
-
-        try {
-            Files.write(Paths.get(fileName), kfr.getBytes());
-        }
-        catch (Exception ex) {}
-    }
-
-    public boolean parseKFRLocation(String fileName) {
-        BufferedReader br = null;
-
-        try {
-            br = new BufferedReader(new FileReader(fileName));
-
-            String str_line;
-
-            String re = "0";
-            String im = "0";
-            String magnification = "1";
-            String iterations = "200";
-            String rotateAngle = "0";
-            String StretchAngle = "0";
-            String StretchAmount = "0";
-            String ImagPointsUp = "0";
-
-            boolean matchedAny = false;
-            while ((str_line = br.readLine()) != null) {
-
-                StringTokenizer tokenizer = new StringTokenizer(str_line, " ");
-
-                if (tokenizer.hasMoreTokens()) {
-
-                    String token = tokenizer.nextToken();
-                    if(token.equalsIgnoreCase("Re:") && tokenizer.countTokens() == 1) {
-                        re = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Im:") && tokenizer.countTokens() == 1) {
-                        im = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Zoom:") && tokenizer.countTokens() == 1) {
-                        magnification = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Iterations:") && tokenizer.countTokens() == 1) {
-                        iterations = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("RotateAngle:") && tokenizer.countTokens() == 1) {
-                        rotateAngle = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("StretchAngle:") && tokenizer.countTokens() == 1) {
-                        StretchAngle = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("StretchAmount:") && tokenizer.countTokens() == 1) {
-                        StretchAmount = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("ImagPointsUp:") && tokenizer.countTokens() == 1) {
-                        ImagPointsUp = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                }
-
-            }
-
-            br.close();
-
-            if(!matchedAny) {
-                JOptionPane.showMessageDialog(ptr, "Unsupported file format.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
-
-            Fractal.clearReferences(true, true);
-
-            sr.clear();
-            main_panel.repaint();
-
-            int flipImaginary = 0;
-            try {
-                flipImaginary = Integer.parseInt(ImagPointsUp);
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-
-                if(MyApfloat.setAutomaticPrecision) {
-                    long precision = MyApfloat.getAutomaticPrecision(new String[]{magnification, re, im}, new boolean[] {true, false, false}, s.fns.function);
-
-                    if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease, s.fns.function)) {
-                        Fractal.clearReferences(true, true);
-                        MyApfloat.setPrecision(precision, s);
-                    }
-                }
-
-                s.xCenter = new MyApfloat(re);
-                if(flipImaginary == 1) {
-                    s.yCenter = new MyApfloat(im);
-                    s.flip_imaginary = false;
-                }
-                else {
-                    s.yCenter = new MyApfloat(im).negate(); //Inverted in KF
-                    s.flip_imaginary = true;
-                }
-
-                s.size = MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, new MyApfloat(magnification));
-            } catch (Exception ex) {
-
-            }
-
-            try {
-                long miter = Long.parseLong(iterations);
-                s.max_iterations = miter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)miter;
-            } catch (Exception ex) {
-
-            }
-
-            try {
-                double rangle = -Double.parseDouble(rotateAngle); //Inverted in KF
-
-                if(rangle != 0) {
-                    s.fns.rotation = rangle;
-
-                    Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
-                    s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
-                    s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
-
-                    s.fns.rotation_center[0] = s.xCenter;
-                    s.fns.rotation_center[1] = s.yCenter;
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-                double sangle = Double.parseDouble(StretchAngle);
-                double samount = Double.parseDouble(StretchAmount);
-
-                if(sangle != 0 || samount != 0) {
-                    s.fns.plane_type = STRETCH_PLANE;
-                    s.fns.plane_transform_angle = sangle;
-                    s.fns.plane_transform_amount = samount;
-                    s.fns.plane_transform_center_hp[0] = s.xCenter;
-                    s.fns.plane_transform_center_hp[1] = s.yCenter;
-                    s.fns.plane_transform_center[0] = s.fns.plane_transform_center_hp[0].doubleValue();
-                    s.fns.plane_transform_center[1] = s.fns.plane_transform_center_hp[1].doubleValue();
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-
-        } catch (FileNotFoundException ex) {
-            return false;
-        } catch (IOException ex) {
-            return false;
-        }
-        return true;
-    }
-
-    public boolean parseKFR(String fileName) {
-        BufferedReader br = null;
-
-        try {
-            br = new BufferedReader(new FileReader(fileName));
-
-            String str_line;
-
-            String re = "0";
-            String im = "0";
-            String magnification = "1";
-            String iterations = "200";
-            String colors = "";
-            String iterDiv = "1";
-            String colorOffset = "0";
-            String flat = "0";
-            String rotateAngle = "0";
-            String colorMethod = "0";
-            String BailoutRadiusPreset = "1";
-            String Differences = "0";
-            String Slopes = "0";
-            String SlopeAngle = "45";
-            String SlopeRatio = "50";
-            String SlopePower = "20";
-            String InteriorColor = "";
-            String Smooth = "0";
-            String BailoutRadiusCustom = "2";
-            String StretchAngle = "0";
-            String StretchAmount = "0";
-            String ImagPointsUp = "0";
-            String Power = "2";
-            String FractalType = "0";
-            String ImageWidth = "";
-            String ImageHeight = "";
-            String SmoothMethod = "0";
-            String BailoutNormPreset = "1";
-            String BailoutNormCustom = "2";
-            String real = "1";
-            String imag = "1";
-            String JitterSeed = "0";
-            String JitterShape = "0";
-            String JitterScale = "1";
-            String MultiColor = "0";
-            String BlendMC = "0";
-            String MultiColors = "";
-
-            boolean matchedAny = false;
-            while ((str_line = br.readLine()) != null) {
-
-                StringTokenizer tokenizer = new StringTokenizer(str_line, " ");
-
-                if (tokenizer.hasMoreTokens()) {
-
-                    String token = tokenizer.nextToken();
-                    if(token.equalsIgnoreCase("Re:") && tokenizer.countTokens() == 1) {
-                        re = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Im:") && tokenizer.countTokens() == 1) {
-                        im = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Zoom:") && tokenizer.countTokens() == 1) {
-                        magnification = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Iterations:") && tokenizer.countTokens() == 1) {
-                        iterations = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("MultiColor:") && tokenizer.countTokens() == 1) {
-                        MultiColor = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("BlendMC:") && tokenizer.countTokens() == 1) {
-                        BlendMC = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("MultiColors:") && tokenizer.countTokens() >= 1) {
-                        int tokens_size = tokenizer.countTokens();
-                        for(int i = 0; i < tokens_size; i++) {
-                            MultiColors += tokenizer.nextToken();
-                        }
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Colors:") && tokenizer.countTokens() >= 1) {
-
-                        if(tokenizer.countTokens() == 1) {
-                            colors = tokenizer.nextToken();
-                            matchedAny = true;
-                        }
-                        else {
-                            int tokens_size = tokenizer.countTokens();
-                            for(int i = 0; i < tokens_size; i++) {
-                                colors += tokenizer.nextToken();
-                            }
-                            matchedAny = true;
-                        }
-                    }
-                    else if(token.equalsIgnoreCase("IterDiv:") && tokenizer.countTokens() == 1) {
-                        iterDiv = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("ColorOffset:") && tokenizer.countTokens() == 1) {
-                        colorOffset = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Flat:") && tokenizer.countTokens() == 1) {
-                        flat = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("RotateAngle:") && tokenizer.countTokens() == 1) {
-                        rotateAngle = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("ColorMethod:") && tokenizer.countTokens() == 1) {
-                        colorMethod = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("BailoutRadiusPreset:") && tokenizer.countTokens() == 1) {
-                        BailoutRadiusPreset = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Differences:") && tokenizer.countTokens() == 1) {
-                        Differences = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Slopes:") && tokenizer.countTokens() == 1) {
-                        Slopes = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("SlopeAngle:") && tokenizer.countTokens() == 1) {
-                        SlopeAngle = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("SlopeRatio:") && tokenizer.countTokens() == 1) {
-                        SlopeRatio = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("SlopePower:") && tokenizer.countTokens() == 1) {
-                        SlopePower = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("InteriorColor:") && tokenizer.countTokens() == 1) {
-                        InteriorColor = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Smooth:") && tokenizer.countTokens() == 1) {
-                        Smooth = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("BailoutRadiusCustom:") && tokenizer.countTokens() == 1) {
-                        BailoutRadiusCustom = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("StretchAngle:") && tokenizer.countTokens() == 1) {
-                        StretchAngle = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("StretchAmount:") && tokenizer.countTokens() == 1) {
-                        StretchAmount = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("ImagPointsUp:") && tokenizer.countTokens() == 1) {
-                        ImagPointsUp = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("Power:") && tokenizer.countTokens() == 1) {
-                        Power = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("FractalType:") && tokenizer.countTokens() == 1) {
-                        FractalType = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("ImageWidth:") && tokenizer.countTokens() == 1) {
-                        ImageWidth = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("ImageHeight:") && tokenizer.countTokens() == 1) {
-                        ImageHeight = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("SmoothMethod:") && tokenizer.countTokens() == 1) {
-                        SmoothMethod = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("BailoutNormPreset:") && tokenizer.countTokens() == 1) {
-                        BailoutNormPreset = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("BailoutNormCustom:") && tokenizer.countTokens() == 1) {
-                        BailoutNormCustom = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("real:") && tokenizer.countTokens() == 1) {
-                        real = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("imag:") && tokenizer.countTokens() == 1) {
-                        imag = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("JitterSeed:") && tokenizer.countTokens() == 1) {
-                        JitterSeed = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("JitterScale:") && tokenizer.countTokens() == 1) {
-                        JitterScale = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                    else if(token.equalsIgnoreCase("JitterShape:") && tokenizer.countTokens() == 1) {
-                        JitterShape = tokenizer.nextToken();
-                        matchedAny = true;
-                    }
-                }
-
-            }
-
-            br.close();
-
-            if(!matchedAny) {
-                JOptionPane.showMessageDialog(ptr, "Unsupported file format.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
-
-            s.defaultValues();
-            s.applyStaticSettings();
-            Fractal.clearReferences(true, true);
-
-            sr.clear();
-            main_panel.repaint();
-
-            try {
-                int power = Integer.parseInt(Power);
-                int ftype = Integer.parseInt(FractalType);
-                int function = convertToFunction(power, ftype);
-                if(function == -1) {
-                    throw new Exception("");
-                }
-                s.fns.function = function;
-            }
-            catch (Exception ex) {
-                JOptionPane.showMessageDialog(ptr, "Unsupported Fractal Function found.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return true;
-            }
-
-            int flipImaginary = 0;
-            try {
-                flipImaginary = Integer.parseInt(ImagPointsUp);
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-
-                if(MyApfloat.setAutomaticPrecision) {
-                    long precision = MyApfloat.getAutomaticPrecision(new String[]{magnification, re, im}, new boolean[] {true, false, false}, s.fns.function);
-
-                    if (MyApfloat.shouldSetPrecision(precision, MyApfloat.alwaysCheckForDecrease, s.fns.function)) {
-                        Fractal.clearReferences(true, true);
-                        MyApfloat.setPrecision(precision, s);
-                    }
-                }
-
-                s.xCenter = new MyApfloat(re);
-                if(flipImaginary == 1) {
-                    s.yCenter = new MyApfloat(im);
-                    s.flip_imaginary = false;
-                }
-                else {
-                    s.yCenter = new MyApfloat(im).negate(); //Inverted in KF
-                    s.flip_imaginary = true;
-                }
-
-                s.size = MyApfloat.fp.divide(Constants.DEFAULT_MAGNIFICATION, new MyApfloat(magnification));
-            } catch (Exception ex) {
-
-            }
-
-            TaskRender.PERTURBATION_THEORY = true;
-
-            try {
-                long miter = Long.parseLong(iterations);
-                s.max_iterations = miter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)miter;
-            } catch (Exception ex) {
-
-            }
-
-            if(!ImageWidth.isEmpty() && !ImageHeight.isEmpty()) {
-                try {
-                    int width = Integer.parseInt(ImageWidth);
-                    int height = Integer.parseInt(ImageHeight);
-
-                    if (width > 0 && width <= 46500 && height > 0 && height <= 46500) {
-                        image_width = width;
-                        image_height = height;
-
-                        updateDataOnImageSizeChange();
-                    }
-                }
-                catch (Exception ex) {
-
-                }
-            }
-
-            int maxColors = 1024;
-
-            double iterDivD = 1;
-            try {
-                iterDivD = Double.parseDouble(iterDiv);
-                iterDivD = iterDivD < 0 ? 1 : iterDivD;
-            }
-            catch (Exception ex) {}
-
-            s.color_space = COLOR_SPACE_RGB;
-            s.gamma = 1;
-            s.intesity_exponent = 1;
-            s.interpolation_exponent = 1;
-            s.color_blending.color_blending = Constants.NORMAL_BLENDING;
-
-            if(MultiColor.equals("1")) {
-                try {
-                    String[] tokens = MultiColors.split(",");
-
-                    ArrayList<InfiniteWave.InfiniteColorWaveParams> params = new ArrayList<>();
-                    for (int i = 0; i < tokens.length; i ++) {
-                        String[] tokens2 = tokens[i].split("\\s+");
-
-                        if(tokens2.length != 3) {
-                            throw new Exception();
-                        }
-
-                        InfiniteWave.WaveType type;
-                        if(tokens2[2].equals("2")) {
-                            type = InfiniteWave.WaveType.BRIGHTNESS;
-                        }
-                        else if(tokens2[2].equals("1")) {
-                            type = InfiniteWave.WaveType.SATURATION;
-                        }
-                        else {
-                            type = InfiniteWave.WaveType.HUE;
-                        }
-
-                        params.add(new InfiniteWave.InfiniteColorWaveParams(type, Double.parseDouble(tokens2[0])));
-                    }
-
-                    InfiniteWave.InfiniteColorWaveParams[] p = new InfiniteWave.InfiniteColorWaveParams[params.size()];
-                    for(int i = 0; i < p.length; i++) {
-                        p[i] = params.get(i);
-                    }
-
-                    try {
-                        s.gps.outcoloring_infinite_wave_user_palette = InfiniteWave.paramsToJson(p, false);
-                    }
-                    catch (Exception ex) {
-                        throw ex;
-                    }
-
-                    if(BlendMC.equals("1")) {
-                        s.gps.blendNormalPaletteWithGeneratedPaletteOutColoring = true;
-                    }
-                    s.gps.blendingOutColoring = 0.5;
-                    s.gps.useGeneratedPaletteOutColoring = true;
-                    s.gps.restartGeneratedOutColoringPaletteAt = DEFAULT_LARGE_LENGTH;
-                    s.gps.generatedPaletteOutColoringId = 5;
-                }
-                catch (Exception ex) {
-
-                }
-            }
-
-            try {
-                ArrayList<Color> primaryCols = new ArrayList<>();
-
-                try {
-                    if (colors.isEmpty()) {
-                        throw new Exception();
-                    }
-
-                    String[] tokens = colors.split(",");
-
-                    if (tokens.length % 3 != 0) {
-                        throw new Exception();
-                    }
-
-                    for (int i = 0; i < tokens.length; i += 3) {
-                        int blue = Integer.parseInt(tokens[i]);
-                        int green = Integer.parseInt(tokens[i + 1]);
-                        int red = Integer.parseInt(tokens[i + 2]);
-                        red = ColorSpaceConverter.clamp(red);
-                        green = ColorSpaceConverter.clamp(green);
-                        blue = ColorSpaceConverter.clamp(blue);
-                        primaryCols.add(new Color(red, green, blue));
-                    }
-                }
-                catch (Exception ex) {
-                    primaryCols.clear();
-
-                    primaryCols.add(new Color(255, 255, 255));
-                    primaryCols.add(new Color(64, 0, 128));
-                    primaryCols.add(new Color(0, 0, 160));
-                    primaryCols.add(new Color(0, 128, 192));
-                    primaryCols.add(new Color(0, 128, 64));
-                    primaryCols.add(new Color(255, 255, 0));
-                    primaryCols.add(new Color(255, 128, 64));
-                    primaryCols.add(new Color(255, 0, 0));
-                }
-
-                if(!primaryCols.isEmpty()) {
-                    ArrayList<Color> finalCols = new ArrayList<>();
-                    CosineInterpolation lerp = new CosineInterpolation();
-                    int m_nParts = primaryCols.size();
-                    int j, p = 0;
-                    for (j = 0; j < maxColors; j++) {
-                        double temp = (double) j * (double) m_nParts / (double) maxColors;
-                        p = (int) temp;
-                        int pn = (p + 1) % m_nParts;
-                        temp -= p;
-                        finalCols.add(lerp.interpolateColors(primaryCols.get(p), primaryCols.get(pn), temp, false));
-                    }
-
-                    s.ps.color_choice = DIRECT_PALETTE_ID;
-                    s.ps.direct_palette = finalCols.stream().mapToInt(Color::getRGB).toArray();
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            int coffset = 0;
-            try {
-                long c = Long.parseLong(colorOffset);
-                coffset = c > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)c;
-            }
-            catch (Exception ex) {
-
-            }
-
-            if(Smooth.equals("1")) {
-                s.fns.smoothing = true;
-            }
-            else if(Smooth.equals("0")) {
-                s.fns.smoothing = false;
-            }
-
-            if(flat.equals("1")) {
-                s.fns.banded = true;
-                s.fns.smoothing = true;
-            }
-            else if(Smooth.equals("0")) {
-                s.fns.banded = false;
-            }
-
-            if(Slopes.equals("1")) {
-                s.pps.ss.slopes = true;
-                s.pps.ss.heightTransferFactor = 100;
-                s.pps.ss.colorMode = 4;
-                s.pps.ss.applyWidthScaling = true;
-            }
-            else if(Slopes.equals("0")) {
-                s.pps.ss.slopes = false;
-            }
-
-            try {
-                double sratio = Double.parseDouble(SlopeRatio);
-                sratio = sratio < 0 ? 0 : sratio;
-                sratio = sratio > 100 ? 100 : sratio;
-
-                s.pps.ss.SlopeRatio = (sratio / 100) / 2;
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-                if(!InteriorColor.isEmpty()) {
-                    String[] tokens = InteriorColor.split(",");
-
-                    if (tokens.length % 3 == 0) {
-                        int blue = Integer.parseInt(tokens[0]);
-                        int green = Integer.parseInt(tokens[1]);
-                        int red = Integer.parseInt(tokens[2]);
-                        red = ColorSpaceConverter.clamp(red);
-                        green = ColorSpaceConverter.clamp(green);
-                        blue = ColorSpaceConverter.clamp(blue);
-                        s.fractal_color = new Color(red, green, blue);
-                    }
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-                double spower = Double.parseDouble(SlopePower);
-                spower = spower < 0 ? 0 : spower;
-                spower = spower > 100 ? 100 : spower;
-
-                s.pps.ss.SlopePower = spower / 100;
-            }
-            catch (Exception ex) {
-
-            }
-            
-            try {
-                double slopeAngle = Double.parseDouble(SlopeAngle);
-
-                slopeAngle = slopeAngle > 360 ? 360 : slopeAngle;
-                slopeAngle = slopeAngle < -360 ? -360 : slopeAngle;
-
-                slopeAngle = -slopeAngle;
-
-                if(slopeAngle < 0) {
-                    slopeAngle = 360 + slopeAngle;
-                }
-
-                slopeAngle += 180;
-
-                slopeAngle = slopeAngle % 360.0;
-
-                s.pps.ss.SlopeAngle = slopeAngle;
-            }
-            catch (Exception ex) {
-                
-            }
-
-            try {
-                double rangle = -Double.parseDouble(rotateAngle); //Inverted in KF
-
-                if(rangle != 0) {
-                    s.fns.rotation = rangle;
-
-                    Apfloat tempRadians =  MyApfloat.fp.toRadians(new MyApfloat(s.fns.rotation));
-                    s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
-                    s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
-
-                    s.fns.rotation_center[0] = s.xCenter;
-                    s.fns.rotation_center[1] = s.yCenter;
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            int color_method = 0;
-            try {
-                color_method = Integer.parseInt(colorMethod);
-
-                switch (color_method) {
-                    case 0:
-                        s.ps.transfer_function = DEFAULT;
-                        break;
-                    case 1:
-                        s.ps.transfer_function = KF_SQUARE_ROOT;
-                        break;
-                    case 2:
-                        s.ps.transfer_function = KF_CUBE_ROOT;
-                        break;
-                    case 3:
-                        s.ps.transfer_function = KF_LOGARITHM;
-                        break;
-                    case 4:
-                        s.pps.hss.histogramColoring = true;
-                        s.pps.hss.hmapping = 1;
-                        s.pps.hss.use_integer_iterations = true;
-                        break;
-                    case 5:
-                        s.ps.transfer_function = DEFAULT;
-                        s.pps.ndes.useNumericalDem = true;
-                        s.pps.ndes.distanceFactor = 1;
-                        s.fns.banded = false;
-                        break;
-                    case 6:
-                        JOptionPane.showMessageDialog(ptr, "DE+Standard is not supported.", "Warning!", JOptionPane.WARNING_MESSAGE);
-                        s.ps.transfer_function = DEFAULT;
-                        break;
-                    case 7:
-                        s.ps.transfer_function = KF_LOGARITHM;
-                        s.pps.ndes.useNumericalDem = true;
-                        s.pps.ndes.distanceFactor = 1;
-                        s.fns.banded = false;
-                        break;
-                    case 8:
-                        s.ps.transfer_function = KF_SQUARE_ROOT;
-                        s.pps.ndes.useNumericalDem = true;
-                        s.pps.ndes.distanceFactor = 1;
-                        s.fns.banded = false;
-                        break;
-                    case 9:
-                        s.ps.transfer_function = KF_LOG_LOG;
-                        break;
-                    case 10:
-                        s.ps.transfer_function = KF_ATAN;
-                        break;
-                    case 11:
-                        s.ps.transfer_function = KF_FOURTH_ROOT;
-                        break;
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-                int diff = Integer.parseInt(Differences);
-
-                if(diff < 7) {
-                    s.pps.ndes.differencesMethod = diff;
-                }
-                else {
-                    JOptionPane.showMessageDialog(ptr, "Analytic Differencing is not supported.", "Warning!", JOptionPane.WARNING_MESSAGE);
-                    s.pps.ndes.differencesMethod = 0;
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            if (s.pps.ndes.useNumericalDem) {
-                s.pps.ndes.applyWidthScaling = true;
-            }
-
-            try {
-                int smooth = Integer.parseInt(SmoothMethod);
-
-                if(smooth == 1) {
-                    s.fns.escaping_smooth_algorithm = 2;
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-
-                int bail_preset = Integer.parseInt(BailoutRadiusPreset);
-
-                switch (bail_preset) {
-                    case 0: //High
-                        s.fns.bailout = 100; //10000
-                        break;
-                    case 1: //2
-                        s.fns.bailout = 2;
-                        break;
-                        //2 is not supported
-                    case 3:
-                        try {
-                            double bail = Double.parseDouble(BailoutRadiusCustom);
-                            if(bail > 0) {
-                                s.fns.bailout = Math.sqrt(bail);
-                            }
-                        }
-                        catch (Exception ex) {
-
-                        }
-                        break;
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            try {
-                double sangle = Double.parseDouble(StretchAngle);
-                double samount = Double.parseDouble(StretchAmount);
-
-                if(sangle != 0 || samount != 0) {
-                    s.fns.plane_type = STRETCH_PLANE;
-                    s.fns.plane_transform_angle = sangle;
-                    s.fns.plane_transform_amount = samount;
-                    s.fns.plane_transform_center_hp[0] = s.xCenter;
-                    s.fns.plane_transform_center_hp[1] = s.yCenter;
-                    s.fns.plane_transform_center[0] = s.fns.plane_transform_center_hp[0].doubleValue();
-                    s.fns.plane_transform_center[1] = s.fns.plane_transform_center_hp[1].doubleValue();
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            double norm_a = 1;
-            try {
-                norm_a = Double.parseDouble(real);
-                s.fns.norm_a = norm_a;
-                s.fns.cbs.norm_a = norm_a;
-            }
-            catch (Exception ex) {
-
-            }
-
-            double norm_b = 1;
-            try {
-                norm_b = Double.parseDouble(imag);
-                s.fns.norm_b = norm_b;
-                s.fns.cbs.norm_b = norm_b;
-            }
-            catch (Exception ex) {
-
-            }
-
-            if(norm_a != 1 || norm_b != 1) {
-                BailoutNormPreset = "3";
-            }
-
-            if(s.isConvergingType()) {
-                try {
-                    int normPreset = Integer.parseInt(BailoutNormPreset);
-                    switch (normPreset) {
-                        case 0:
-                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_RHOMBUS_KF;
-                            break;
-                        case 2:
-                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_SQUARE_KF;
-                            break;
-                        case 3:
-                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_NNORM_KF;
-                            try {
-                                s.fns.cbs.convergent_n_norm = Double.parseDouble(BailoutNormCustom);
-                            }
-                            catch (Exception ex) {
-                                s.fns.cbs.convergent_n_norm = 2;
-                            }
-                            break;
-                        case 1:
-                        default:
-                            s.fns.cbs.convergent_bailout_test_algorithm = CONVERGENT_BAILOUT_CONDITION_CIRCLE_KF;
-                            break;
-                    }
-                }
-                catch (Exception ex) {
-
-                }
-            }
-            else {
-                try {
-                    int normPreset = Integer.parseInt(BailoutNormPreset);
-                    switch (normPreset) {
-                        case 0:
-                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_RHOMBUS;
-                            s.fns.bailout *= s.fns.bailout;
-                            break;
-                        case 2:
-                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_SQUARE;
-                            s.fns.bailout *= s.fns.bailout;
-                            break;
-                        case 3:
-                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_NNORM;
-                            try {
-                                s.fns.n_norm = Double.parseDouble(BailoutNormCustom);
-                            }
-                            catch (Exception ex) {
-                                s.fns.n_norm = 2;
-                            }
-                            break;
-                        case 1:
-                        default:
-                            s.fns.bailout_test_algorithm = BAILOUT_CONDITION_CIRCLE;
-                            break;
-                    }
-                }
-                catch (Exception ex) {
-
-                }
-            }
-
-            if(iterDivD < 1) {
-                s.fns.smoothing = true;
-            }
-
-            s.ps.color_intensity = 1 / iterDivD;
-            s.ps.color_cycling_location = 0;
-
-            if(s.isConvergingType()) {
-                if(color_method == 0) {
-                    int val = (int) (maxColors - 1 / iterDivD);
-                    while (val < 0) {
-                        val += maxColors;
-                    }
-                    s.ps.color_cycling_location = val;
-                }
-            }
-            else if(s.fns.smoothing) {
-                s.fns.smoothing_color_selection = 1;
-            }
-
-            s.ps.color_cycling_location += coffset;
-
-            s.fns.convergent_bailout = 1E-12;
-
-            try {
-                int jseed = Integer.parseInt(JitterSeed);
-
-                if(jseed != 0) {
-                    s.js.enableJitter = true;
-                    s.js.jitterSeed = jseed;
-                }
-
-                double jscale = Double.parseDouble(JitterScale);
-
-                if(jscale > 0) {
-                    s.js.jitterScale = jscale;
-                }
-
-                int jshape = Integer.parseInt(JitterShape);
-
-                if(jshape == 0 || jshape == 1) {
-                    s.js.jitterShape = jshape;
-                }
-            }
-            catch (Exception ex) {
-
-            }
-
-            s.applyStaticSettings();
-
-        } catch (FileNotFoundException ex) {
-            return false;
-        } catch (IOException ex) {
-            return false;
-        }
-        return true;
     }
 
      public static String normalizeValue(String val, int digits) {
@@ -14912,7 +13783,6 @@ public class MainWindow extends JFrame implements Constants {
             }
         }
     }
-
     public static void main(String[] args) throws Exception {
 
         if(args.length > 0 && args[0].equals("l4jini")) {
@@ -14921,7 +13791,7 @@ public class MainWindow extends JFrame implements Constants {
 
         new SplashFrame(VERSION);
 
-        setLaf();
+        setLaf(args);
 
         MainWindow mw = new MainWindow();
 

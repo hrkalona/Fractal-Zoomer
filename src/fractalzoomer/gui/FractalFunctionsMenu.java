@@ -264,7 +264,7 @@ public class FractalFunctionsMenu extends MyMenu {
         functionNames[MainWindow.KLEINIAN] = "Kleinian";
         functionNames[MainWindow.LAMBDA2] = "Lambda 2";
         functionNames[MainWindow.LAMBDA3] = "Lambda 3";
-        functionNames[MainWindow.GENERIC_CaZbdZe] = "z = c * (alpha*z^beta + delta*z^epsilon)";
+        functionNames[MainWindow.GENERIC_CaZbdZe] = "z = c(alpha*z^beta + delta*z^epsilon)";
 
         for(int i = 0; i < rootPostfixes2.length; i++) {
             functionNames[i + MainWindow.DURAND_KERNER3] = "Durand/Kerner " + rootPostfixes2[i];
@@ -278,7 +278,7 @@ public class FractalFunctionsMenu extends MyMenu {
         }
 
         functionNames[MainWindow.USER_FORMULA_NOVA] = "User Formula Nova";
-        functionNames[MainWindow.GENERIC_CpAZpBC] = "z = (c^alpha) * (z^beta) + c";
+        functionNames[MainWindow.GENERIC_CpAZpBC] = "z = (c^alpha)(z^beta) + c";
         functionNames[MainWindow.INERTIA_GRAVITY] = "Modified Inertia/Gravity";
         functionNames[MainWindow.LAMBDA_FN_FN] = "Lambda(Fn || Fn)";
         functionNames[MainWindow.MANDEL_NEWTON] = "Mandel Newton Variation";
@@ -345,7 +345,7 @@ public class FractalFunctionsMenu extends MyMenu {
         functionNames[MainWindow.MAGNET23] = "Magnet 2 Cubed";
         functionNames[MainWindow.MAGNET24] = "Magnet 2 Fourth";
 
-        functionNames[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE] = "Newton Third Degree Parameter Space";
+        functionNames[MainWindow.NEWTON_THIRD_DEGREE_PARAMETER_SPACE] = "Newton Parameter Space (z - 1)(z + 1)(z - c)";
 
         for(int i = 0; i < rootPostfixes.length; i++) {
             functionNames[i + MainWindow.CONTRA_HARMONIC_NEWTON3] = "Contra Harmonic Newton " + rootPostfixes[i];
@@ -464,9 +464,10 @@ public class FractalFunctionsMenu extends MyMenu {
         functionNames[MainWindow.PERPENDICULAR_CELTIC_MANDELBROT] = "Perpendicular Celtic Mandelbrot";
         functionNames[MainWindow.PERPENDICULAR_BUFFALO_MANDELBROT] = "Perpendicular Buffalo Mandelbrot";
         functionNames[MainWindow.FORMULA48] = "z = c(z^2 + z^-2)";
-        functionNames[MainWindow.FORMULA49] = "z = ((z^2 + 1.5) / (-2z + 0.5))^2 + c";
-        functionNames[MainWindow.FORMULA50] = "z = 2*z^2 - z^3 + c";
+        functionNames[MainWindow.FORMULA49] = "z = ((z^2 + 1.5)/(-2z + 0.5))^2 + c";
+        functionNames[MainWindow.FORMULA50] = "z = 2z^2 - z^3 + c";
         functionNames[MainWindow.FORMULA51] = "Zenex";
+        functionNames[MainWindow.FORMULA52] = "z = (z^3)/(z + c)";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -671,6 +672,12 @@ public class FractalFunctionsMenu extends MyMenu {
         fractal_functions[MainWindow.FORMULA51].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA51));
         m_like_generalizations_type_functions.add(fractal_functions[MainWindow.FORMULA51]);
         functions_button_group.add(fractal_functions[MainWindow.FORMULA51]);
+        m_like_generalizations_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.FORMULA52] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA52]);
+        fractal_functions[MainWindow.FORMULA52].addActionListener(e -> ptr.setFunction(MainWindow.FORMULA52));
+        m_like_generalizations_type_functions.add(fractal_functions[MainWindow.FORMULA52]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA52]);
         m_like_generalizations_type_functions.addSeparator();
 
         fractal_functions[MainWindow.BUFFALO_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.BUFFALO_MANDELBROT]);

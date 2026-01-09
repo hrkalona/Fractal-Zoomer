@@ -11,9 +11,7 @@ public class ApproximationDefaultSettings {
     public static double DoubleThresholdLimit = 0x1.0p-768;
 
     public static double BLA3ValidRadiusSCale = 0x1.0p-24;
-    public static double RootDivisor = 4;
-    public static int NthRootOption = 1;
-    public static int fakePeriodLimit = 16;
+    public static double fakePeriodLimit = 2;
 
     public static int SERIES_APPROXIMATION_TERMS = 5;
     public static long SERIES_APPROXIMATION_OOM_DIFFERENCE = 2;

@@ -1,15 +1,14 @@
 
 package fractalzoomer.core.rendering_algorithms;
 
-import fractalzoomer.core.PixelExtraData;
 import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
-import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.*;
+import fractalzoomer.utils.PixelExtraData;
 import fractalzoomer.utils.Square;
 import fractalzoomer.utils.StopExecutionException;
 import fractalzoomer.utils.StopSuccessiveRefinementException;
@@ -54,7 +53,7 @@ public class BoundaryTracingRender extends TaskRender {
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
 
         int pixel_percent = (image_width * image_height) / 100;
 
@@ -293,10 +292,10 @@ public class BoundaryTracingRender extends TaskRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         initializeFastJulia(location);
 
@@ -323,9 +322,9 @@ public class BoundaryTracingRender extends TaskRender {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         aa.setNeedsAllSamples(needsPostProcessing());
 
@@ -372,7 +371,7 @@ public class BoundaryTracingRender extends TaskRender {
                     aa.initialize(color);
 
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < max_samples; i++) {
                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, pix));
                         escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(temp_result, escaped_val);
@@ -426,7 +425,7 @@ public class BoundaryTracingRender extends TaskRender {
                                 aa.initialize(color);
 
                                 //Supersampling
-                                for (int i = 0; i < supersampling_num; i++) {
+                                for (int i = 0; i < max_samples; i++) {
                                     temp_result = iteration_algorithm.calculate(location2.getAntialiasingComplex(i, nextPix));
                                     escaped_val = iteration_algorithm.escaped();
                                     color = getFinalColor(temp_result, escaped_val);
@@ -526,10 +525,10 @@ public class BoundaryTracingRender extends TaskRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
-        location.createAntialiasingSteps(aaMethod == 5, useJitter, supersampling_num);
+        location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
 
         int pixel_percent = (image_width * image_height) / 100;
 
@@ -561,9 +560,9 @@ public class BoundaryTracingRender extends TaskRender {
 
         boolean aaAvgWithMean = ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x1) == 1;
         int colorSpace = filters_options_extra_vals[0][MainWindow.ANTIALIASING];
-        int totalSamples = supersampling_num + 1;
-
-        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(totalSamples, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        AntialiasingAlgorithm aa = AntialiasingAlgorithm.getAntialiasingAlgorithm(supersampling_num + 1, aaMethod, aaAvgWithMean, colorSpace, fs.aaSigmaR);
+        max_samples = location.getMaxSamples(supersampling_num);
+        int totalSamples = max_samples + 1;
 
         int last_rendering_done = 0;
 
@@ -617,7 +616,7 @@ public class BoundaryTracingRender extends TaskRender {
                     aa.initialize(color);
 
                     //Supersampling
-                    for (int i = 0; i < supersampling_num; i++) {
+                    for (int i = 0; i < max_samples; i++) {
                         temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, pix));
                         escaped_val = iteration_algorithm.escaped();
                         color = getFinalColor(temp_result, escaped_val);
@@ -674,7 +673,7 @@ public class BoundaryTracingRender extends TaskRender {
                                 aa.initialize(color);
 
                                 //Supersampling
-                                for (int i = 0; i < supersampling_num; i++) {
+                                for (int i = 0; i < max_samples; i++) {
                                     temp_result = iteration_algorithm.calculate(location2.getAntialiasingComplex(i, nextPix));
                                     escaped_val = iteration_algorithm.escaped();
                                     color = getFinalColor(temp_result, escaped_val);
@@ -805,7 +804,7 @@ public class BoundaryTracingRender extends TaskRender {
     @Override
     protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
-        Location location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
 
         initializeFastJulia(location);
 

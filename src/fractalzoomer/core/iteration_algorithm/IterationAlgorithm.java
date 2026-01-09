@@ -2,7 +2,7 @@
 package fractalzoomer.core.iteration_algorithm;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.functions.Fractal;
 
 /**

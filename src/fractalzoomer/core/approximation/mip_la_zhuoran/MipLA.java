@@ -1,6 +1,7 @@
 package fractalzoomer.core.approximation.mip_la_zhuoran;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.TaskRender;
+import fractalzoomer.core.numerics.MantExp;
 import fractalzoomer.core.reference.DeepReference;
 import fractalzoomer.core.reference.DoubleReference;
 import fractalzoomer.core.reference.ReferenceDecompressor;
@@ -24,6 +25,7 @@ public class MipLA {
 
     public boolean valid;
     private int L;
+    private int LM1;
 
     private int firstLevel;
 
@@ -92,6 +94,7 @@ public class MipLA {
         }
 
         L = LAData.length;
+        LM1 = L - 1;
         valid = true;
     }
 
@@ -161,6 +164,7 @@ public class MipLA {
         }
 
         L = LADataDeep.length;
+        LM1 = L - 1;
         valid = true;
     }
 
@@ -170,7 +174,7 @@ public class MipLA {
     private MipLADeepStep createLStep(int level, Fractal f, ReferenceDecompressor referenceDecompressor, DeepReference Ref, int m) {
 
         if(level == 0) {
-            return MipLADeep1Step.create(f.getArrayDeepValue(referenceDecompressor, Ref, m), f);
+            return MipLADeep1Step.create(f.getReferenceDeepValue(referenceDecompressor, Ref, m), f);
         }
 
         int m2 = m << 1;
@@ -192,7 +196,7 @@ public class MipLA {
     private MipLAStep createLStep(int level, Fractal f, ReferenceDecompressor referenceDecompressor, DoubleReference Ref, int m) {
 
         if(level == 0) {
-            return new MipLA1Step(f.getArrayValue(referenceDecompressor, Ref, m), f);
+            return new MipLA1Step(f.getReferenceValue(referenceDecompressor, Ref, m), f);
         }
 
         int m2 = m << 1;
@@ -468,102 +472,138 @@ public class MipLA {
         }
     }
 
-    public MipLAPair Lookup(int i, double norm_dz, double norm_dc) {
-
-        MipLAPair result = new MipLAPair();
-
-        if (i == 0 || i >= referenceLength) return result;
-
-        int index = i - 1, length = 1;
-
-        if (firstLevel > 0) {
-            if((index & ((1 << firstLevel) - 1)) != 0){
-                return result;
-            }
-
-            length <<= firstLevel;
-            index >>= firstLevel;
+    public MipLAStep LookupBackwards(int i, double norm_dz, double norm_dc, int iterations, int max_iterations) {
+        if (i == 0 || i >= referenceLength) {
+            return null;
         }
 
-        for (int k = firstLevel; k < L; k++) {
-            MipLAStep current = LAData[k][index];
-            if (norm_dz > current.ValidRadius || norm_dc > current.ValidRadiusC) break;
-            result.step = current;
-            result.length = length;
+        int k = i - 1;
 
-            if ((index & 1) == 1) {
-                break;
-            }
-            index >>= 1;
-            length <<= 1;
+        if((k & 1) == 1) { // m - 1 is odd
+            return null;
         }
 
-        result.length = Math.min(result.length, referenceLength - i);
-        return result;
+        int zeros;
+        int ix;
+        if(k == 0) {
+            zeros = 32;
+            ix = 0;
+            if(zeros > LM1) {
+                zeros = LM1;
+            }
+        }
+        else {
+            float v = (k & -k);
+            zeros = (Float.floatToRawIntBits(v) >>> 23) - 0x7f;
+            ix = k >>> zeros;
+            if(zeros > LM1) {
+                ix = ix << (zeros - LM1);
+                zeros = LM1;
+            }
+        }
+
+        MipLAStep tempStep;
+        for (int level = zeros; level >= firstLevel; --level) {
+            if (norm_dz <= (tempStep = LAData[level][ix]).ValidRadius
+                    && norm_dc <= tempStep.ValidRadiusC
+                    && iterations + tempStep.getL() <= max_iterations) {
+                return tempStep;
+            }
+            ix = ix << 1;
+        }
+        return null;
     }
 
-    public MipLAPair Lookup(int i, MantExp norm_dz, MantExp norm_dc) {
+    public MipLAStep Lookup(int i, double norm_dz, double norm_dc, int iterations, int max_iterations) {
 
-        MipLAPair result = new MipLAPair();
-
-        if (i == 0 || i >= referenceLength) return result;
-
-        int index = i - 1, length = 1;
-
-        if (firstLevel > 0) {
-            if((index & ((1 << firstLevel) - 1)) != 0){
-                return result;
-            }
-
-            length <<= firstLevel;
-            index >>= firstLevel;
+        if (i == 0 || i >= referenceLength) {
+            return null;
         }
 
-        for (int k = firstLevel; k < L; k++) {
-            MipLADeepStep current = LADataDeep[k][index];
-            if (norm_dz.compareToBothPositiveReduced(current.ValidRadiusExp, current.ValidRadius) > 0 || norm_dc.compareToBothPositiveReduced(current.ValidRadiusCExp, current.ValidRadiusC) > 0) break;
-            result.stepDeep = current;
-            result.length = length;
-
-            if ((index & 1) == 1) {
+        MipLAStep step = null;
+        MipLAStep tempStep;
+        int ix = (i - 1) >>> firstLevel;
+        for (int level = firstLevel; level < L; ++level) {
+            int ixm = (ix << level) + 1;
+            if (i == ixm && norm_dz <= (tempStep = LAData[level][ix]).ValidRadius && norm_dc <= tempStep.ValidRadiusC) {
+                if(iterations + tempStep.getL() <= max_iterations) {
+                    step = tempStep;
+                }
+            } else {
                 break;
             }
-            index >>= 1;
-            length <<= 1;
+            ix = ix >>> 1;
         }
-
-        result.length = Math.min(result.length, referenceLength - i);
-        return result;
+        return step;
     }
 
-    /*public MipLADeepStep Lookup2(int i, MantExp norm_dz, MantExp norm_dc) {
-
-        if (i == 0 || i >= referenceLength) return null;
-
-        int index = i - 1;
-
-        if (firstLevel > 0) {
-            if((index & ((1 << firstLevel) - 1)) != 0){
-                return null;
-            }
-            index >>= firstLevel;
+    public MipLADeepStep LookupBackwards(int i, MantExp norm_dz, MantExp norm_dc, int iterations, int max_iterations) {
+        if (i == 0 || i >= referenceLength) {
+            return null;
         }
 
-        MipLADeepStep result = null;
+        int k = i - 1;
 
-        for (int k = firstLevel; k < L; k++) {
-            MipLADeepStep current = LADataDeep[k][index];
-            if (norm_dz.compareToBothPositiveReduced(current.ValidRadiusExp, current.ValidRadius) > 0 || norm_dc.compareToBothPositiveReduced(current.ValidRadiusCExp, current.ValidRadiusC) > 0) break;
-            result = current;
+        if((k & 1) == 1) { // m - 1 is odd
+            return null;
+        }
 
-            if ((index & 1) == 1) {
+        int zeros;
+        int ix;
+        if(k == 0) {
+            zeros = 32;
+            ix = 0;
+            if(zeros > LM1) {
+                zeros = LM1;
+            }
+        }
+        else {
+            float v = (k & -k);
+            zeros = (Float.floatToRawIntBits(v) >>> 23) - 0x7f;
+            ix = k >>> zeros;
+            if(zeros > LM1) {
+                ix = ix << (zeros - LM1);
+                zeros = LM1;
+            }
+        }
+
+        MipLADeepStep tempStep;
+        for (int level = zeros; level >= firstLevel; --level) {
+            tempStep = LADataDeep[level][ix];
+            if (norm_dz.compareToBothPositiveReduced(tempStep.ValidRadiusExp, tempStep.ValidRadius) <= 0
+                    && norm_dc.compareToBothPositiveReduced(tempStep.ValidRadiusCExp, tempStep.ValidRadiusC) <= 0
+                    && iterations + tempStep.getL() <= max_iterations) {
+                return tempStep;
+            }
+            ix = ix << 1;
+        }
+        return null;
+    }
+
+    public MipLADeepStep Lookup(int i, MantExp norm_dz, MantExp norm_dc, int iterations, int max_iterations) {
+
+        if (i == 0 || i >= referenceLength) {
+            return null;
+        }
+
+        MipLADeepStep step = null;
+        MipLADeepStep tempStep;
+        int ix = (i - 1) >>> firstLevel;
+        for (int level = firstLevel; level < L; ++level) {
+            int ixm = (ix << level) + 1;
+            if (i == ixm) {
+                tempStep = LADataDeep[level][ix];
+                if(norm_dz.compareToBothPositiveReduced(tempStep.ValidRadiusExp, tempStep.ValidRadius) <= 0 && norm_dc.compareToBothPositiveReduced(tempStep.ValidRadiusCExp, tempStep.ValidRadiusC) <= 0
+                        && iterations + tempStep.getL() <= max_iterations) {
+                    step = tempStep;
+                }
+            } else {
                 break;
             }
-            index >>= 1;
+            ix = ix >>> 1;
         }
-
-        return result;
-    }*/
+        return step;
+    }
 
     public long getTotalElements() {
         return finalTotal;

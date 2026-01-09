@@ -1,9 +1,11 @@
 package fractalzoomer.functions.magnet;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.Complex;
 import fractalzoomer.core.location.Location;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.core.reference.ReferenceData;
 import fractalzoomer.core.reference.ReferenceDeepData;
+import fractalzoomer.core.reference.SerializableFunction;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
@@ -15,7 +17,6 @@ import fractalzoomer.utils.NormComponents;
 import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
-import java.util.function.Function;
 
 public class MagnetPataki3 extends MagnetPatakiType {
 
@@ -148,10 +149,10 @@ public class MagnetPataki3 extends MagnetPatakiType {
     @Override
     public Complex perturbationFunction(Complex z, Complex c, int RefIteration) {
 
-        Complex Z = getArrayValue(reference, RefIteration);
+        Complex Z = getReferenceValue(reference, RefIteration);
         Complex Zsqr = Z.square();
 
-        Complex zcubes1 = getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);
+        Complex zcubes1 = getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);
 
         Complex temp = Zsqr.times(3).plus_mutable(Z.times(3).plus_mutable(z).times_mutable(z)).times_mutable(z); //3*Z^2 + (3*Z + z)*z)*z
 
@@ -159,7 +160,7 @@ public class MagnetPataki3 extends MagnetPatakiType {
                 .sub_mutable(zcubes1.times(c)).negative_mutable();
 
         Complex denom = temp.times(zcubes1)
-                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z));
+                .plus_mutable(getExpressionValue(referenceData.PrecalculatedTerms[1], RefIteration, Z));
 
         return num.divide_mutable(denom);
 
@@ -168,11 +169,11 @@ public class MagnetPataki3 extends MagnetPatakiType {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, MantExpComplex c, int RefIteration) {
 
-        MantExpComplex Z = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(referenceDeep, RefIteration);
 
         MantExpComplex Zsqr = Z.square();
 
-        MantExpComplex zcubes1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);
+        MantExpComplex zcubes1 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);
 
         MantExpComplex temp = Zsqr.times(MantExp.THREE).plus_mutable(Z.times(MantExp.THREE).plus_mutable(z).times_mutable(z)).times_mutable(z); //3*Z^2 + (3*Z + z)*z)*z
 
@@ -180,7 +181,7 @@ public class MagnetPataki3 extends MagnetPatakiType {
                 .sub_mutable(zcubes1.times(c)).negative_mutable();
 
         MantExpComplex denom = temp.times(zcubes1)
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z));
+                .plus_mutable(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z));
 
         return num.divide_mutable(denom);
 
@@ -189,10 +190,10 @@ public class MagnetPataki3 extends MagnetPatakiType {
     @Override
     public Complex perturbationFunction(Complex z, int RefIteration) {
 
-        Complex Z = getArrayValue(reference, RefIteration);
+        Complex Z = getReferenceValue(reference, RefIteration);
         Complex Zsqr = Z.square();
 
-        Complex zcubes1 = getArrayValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);
+        Complex zcubes1 = getExpressionValue(referenceData.PrecalculatedTerms[0], RefIteration, Z);
 
         Complex temp = Zsqr.times(3).plus_mutable(Z.times(3).plus_mutable(z).times_mutable(z)).times_mutable(z); //3*Z^2 + (3*Z + z)*z)*z
 
@@ -200,7 +201,7 @@ public class MagnetPataki3 extends MagnetPatakiType {
                 .negative_mutable();
 
         Complex denom = temp.times(zcubes1)
-                .plus_mutable(getArrayValue(referenceData.PrecalculatedTerms[1], RefIteration, Z));
+                .plus_mutable(getExpressionValue(referenceData.PrecalculatedTerms[1], RefIteration, Z));
 
         return num.divide_mutable(denom);
     }
@@ -208,11 +209,11 @@ public class MagnetPataki3 extends MagnetPatakiType {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, int RefIteration) {
 
-        MantExpComplex Z = getArrayDeepValue(referenceDeep, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(referenceDeep, RefIteration);
 
         MantExpComplex Zsqr = Z.square();
 
-        MantExpComplex zcubes1 = getArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);
+        MantExpComplex zcubes1 = getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], RefIteration, Z);
 
         MantExpComplex temp = Zsqr.times(MantExp.THREE).plus_mutable(Z.times(MantExp.THREE).plus_mutable(z).times_mutable(z)).times_mutable(z); //3*Z^2 + (3*Z + z)*z)*z
 
@@ -220,7 +221,7 @@ public class MagnetPataki3 extends MagnetPatakiType {
                 .negative_mutable();
 
         MantExpComplex denom = temp.times(zcubes1)
-                .plus_mutable(getArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z));
+                .plus_mutable(getExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], RefIteration, Z));
 
         return num.divide_mutable(denom);
 
@@ -228,10 +229,10 @@ public class MagnetPataki3 extends MagnetPatakiType {
 
     @Override
     public Complex perturbationFunction(Complex z, ReferenceData data, int RefIteration) {
-        Complex Z = getArrayValue(data.Reference, RefIteration);
+        Complex Z = getReferenceValue(data.Reference, RefIteration);
         Complex Zsqr = Z.square();
 
-        Complex zcubes1 = getArrayValue(data.PrecalculatedTerms[0], RefIteration, Z);
+        Complex zcubes1 = getExpressionValue(data.PrecalculatedTerms[0], RefIteration, Z);
 
         Complex temp = Zsqr.times(3).plus_mutable(Z.times(3).plus_mutable(z).times_mutable(z)).times_mutable(z); //3*Z^2 + (3*Z + z)*z)*z
 
@@ -239,7 +240,7 @@ public class MagnetPataki3 extends MagnetPatakiType {
                 .negative_mutable();
 
         Complex denom = temp.times(zcubes1)
-                .plus_mutable(getArrayValue(data.PrecalculatedTerms[1], RefIteration, Z));
+                .plus_mutable(getExpressionValue(data.PrecalculatedTerms[1], RefIteration, Z));
 
         return num.divide_mutable(denom);
 
@@ -247,10 +248,10 @@ public class MagnetPataki3 extends MagnetPatakiType {
 
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex z, ReferenceDeepData data, int RefIteration) {
-        MantExpComplex Z = getArrayDeepValue(data.Reference, RefIteration);
+        MantExpComplex Z = getReferenceDeepValue(data.Reference, RefIteration);
         MantExpComplex Zsqr = Z.square();
 
-        MantExpComplex zcubes1 = getArrayDeepValue(data.PrecalculatedTerms[0], RefIteration, Z);
+        MantExpComplex zcubes1 = getExpressionDeepValue(data.PrecalculatedTerms[0], RefIteration, Z);
 
         MantExpComplex temp = Zsqr.times(MantExp.THREE).plus_mutable(Z.times(MantExp.THREE).plus_mutable(z).times_mutable(z)).times_mutable(z); //3*Z^2 + (3*Z + z)*z)*z
 
@@ -258,24 +259,24 @@ public class MagnetPataki3 extends MagnetPatakiType {
                 .negative_mutable();
 
         MantExpComplex denom = temp.times(zcubes1)
-                .plus_mutable(getArrayDeepValue(data.PrecalculatedTerms[1], RefIteration, Z));
+                .plus_mutable(getExpressionDeepValue(data.PrecalculatedTerms[1], RefIteration, Z));
 
         return num.divide_mutable(denom);
 
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctions(Complex c) {
-        Function<Complex, Complex> f1 = x -> x.cube().sub_mutable(1);
-        Function<Complex, Complex> f2 = x -> {Complex temp = x.cube(); return temp.sub(2).times_mutable(temp).plus_mutable(1);};
-        return new Function[] {f1, f2};
+    protected SerializableFunction[] getPrecalculatedTermsFunctions(Complex c) {
+        SerializableFunction<Complex, Complex> f1 = x -> x.cube().sub_mutable(1);
+        SerializableFunction<Complex, Complex> f2 = x -> {Complex temp = x.cube(); return temp.sub(2).times_mutable(temp).plus_mutable(1);};
+        return new SerializableFunction[] {f1, f2};
     }
 
     @Override
-    protected Function[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
-        Function<MantExpComplex, MantExpComplex> f1 = x -> x.cube().sub_mutable(MantExp.ONE);
-        Function<MantExpComplex, MantExpComplex> f2 = x -> {MantExpComplex temp = x.cube(); return temp.sub(MantExp.TWO).times_mutable(temp).plus_mutable(MantExp.ONE);};
-        return new Function[] {f1, f2};
+    protected SerializableFunction[] getPrecalculatedTermsFunctionsDeep(MantExpComplex c) {
+        SerializableFunction<MantExpComplex, MantExpComplex> f1 = x -> x.cube().sub_mutable(MantExp.ONE);
+        SerializableFunction<MantExpComplex, MantExpComplex> f2 = x -> {MantExpComplex temp = x.cube(); return temp.sub(MantExp.TWO).times_mutable(temp).plus_mutable(MantExp.ONE);};
+        return new SerializableFunction[] {f1, f2};
     }
 
     @Override
@@ -309,12 +310,12 @@ public class MagnetPataki3 extends MagnetPatakiType {
         if(deepZoom) {
             precalcm = loc.getMantExpComplex(preCalc);
             precalc2m = loc.getMantExpComplex(preCalc2);
-            setArrayDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalcm, mcz);
-            setArrayDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precalc2m, mcz);
+            setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[0], iterations, precalcm, mcz);
+            setExpressionDeepValue(referenceDeepData.PrecalculatedTerms[1], iterations, precalc2m, mcz);
         }
         if(lowPrecReferenceOrbitNeeded) {
-            setArrayValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalcm.toComplex() : preCalc.toComplex(), cz);
-            setArrayValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precalc2m.toComplex() : preCalc2.toComplex(), cz);
+            setExpressionValue(referenceData.PrecalculatedTerms[0], iterations, deepZoom ? precalcm.toComplex() : preCalc.toComplex(), cz);
+            setExpressionValue(referenceData.PrecalculatedTerms[1], iterations, deepZoom ? precalc2m.toComplex() : preCalc2.toComplex(), cz);
         }
 
         return new GenericComplex[] {zcube, preCalc};
@@ -332,6 +333,11 @@ public class MagnetPataki3 extends MagnetPatakiType {
 
     @Override
     public boolean supportsReferenceCompression() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsReferenceSavingOrLoading() {
         return true;
     }
 

@@ -36,4 +36,6 @@ public abstract class MipLAStep {
     }
 
     public abstract Complex getB();
+
+    public abstract int getL();
 }

@@ -1,7 +1,7 @@
 package fractalzoomer.core.approximation.la_zhuoran;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplex;
 
 public class LAstep {
     public int step;

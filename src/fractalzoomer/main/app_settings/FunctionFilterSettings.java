@@ -8,6 +8,8 @@ public class FunctionFilterSettings {
     public String[] user_function_filter_conditions;
     public String[] user_function_filter_condition_formula;
     public int user_function_filter_algorithm;
+    public double mobiusA;
+    public double mobiusB;
 
     public FunctionFilterSettings() {
 
@@ -24,6 +26,9 @@ public class FunctionFilterSettings {
         user_function_filter_condition_formula[0] = "abs(z)";
         user_function_filter_condition_formula[1] = "z";
         user_function_filter_condition_formula[2] = "abs(z)";
+
+        mobiusA = 1;
+        mobiusB = 0;
 
     }
 }

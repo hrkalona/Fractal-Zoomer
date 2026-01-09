@@ -5,6 +5,7 @@ import fractalzoomer.core.Complex;
 public class MipLALStep extends MipLAStep {
     protected double Bx;
     protected double By;
+    protected int l;
 
     public MipLALStep() {
 
@@ -29,6 +30,7 @@ public class MipLALStep extends MipLAStep {
         result.Ay = resultA.getIm();
         result.Bx = resultB.getRe();
         result.By = resultB.getIm();
+        result.l = getL() + step.getL();
 
         return result;
     }
@@ -58,5 +60,10 @@ public class MipLALStep extends MipLAStep {
     @Override
     public Complex getB() {
         return new Complex(Bx, By);
+    }
+
+    @Override
+    public int getL() {
+        return l;
     }
 }

@@ -2,7 +2,7 @@
 
 package fractalzoomer.in_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.utils.InColorData;
 
 /**
  *
@@ -20,9 +20,9 @@ public class ZMag extends InColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(InColorData data) {
 
-        return max_iterations + ((Complex)object[0]).norm_squared() * (max_iterations / 3.0);
+        return max_iterations + data.z.norm_squared() * (max_iterations / 3.0);
 
     }
 

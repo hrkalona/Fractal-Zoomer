@@ -1,23 +1,28 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.core.*;
+import fractalzoomer.core.NumericLibrary;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.approximation.la_zhuoran.LAReference;
 import fractalzoomer.core.approximation.la_zhuoran.MagnitudeDetection;
 import fractalzoomer.core.approximation.la_zhuoran.MagnitudeDetectionDeep;
 import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfo;
 import fractalzoomer.core.approximation.la_zhuoran.impl.LAInfoDeep;
 import fractalzoomer.core.approximation.mip_la_zhuoran.MipLAStep;
-import fractalzoomer.core.mpfr.LibMpfr;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.LibMpir;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.numerics.BigIntNum;
+import fractalzoomer.core.numerics.BigNum;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MyApfloat;
+import fractalzoomer.core.numerics.mpfr.LibMpfr;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.LibMpir;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.core.reference.ReferenceCompressor;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.ApproximationDefaultSettings;
 import fractalzoomer.main.app_settings.Settings;
 
@@ -82,7 +87,7 @@ public class PerturbationTheoryDialog extends JDialog {
         enable_perturbation.setSelected(TaskRender.PERTURBATION_THEORY);
         enable_perturbation.setFocusable(false);
 
-        final JCheckBox detect_period = new JCheckBox("Detect Period if possible");
+        final JCheckBox detect_period = new JCheckBox("Detect Period");
         detect_period.setSelected(TaskRender.DETECT_PERIOD);
         detect_period.setFocusable(false);
 
@@ -91,7 +96,7 @@ public class PerturbationTheoryDialog extends JDialog {
         automatic_precision.setFocusable(false);
 
         final JCheckBox compress_reference = new JCheckBox("Compress Reference");
-        compress_reference.setSelected(TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE);
+        compress_reference.setSelected(TaskRender.COMPRESS_REFERENCE);
         compress_reference.setFocusable(false);
 
         JTextField compressionError = new JTextField();
@@ -362,7 +367,7 @@ public class PerturbationTheoryDialog extends JDialog {
         BLA3panel.setVisible(approximation_alg.getSelectedIndex() == 5);
         Nanomb1Panel.setVisible(approximation_alg.getSelectedIndex() == 3);
 
-        JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (No Double/DoubleDouble)", "Fixed Point BigInteger", "Apfloat"});
+        JComboBox<String> bigNumLibs = new JComboBox<>(new String[] {"Double (53 bits)", "DoubleDouble (106 bits)", "Built-in", "MPFR", "Automatic", "MPIR", "Automatic (Exclude Double/DoubleDouble)", "Fixed Point BigInteger", "Apfloat"});
         bigNumLibs.setSelectedIndex(NumericLibrary.BIGNUM_IMPLEMENTATION);
         JLabel bnliblabel = new JLabel("BigNum Implementation:");
         bigNumLibs.setFocusable(false);
@@ -387,7 +392,7 @@ public class PerturbationTheoryDialog extends JDialog {
         JPanel autoBigNumPrecPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         autoBigNumPrecPanel.add(automaticBignumPrecision);
 
-        JComboBox<String> bla2DetectionMethod = new JComboBox<>(new String[] {"HInfLLA(1)", "HInfLLA(2)", "HInfMLA"});
+        JComboBox<String> bla2DetectionMethod = new JComboBox<>(new String[] {"HarmonicLLA(1)", "HarmonicLLA(2)", "HarmonicMLA"});
         bla2DetectionMethod.setSelectedIndex(LAInfo.DETECTION_METHOD);
         bla2DetectionMethod.setFocusable(false);
 
@@ -420,8 +425,8 @@ public class PerturbationTheoryDialog extends JDialog {
         JTextField double_threshold = new JTextField();
         double_threshold.setText("" + LAReference.doubleThresholdLimit.toDouble());
 
-        JTextField period_divisor = new JTextField();
-        period_divisor.setText("" + LAReference.rootDivisor);
+        JTextField fake_period_limit = new JTextField();
+        fake_period_limit.setText("" + LAReference.fakePeriodLimit);
 
 
         bla2Thresholds.add(stage0);
@@ -469,9 +474,9 @@ public class PerturbationTheoryDialog extends JDialog {
 
         JPanel panel3 = new JPanel(new GridLayout(2, 2));
         panel3.add(new JLabel("Double Threshold Limit:", SwingConstants.HORIZONTAL));
-        panel3.add(new JLabel("Root Divisor:", SwingConstants.HORIZONTAL));
+        panel3.add(new JLabel("Fake Period Limit:", SwingConstants.HORIZONTAL));
         panel3.add(double_threshold);
-        panel3.add(period_divisor);
+        panel3.add(fake_period_limit);
 
         BLA2panel.add(detectionPanel);
         BLA2panel.add(bla2DetectionMethod);
@@ -525,7 +530,7 @@ public class PerturbationTheoryDialog extends JDialog {
             blaBits.setValue(ApproximationDefaultSettings.BLA_BITS);
             bla_starting_level_slid.setValue(ApproximationDefaultSettings.BLA_STARTING_LEVEL);
 
-            period_divisor.setText("" + ApproximationDefaultSettings.RootDivisor);
+            fake_period_limit.setText("" + ApproximationDefaultSettings.fakePeriodLimit);
 
             bla3_valid_radius_scale.setText("" + ApproximationDefaultSettings.BLA3ValidRadiusSCale);
             bla3_starting_level_slid.setValue(ApproximationDefaultSettings.BLA3_STARTING_LEVEL);
@@ -562,7 +567,7 @@ public class PerturbationTheoryDialog extends JDialog {
                 bnliblabel,
                 bigNumLibs,
                 autoBigNumPrecPanel,
-                "BigNum bits precision:",
+                "BigNum precision (bits):",
                 bignumPrecision,
                 " ",
                 statsPanel,
@@ -636,7 +641,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             double temp13 = Double.parseDouble(bla3_valid_radius_scale.getText());
 
                             double temp11 = Double.parseDouble(compressionError.getText());
-                            double temp12 = Double.parseDouble(period_divisor.getText());
+                            double temp12 = Double.parseDouble(fake_period_limit.getText());
                             double temp14 = Double.parseDouble(stage02.getText());
                             double temp15 = Double.parseDouble(plimit2.getText());
 
@@ -660,8 +665,8 @@ public class PerturbationTheoryDialog extends JDialog {
                                 return;
                             }
 
-                            if(temp12 <= 0) {
-                                JOptionPane.showMessageDialog(ptra, "The LA period divisor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(temp12 < 2) {
+                                JOptionPane.showMessageDialog(ptra, "The LA fake period limit must be greater or equal to 2.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -671,7 +676,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             }
 
                             if (temp4 < 1) {
-                                JOptionPane.showMessageDialog(ptra, "BigNum bits Precision number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(ptra, "BigNum Precision bits number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -730,7 +735,7 @@ public class PerturbationTheoryDialog extends JDialog {
                                     }
                                     else {
                                        // Fractal.DetectedAtomPeriod = 0;
-                                        Fractal.DetectedPeriod = 0;
+                                        Fractal.referenceOrbit.DetectedPeriod = 0;
                                     }
                                 }
                             }
@@ -792,9 +797,9 @@ public class PerturbationTheoryDialog extends JDialog {
                                 Fractal.clearReferences(true, true);
                             }
 
-                            boolean oldCompressReference = TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE;
-                            TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE = compress_reference.isSelected();
-                            if(oldCompressReference != TaskRender.COMPRESS_REFERENCE_IF_POSSIBLE) {
+                            boolean oldCompressReference = TaskRender.COMPRESS_REFERENCE;
+                            TaskRender.COMPRESS_REFERENCE = compress_reference.isSelected();
+                            if(oldCompressReference != TaskRender.COMPRESS_REFERENCE) {
                                 Fractal.clearReferences(true, true);
                             }
 
@@ -837,7 +842,7 @@ public class PerturbationTheoryDialog extends JDialog {
                             LAInfoDeep.LAThresholdScale = new MantExp(temp9);
                             LAInfoDeep.LAThresholdCScale = new MantExp(temp10);
                             LAReference.doubleThresholdLimit = new MantExp(double_t_l);
-                            LAReference.rootDivisor = temp12;
+                            LAReference.fakePeriodLimit = temp12;
                             MagnitudeDetectionDeep.Stage0DipDetectionThreshold = new MantExp(temp14);
                             MagnitudeDetectionDeep.DipDetectionThreshold = new MantExp(temp15);
 

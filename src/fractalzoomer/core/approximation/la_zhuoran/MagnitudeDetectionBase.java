@@ -1,18 +1,18 @@
 package fractalzoomer.core.approximation.la_zhuoran;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.GenericComplex;
-import fractalzoomer.core.MantExpComplex;
+import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MantExpComplex;
 import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.functions.Fractal;
 
 public abstract class MagnitudeDetectionBase {
     public static MagnitudeDetectionBase create(boolean deepZoom, int index, ReferenceDecompressor referenceDecompressor) {
         if(deepZoom) {
-            MantExpComplex v = LAReference.f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, index);
+            MantExpComplex v = LAReference.f.getReferenceDeepValue(referenceDecompressor, Fractal.referenceDeep, index);
             return new MagnitudeDetectionDeep(v.chebyshevNorm());
         } else {
-            Complex v = LAReference.f.getArrayValue(referenceDecompressor, Fractal.reference, index);
+            Complex v = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, index);
             return new MagnitudeDetection(v.chebyshevNorm());
         }
     }

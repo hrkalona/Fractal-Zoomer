@@ -1,7 +1,7 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;

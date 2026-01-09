@@ -227,73 +227,40 @@ public class UserFormulaConditionalEscaping extends Julia {
 
         int result = expr[0].getValue().compare(expr[1].getValue());
 
+        ExpressionNode resultExpr;
+        Parser resultParser;
         if (result == -1) { // left > right
-            if (parser2[0].foundN()) {
-                parser2[0].setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser2[0].foundZ()) {
-                parser2[0].setZvalue(complex[0]);
-            }
-
-            if (parser2[0].foundC()) {
-                parser2[0].setCvalue(complex[1]);
-            }
-
-            if(parser2[0].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser2[0].foundVar(i)) {
-                        parser2[0].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-
-            complex[0] = expr2[0].getValue();
+            resultParser = parser2[0];
+            resultExpr = expr2[0];
         } else if (result == 1) { // right > left
-            if (parser2[1].foundN()) {
-                parser2[1].setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser2[1].foundZ()) {
-                parser2[1].setZvalue(complex[0]);
-            }
-
-            if (parser2[1].foundC()) {
-                parser2[1].setCvalue(complex[1]);
-            }
-
-            if(parser2[1].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser2[1].foundVar(i)) {
-                        parser2[1].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-
-            complex[0] = expr2[1].getValue();
-        } else if (result == 0) { //left == right
-            if (parser2[2].foundN()) {
-                parser2[2].setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser2[2].foundZ()) {
-                parser2[2].setZvalue(complex[0]);
-            }
-
-            if (parser2[2].foundC()) {
-                parser2[2].setCvalue(complex[1]);
-            }
-
-            if(parser2[2].foundAnyVar()) {
-                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                    if (parser2[2].foundVar(i)) {
-                        parser2[2].setVarsvalue(i, globalVars[i]);
-                    }
-                }
-            }
-
-            complex[0] = expr2[2].getValue();
+            resultParser = parser2[1];
+            resultExpr = expr2[1];
+        } else { // right == left
+            resultParser = parser2[2];
+            resultExpr = expr2[2];
         }
+
+        if (resultParser.foundN()) {
+            resultParser.setNvalue(new Complex(iterations, 0));
+        }
+
+        if (resultParser.foundZ()) {
+            resultParser.setZvalue(complex[0]);
+        }
+
+        if (resultParser.foundC()) {
+            resultParser.setCvalue(complex[1]);
+        }
+
+        if(resultParser.foundAnyVar()) {
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (resultParser.foundVar(i)) {
+                    resultParser.setVarsvalue(i, globalVars[i]);
+                }
+            }
+        }
+
+        complex[0] = resultExpr.getValue();
 
         setVariables(zold, zold2);
 

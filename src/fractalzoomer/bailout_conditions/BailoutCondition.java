@@ -2,11 +2,13 @@
 
 package fractalzoomer.bailout_conditions;
 
-import fractalzoomer.core.*;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.norms.Norm;
 import fractalzoomer.core.norms.Norm2;
+import fractalzoomer.core.numerics.*;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import org.apfloat.Apfloat;
 
 /**

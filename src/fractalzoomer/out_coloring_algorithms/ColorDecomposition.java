@@ -2,7 +2,7 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.utils.OutColorData;
 
 
 /**
@@ -23,9 +23,9 @@ public class ColorDecomposition extends OutColorAlgorithm {
     }
 
     @Override
-    public double getResult(Object[] object) {
+    public double getResult(OutColorData data) {
 
-        return Math.abs((((Complex)object[1]).arg() / (pi2)  + 0.75) * pi59);
+        return Math.abs((data.z.arg() / (pi2)  + 0.75) * pi59);
         
     }
     

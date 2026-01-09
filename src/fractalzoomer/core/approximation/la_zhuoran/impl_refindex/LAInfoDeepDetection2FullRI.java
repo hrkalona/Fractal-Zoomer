@@ -1,11 +1,11 @@
 package fractalzoomer.core.approximation.la_zhuoran.impl_refindex;
 
-import fractalzoomer.core.MantExp;
-import fractalzoomer.core.MantExpComplex;
-import fractalzoomer.core.MantExpComplexFull;
-import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.core.approximation.la_zhuoran.GenericLAInfo;
 import fractalzoomer.core.approximation.la_zhuoran.LAReference;
+import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.MantExpComplex;
+import fractalzoomer.core.numerics.MantExpComplexFull;
+import fractalzoomer.core.reference.ReferenceDecompressor;
 import fractalzoomer.functions.Fractal;
 
 public class LAInfoDeepDetection2FullRI extends LAInfoDeepFullRI {
@@ -44,7 +44,7 @@ public class LAInfoDeepDetection2FullRI extends LAInfoDeepFullRI {
 
         LAInfoDeepDetection2FullRI out = (LAInfoDeepDetection2FullRI)out1;
 
-        MantExpComplex z = LAReference.f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
+        MantExpComplex z = LAReference.f.getReferenceDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
 
         MantExp ChebyMagz = z.chebyshevNorm();
 
@@ -105,7 +105,7 @@ public class LAInfoDeepDetection2FullRI extends LAInfoDeepFullRI {
         LAInfoDeepDetection2FullRI LA = (LAInfoDeepDetection2FullRI)LA1;
 
         int zRefIndex = LA.RefIndex;
-        MantExpComplex z = LAReference.f.getArrayDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
+        MantExpComplex z = LAReference.f.getReferenceDeepValue(referenceDecompressor, Fractal.referenceDeep, zRefIndex);
         MantExp ChebyMagz = z.chebyshevNorm();
 
         MantExpComplex ZCoeff = new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm);

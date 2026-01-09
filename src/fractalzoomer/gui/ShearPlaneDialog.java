@@ -1,11 +1,11 @@
 
 package fractalzoomer.gui;
 
-import fractalzoomer.core.BigPoint;
-import fractalzoomer.core.MyApfloat;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import fractalzoomer.utils.BigPoint;
 import fractalzoomer.utils.MathUtils;
 import org.apfloat.Apfloat;
 

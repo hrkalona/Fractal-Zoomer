@@ -26,6 +26,7 @@ public class FunctionFiltersMenu extends MyMenu {
         functionFilternNames[MainWindow.EXP_FUNCTION_FILTER] = "exp(z)";
         functionFilternNames[MainWindow.LOG_FUNCTION_FILTER] = "log(z)";
         functionFilternNames[MainWindow.USER_FUNCTION_FILTER] = "User Filter";
+        functionFilternNames[MainWindow.MOBIUS_FUNCTION_FILTER] = "Mobius";
     }
 
     public FunctionFiltersMenu(MainWindow ptr2, String name, int filter, boolean isPostFilter) {
@@ -40,20 +41,19 @@ public class FunctionFiltersMenu extends MyMenu {
 
         ButtonGroup function_filter_group = new ButtonGroup();
 
-        for(int i = 0; i < MainWindow.USER_FUNCTION_FILTER; i++) {
-
-            final int temp = i;
-
-            function_filters[i] = new JRadioButtonMenuItem(functionFilternNames[i]);
-            function_filters[i].setToolTipText("The \"" + functionFilternNames[i] + "\" function filter.");
-            function_filters[i].addActionListener(e -> ptr.setFunctionFilter(temp, isPostFilter));
-            add(function_filters[i]);
-            function_filter_group.add(function_filters[i]);
-
+        for(int i = 0; i < function_filters.length; i++) {
+            if(i != MainWindow.USER_FUNCTION_FILTER) {
+                final int temp = i;
+                function_filters[i] = new JRadioButtonMenuItem(functionFilternNames[i]);
+                function_filters[i].setToolTipText(functionFilternNames[i] + " function filter.");
+                function_filters[i].addActionListener(e -> ptr.setFunctionFilter(temp, isPostFilter));
+                add(function_filters[i]);
+                function_filter_group.add(function_filters[i]);
+            }
         }
 
         function_filters[MainWindow.USER_FUNCTION_FILTER] = new JRadioButtonMenuItem(functionFilternNames[MainWindow.USER_FUNCTION_FILTER]);
-        function_filters[MainWindow.USER_FUNCTION_FILTER].setToolTipText("The \"" + functionFilternNames[MainWindow.USER_FUNCTION_FILTER] + "\" function filter.");
+        function_filters[MainWindow.USER_FUNCTION_FILTER].setToolTipText(functionFilternNames[MainWindow.USER_FUNCTION_FILTER] + " function filter.");
         function_filters[MainWindow.USER_FUNCTION_FILTER].addActionListener(e -> ptr.setFunctionFilter(MainWindow.USER_FUNCTION_FILTER, isPostFilter));
         add(function_filters[MainWindow.USER_FUNCTION_FILTER]);
 

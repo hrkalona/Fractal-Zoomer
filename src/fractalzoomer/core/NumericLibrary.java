@@ -1,9 +1,9 @@
 package fractalzoomer.core;
 
-import fractalzoomer.core.mpfr.LibMpfr;
-import fractalzoomer.core.mpfr.MpfrBigNum;
-import fractalzoomer.core.mpir.LibMpir;
-import fractalzoomer.core.mpir.MpirBigNum;
+import fractalzoomer.core.numerics.mpfr.LibMpfr;
+import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
+import fractalzoomer.core.numerics.mpir.LibMpir;
+import fractalzoomer.core.numerics.mpir.MpirBigNum;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import org.apfloat.Apfloat;
@@ -135,6 +135,11 @@ public class NumericLibrary {
 
     public static int getBignumImplementation(Apfloat size, Fractal f) {
 
+        boolean useOnlyBignumLibsInAuto = false;
+        if (f.usesReferenceSavingOrLoading()) {
+            useOnlyBignumLibsInAuto = true;
+        }
+
         double dsize = size.doubleValue();
         if(BIGNUM_IMPLEMENTATION == Constants.BIGNUM_DOUBLE) {
             return Constants.BIGNUM_DOUBLE;
@@ -241,7 +246,7 @@ public class NumericLibrary {
             return Constants.BIGNUM_APFLOAT;
         }
         else if(BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC || BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC_ONLY_BIGNUM) {
-            if(BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC) {
+            if(BIGNUM_IMPLEMENTATION == Constants.BIGNUM_AUTOMATIC && !useOnlyBignumLibsInAuto) {
                 if (f.supportsDouble() && dsize > f.getDoubleLimit()) {
                     return Constants.BIGNUM_DOUBLE;
                 }

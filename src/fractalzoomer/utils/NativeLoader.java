@@ -2,8 +2,8 @@ package fractalzoomer.utils;
 
 import com.sun.jna.Platform;
 import fractalzoomer.core.TaskRender;
-import fractalzoomer.core.mpfr.LibMpfr;
-import fractalzoomer.core.mpir.LibMpir;
+import fractalzoomer.core.numerics.mpfr.LibMpfr;
+import fractalzoomer.core.numerics.mpir.LibMpir;
 
 import java.io.File;
 import java.io.InputStream;

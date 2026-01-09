@@ -5,8 +5,8 @@ import fractalzoomer.core.TaskRender;
 import fractalzoomer.core.antialiasing.AntialiasingAlgorithm;
 import fractalzoomer.core.location.Location;
 import fractalzoomer.main.Constants;
-import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.MinimalRendererWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.utils.Square;
 import org.apfloat.Apfloat;
@@ -111,7 +111,7 @@ public class MarianiSilver3Render extends MarianiSilverRender {
     }
 
     @Override
-    protected void performSubDivisionAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_width, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) {
+    protected void performSubDivisionAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_width, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) {
         int x, y;
         int loc;
         int color;
@@ -135,7 +135,7 @@ public class MarianiSilver3Render extends MarianiSilverRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -184,7 +184,7 @@ public class MarianiSilver3Render extends MarianiSilverRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -291,7 +291,7 @@ public class MarianiSilver3Render extends MarianiSilverRender {
     }
 
     @Override
-    protected void performSubDivisionFastJuliaAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_size, AntialiasingAlgorithm aa, int supersampling_num, int totalSamples, boolean storeExtraData) {
+    protected void performSubDivisionFastJuliaAntialiased(int currentIteration, int slice_FROMx, int slice_TOx, int slice_FROMy, int slice_TOy, int xLength, int yLength, Location location, int image_size, AntialiasingAlgorithm aa, int max_samples, int totalSamples, boolean storeExtraData) {
         int y, x;
         int loc;
         double f_val, temp_result;
@@ -315,7 +315,7 @@ public class MarianiSilver3Render extends MarianiSilverRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);
@@ -356,7 +356,7 @@ public class MarianiSilver3Render extends MarianiSilverRender {
                 aa.initialize(color);
 
                 //Supersampling
-                for (int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < max_samples; i++) {
                     temp_result = iteration_algorithm.calculate(location.getAntialiasingComplex(i, loc));
                     escaped_val = iteration_algorithm.escaped();
                     color = getFinalColor(temp_result, escaped_val);

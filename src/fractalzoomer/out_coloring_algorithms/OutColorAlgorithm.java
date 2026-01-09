@@ -5,12 +5,13 @@ package fractalzoomer.out_coloring_algorithms;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.norms.Norm;
 import fractalzoomer.utils.ColorAlgorithm;
+import fractalzoomer.utils.OutColorData;
 
 public abstract class OutColorAlgorithm extends ColorAlgorithm {
     protected boolean smooth = false;
-    public abstract double getResult(Object[] object);
+    public abstract double getResult(OutColorData data);
     
-    public double getResult3D(Object[] object, double result) {
+    public double getResult3D(OutColorData data, double result) {
         
         return result;
         
@@ -107,7 +108,7 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
 
     }
 
-    public double getFractionalPart(Object[] object) {
+    public double getFractionalPart(OutColorData data) {
         return 0;
     }
  
