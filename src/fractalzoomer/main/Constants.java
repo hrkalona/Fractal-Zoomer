@@ -10,7 +10,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1095;
+    public static final int VERSION = 1096;
     public static final boolean beta = false;
     public static final int TOTAL_PALETTES = 48;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 12;
@@ -18,7 +18,7 @@ public interface Constants {
     public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_CONVERGENT_BAILOUT_CONDITIONS = 10;
     public static final int TOTAL_PLANES = 67;
-    public static final int TOTAL_FUNCTIONS = 519;
+    public static final int TOTAL_FUNCTIONS = 527;
     public static final int TOTAL_FILTERS = 36;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 14;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -659,6 +659,15 @@ public interface Constants {
     public static final int FORMULA50 = 516;
     public static final int FORMULA51 = 517;
     public static final int FORMULA52 = 518;
+
+    public static final int BROYDEN3 = 519;
+    public static final int BROYDEN4 = 520;
+    public static final int BROYDENGENERALIZED3 = 521;
+    public static final int BROYDENGENERALIZED8 = 522;
+    public static final int BROYDENSIN = 523;
+    public static final int BROYDENCOS = 524;
+    public static final int BROYDENPOLY = 525;
+    public static final int BROYDENFORMULA = 526;
     /**
      * ***************
      */

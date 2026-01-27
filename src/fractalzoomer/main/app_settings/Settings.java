@@ -2637,14 +2637,14 @@ public class Settings implements Constants {
         } else if (isConvergingType()) {
             fns.user_out_coloring_algorithm = 0;
 
-            fns.outcoloring_formula = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.outcoloring_formula = "n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
 
             fns.user_outcoloring_conditions[0] = "im(z)";
             fns.user_outcoloring_conditions[1] = "0";
 
-            fns.user_outcoloring_condition_formula[0] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
-            fns.user_outcoloring_condition_formula[1] = "-(n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp))) + 50)";
-            fns.user_outcoloring_condition_formula[2] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.user_outcoloring_condition_formula[0] = "n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.user_outcoloring_condition_formula[1] = "-(n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp))) + 50)";
+            fns.user_outcoloring_condition_formula[2] = "n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
         } else if (fns.function == MAGNET1) {
             fns.user_out_coloring_algorithm = 1;
 
@@ -3073,7 +3073,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERIPOLY || function == RAFIS_RAFIULLAHPOLY || function == RAFIULLAH1POLY
                 || function == CHANGBUM_CHUN3POLY || function == EZZATI_SALEKI1POLY || function == FENGPOLY
                 || function == KING1POLY || function == NOOR_GUPTAPOLY || function == HARMONIC_SIMPSON_NEWTONPOLY
-                || function == NEDZHIBOVPOLY || function == SIMPSON_NEWTONPOLY;
+                || function == NEDZHIBOVPOLY || function == SIMPSON_NEWTONPOLY || function == BROYDENPOLY;
 
     }
 
@@ -3090,7 +3090,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERI3 || function == RAFIS_RAFIULLAH3 || function == RAFIULLAH13
                 || function == CHANGBUM_CHUN33 || function == EZZATI_SALEKI13 || function == FENG3
                 || function == KING13 || function == NOOR_GUPTA3 || function == HARMONIC_SIMPSON_NEWTON3
-                || function == NEDZHIBOV3 || function == SIMPSON_NEWTON3;
+                || function == NEDZHIBOV3 || function == SIMPSON_NEWTON3 || function == BROYDEN3;
 
 
     }
@@ -3108,7 +3108,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERIGENERALIZED3 || function == RAFIS_RAFIULLAHGENERALIZED3 || function == RAFIULLAH1GENERALIZED3
                 || function == CHANGBUM_CHUN3GENERALIZED3 || function == EZZATI_SALEKI1GENERALIZED3 || function == FENGGENERALIZED3
                 || function == KING1GENERALIZED3 || function == NOOR_GUPTAGENERALIZED3 || function == HARMONIC_SIMPSON_NEWTONGENERALIZED3
-                || function == NEDZHIBOVGENERALIZED3 || function == SIMPSON_NEWTONGENERALIZED3;
+                || function == NEDZHIBOVGENERALIZED3 || function == SIMPSON_NEWTONGENERALIZED3 || function == BROYDENGENERALIZED3;
 
 
 
@@ -3127,7 +3127,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERIGENERALIZED8 || function == RAFIS_RAFIULLAHGENERALIZED8 || function == RAFIULLAH1GENERALIZED8
                 || function == CHANGBUM_CHUN3GENERALIZED8 || function == EZZATI_SALEKI1GENERALIZED8 || function == FENGGENERALIZED8
                 || function == KING1GENERALIZED8 || function == NOOR_GUPTAGENERALIZED8 || function == HARMONIC_SIMPSON_NEWTONGENERALIZED8
-                || function == NEDZHIBOVGENERALIZED8 || function == SIMPSON_NEWTONGENERALIZED8;
+                || function == NEDZHIBOVGENERALIZED8 || function == SIMPSON_NEWTONGENERALIZED8 || function == BROYDENGENERALIZED8;
 
 
     }
@@ -3145,7 +3145,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERISIN || function == RAFIS_RAFIULLAHSIN || function == RAFIULLAH1SIN
                 || function == CHANGBUM_CHUN3SIN || function == EZZATI_SALEKI1SIN || function == FENGSIN
                 || function == KING1SIN || function == NOOR_GUPTASIN || function == HARMONIC_SIMPSON_NEWTONSIN
-                || function == NEDZHIBOVSIN || function == SIMPSON_NEWTONSIN;
+                || function == NEDZHIBOVSIN || function == SIMPSON_NEWTONSIN || function == BROYDENSIN;
 
 
     }
@@ -3163,7 +3163,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERICOS || function == RAFIS_RAFIULLAHCOS || function == RAFIULLAH1COS
                 || function == CHANGBUM_CHUN3COS || function == EZZATI_SALEKI1COS || function == FENGCOS
                 || function == KING1COS || function == NOOR_GUPTACOS || function == HARMONIC_SIMPSON_NEWTONCOS
-                || function == NEDZHIBOVCOS || function == SIMPSON_NEWTONCOS;
+                || function == NEDZHIBOVCOS || function == SIMPSON_NEWTONCOS || function == BROYDENCOS;
 
 
     }
@@ -3181,7 +3181,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERI4 || function == RAFIS_RAFIULLAH4|| function == RAFIULLAH14
                 || function == CHANGBUM_CHUN34 || function == EZZATI_SALEKI14 || function == FENG4
                 || function == KING14 || function == NOOR_GUPTA4 || function == HARMONIC_SIMPSON_NEWTON4
-                || function == NEDZHIBOV4 || function == SIMPSON_NEWTON4;
+                || function == NEDZHIBOV4 || function == SIMPSON_NEWTON4 || function == BROYDEN4;
 
 
     }
@@ -3291,7 +3291,8 @@ public class Settings implements Constants {
     public static boolean isOneFunctionsRootFindingMethodFormula(int function) {
         return function == SECANTFORMULA ||
                 function == STEFFENSENFORMULA ||
-                function == MULLERFORMULA;
+                function == MULLERFORMULA ||
+                function == BROYDENFORMULA;
     }
 
     public static boolean isTwoFunctionsRootFindingMethodFormula(int function) {
