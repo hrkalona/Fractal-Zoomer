@@ -171,24 +171,25 @@ public abstract class Fractal {
 
     protected long realigns;
 
-    public static long[] total_float_exp_iterations;
-    public static long[] total_double_iterations;
-    public static long[] total_scaled_iterations;
+    public static double[] total_float_exp_iterations;
+    public static double[] total_double_iterations;
+    public static double[] total_scaled_iterations;
 
-    public static long[] total_rebases;
-    public static long[] total_realigns;
+    public static double[] total_rebases;
+    public static double[] total_realigns;
 
     public static long[] total_min_iterations;
     public static long[] total_max_iterations;
     public static long[] total_max_iterations_ignore_max_iter;
-    public static long[] total_iterations;
+    public static double[] total_iterations;
+    public static long[] total_samples;
 
 
-    public static long[] total_bla_iterations;
-    public static long[] total_bla_steps;
-    public static long[] total_perturb_iterations;
+    public static double[] total_bla_iterations;
+    public static double[] total_bla_steps;
+    public static double[] total_perturb_iterations;
 
-    public static long[] total_nanomb1_skipped_iterations;
+    public static double[] total_nanomb1_skipped_iterations;
 
     public static ReferenceOrbit referenceOrbit;
     public static ReferenceOrbit secondReferenceOrbit;
@@ -302,7 +303,7 @@ public abstract class Fractal {
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        plane = PlaneFactory(this, xCenter, yCenter, size, max_iterations, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, globalVars);
 
         BailoutConditionFactory(bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_transform_center);
 
@@ -336,7 +337,7 @@ public abstract class Fractal {
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        plane = PlaneFactory(this, xCenter, yCenter, size, max_iterations, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, globalVars);
 
         pixel_orbit = getTransformedPixel(pixel_orbit);
 
@@ -689,6 +690,14 @@ public abstract class Fractal {
         return false;
     }
 
+    public boolean supportsHighPrecision() {
+        return false;
+    }
+
+    public boolean supportsPerturbationTheoryOrHighPrecision() {
+        return supportsPerturbationTheory() || supportsHighPrecision();
+    }
+
     public boolean supportsReferenceCompression() {
         return false;
     }
@@ -818,7 +827,7 @@ public abstract class Fractal {
 
         if(lib == ARBITRARY_MPFR) {
 
-            workSpaceData.z.set(defaultInitVal.getValue(null));
+            workSpaceData.z.set(defaultInitVal.getValueGeneric(pixel));
             complex[0] = workSpaceData.z;//z
 
             workSpaceData.c.set(pixel);
@@ -838,7 +847,7 @@ public abstract class Fractal {
         }
         else if(lib == ARBITRARY_MPIR) {
 
-            workSpaceData.zp.set(defaultInitVal.getValue(null));
+            workSpaceData.zp.set(defaultInitVal.getValueGeneric(pixel));
             complex[0] = workSpaceData.zp;//z
 
             workSpaceData.cp.set(pixel);
@@ -857,7 +866,7 @@ public abstract class Fractal {
             gc0 = workSpaceData.c0p;
         }
         else if (lib == ARBITRARY_BUILT_IN) {
-            complex[0] = new BigNumComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new BigNumComplex();
@@ -866,7 +875,7 @@ public abstract class Fractal {
             gc0 = complex[1];
         }
         else if (lib == ARBITRARY_BIGINT) {
-            complex[0] = new BigIntNumComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new BigIntNumComplex();
@@ -875,7 +884,7 @@ public abstract class Fractal {
             gc0 = complex[1];
         }
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
-            complex[0] = new DDComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new DDComplex();
@@ -884,7 +893,7 @@ public abstract class Fractal {
             gc0 = complex[1];
         }
         else {
-            complex[0] = new BigComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new BigComplex();
@@ -1069,7 +1078,7 @@ public abstract class Fractal {
             progress.setValue(progress.getMaximum());
             progress.setString(NANOMB1_CALCULATION_STR + " 100%");
         }
-        total_nanomb1_skipped_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_nanomb1_skipped_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     public void calculateBLAWrapper(boolean deepZoom, Location externalLocation, JProgressBar progress) {
@@ -1090,9 +1099,9 @@ public abstract class Fractal {
             progress.setValue(progress.getMaximum());
             progress.setString(BLA_CALCULATION_STR + " 100%");
         }
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     public void calculateBLA2Wrapper(boolean deepZoom, Location externalLocation, JProgressBar progress) {
@@ -1131,9 +1140,9 @@ public abstract class Fractal {
             catch (Exception ex) {}
         }
 
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     public void calculateBLA3Wrapper(boolean deepZoom, JProgressBar progress) {
@@ -1155,9 +1164,9 @@ public abstract class Fractal {
             progress.setString(BLA_CALCULATION_STR + " 100%");
         }
 
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
 
@@ -1196,9 +1205,9 @@ public abstract class Fractal {
 //            catch (Exception ex) {}
 //        }
 
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     protected void calculateSeries(Apfloat dsize, boolean deepZoom, Location externalLocation, JProgressBar progress) {
@@ -1562,7 +1571,7 @@ public abstract class Fractal {
 
             temp = rotation.rotateInverse(complex[0]);
 
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+            if (Double.isNaN(temp.re) || Double.isNaN(temp.im) || Double.isInfinite(temp.re) || Double.isInfinite(temp.im)) {
                 break;
             }
 
@@ -1810,6 +1819,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1828,6 +1838,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1852,6 +1863,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1874,6 +1886,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1895,6 +1908,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1958,8 +1972,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -2016,8 +2032,10 @@ public abstract class Fractal {
 
                 DeltaSubN = b.getValue(DeltaSubN, DeltaSub0);
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2111,8 +2129,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -2165,8 +2185,10 @@ public abstract class Fractal {
 
                 DeltaSubN = step.getValue(DeltaSubN, DeltaSub0);
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2298,8 +2320,10 @@ public abstract class Fractal {
                 RefIteration++;
 
                 if(needsComplexZ) {
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
                     zoldDeep = z;
                 }
                 else {
@@ -2378,9 +2402,10 @@ public abstract class Fractal {
                 RefIteration++;
                 perturb_iterations++;
 
-                // rebase
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
                 zoldDeep = z;
 
                 //No Plane influence work
@@ -2454,8 +2479,10 @@ public abstract class Fractal {
 
                     RefIteration++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
 
                     //No Plane influence work
                     //No Pre filters work
@@ -2577,8 +2604,10 @@ public abstract class Fractal {
 
                 RefIteration++;
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2649,9 +2678,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            // rebase
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -2746,8 +2776,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(zc);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = zc.re;
+            zold.im = zc.im;
             zoldDeep = z;
 
             //No Plane influence work
@@ -2808,8 +2840,10 @@ public abstract class Fractal {
                 DeltaSubN = b.getValue(DeltaSubN, DeltaSub0);
                 DeltaSubN.Normalize();
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2911,8 +2945,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(zc);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = zc.re;
+            zold.im = zc.im;
             zoldDeep = z;
 
             //No Plane influence work
@@ -2968,8 +3004,10 @@ public abstract class Fractal {
                 DeltaSubN = step.getValue(DeltaSubN, DeltaSub0);
                 DeltaSubN.Normalize();
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -3076,8 +3114,10 @@ public abstract class Fractal {
             RefIteration++;
             double_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -3233,8 +3273,10 @@ public abstract class Fractal {
 
                     float_exp_iterations++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
                     zoldDeep = zDeep;
 
                     //No Plane influence work
@@ -3332,8 +3374,10 @@ public abstract class Fractal {
 
                     scaled_iterations++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
 
                     //No Plane influence work
                     //No Pre filters work
@@ -3519,8 +3563,10 @@ public abstract class Fractal {
             RefIteration++;
             double_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -3639,8 +3685,10 @@ public abstract class Fractal {
 
                 float_exp_iterations++;
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
@@ -3770,7 +3818,7 @@ public abstract class Fractal {
 
     public String getInitialValue() {
 
-        if ((TaskRender.HIGH_PRECISION_CALCULATION || TaskRender.PERTURBATION_THEORY) && supportsPerturbationTheory()) {
+        if ((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory())) {
             if (isJulia) {
                 return "c";
             }
@@ -3799,7 +3847,7 @@ public abstract class Fractal {
         switch (bailout_test_algorithm) {
 
             case MainWindow.BAILOUT_CONDITION_CIRCLE:
-                if(TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory()) {
+                if(TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) {
                     bailout_algorithm2 = new CircleBailoutPreCalcNormCondition(bailout_squared);
                     bailout_algorithm = new CircleBailoutCondition(bailout_squared, true, this);
                 }
@@ -3914,215 +3962,150 @@ public abstract class Fractal {
 
     }
 
-    private void PlaneFactory(int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
+    public static Plane PlaneFactory(Fractal f, double xCenter, double yCenter, double size, int max_iterations, int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, Complex[] globalVars) {
 
         switch (plane_type) {
             case MainWindow.MU_PLANE:
-                plane = new MuPlane();
-                break;
+                return new MuPlane();
             case MainWindow.MU_SQUARED_PLANE:
-                plane = new MuSquaredPlane(this);
-                break;
+                return new MuSquaredPlane(f);
             case MainWindow.MU_FOURTH_PLANE:
-                plane = new MuFourthPlane();
-                break;
+                return new MuFourthPlane();
             case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
-                plane = new MuSquaredImaginaryPlane();
-                break;
+                return new MuSquaredImaginaryPlane();
             case MainWindow.INVERSED_MU_PLANE:
-                plane = new InversedMuPlane(this);
-                break;
+                return new InversedMuPlane(f);
             case MainWindow.INVERSED_MU2_PLANE:
-                plane = new InversedMu2Plane(this);
-                break;
+                return new InversedMu2Plane(f);
             case MainWindow.INVERSED_MU3_PLANE:
-                plane = new InversedMu3Plane(this);
-                break;
+                return new InversedMu3Plane(f);
             case MainWindow.INVERSED_MU4_PLANE:
-                plane = new InversedMu4Plane(this);
-                break;
+                return new InversedMu4Plane(f);
             case MainWindow.LAMBDA_PLANE:
-                plane = new LambdaPlane(this);
-                break;
+                return new LambdaPlane(f);
             case MainWindow.INVERSED_LAMBDA_PLANE:
-                plane = new InversedLambdaPlane(this);
-                break;
+                return new InversedLambdaPlane(f);
             case MainWindow.INVERSED_LAMBDA2_PLANE:
-                plane = new InversedLambda2Plane(this);
-                break;
+                return new InversedLambda2Plane(f);
             case MainWindow.EXP_PLANE:
-                plane = new ExpPlane();
-                break;
+                return new ExpPlane();
             case MainWindow.LOG_PLANE:
-                plane = new LogPlane();
-                break;
+                return new LogPlane();
             case MainWindow.SIN_PLANE:
-                plane = new SinPlane();
-                break;
+                return new SinPlane();
             case MainWindow.COS_PLANE:
-                plane = new CosPlane();
-                break;
+                return new CosPlane();
             case MainWindow.TAN_PLANE:
-                plane = new TanPlane();
-                break;
+                return new TanPlane();
             case MainWindow.COT_PLANE:
-                plane = new CotPlane();
-                break;
+                return new CotPlane();
             case MainWindow.SINH_PLANE:
-                plane = new SinhPlane();
-                break;
+                return new SinhPlane();
             case MainWindow.COSH_PLANE:
-                plane = new CoshPlane();
-                break;
+                return new CoshPlane();
             case MainWindow.TANH_PLANE:
-                plane = new TanhPlane();
-                break;
+                return new TanhPlane();
             case MainWindow.COTH_PLANE:
-                plane = new CothPlane();
-                break;
+                return new CothPlane();
             case MainWindow.SEC_PLANE:
-                plane = new SecPlane();
-                break;
+                return new SecPlane();
             case MainWindow.CSC_PLANE:
-                plane = new CscPlane();
-                break;
+                return new CscPlane();
             case MainWindow.SECH_PLANE:
-                plane = new SechPlane();
-                break;
+                return new SechPlane();
             case MainWindow.CSCH_PLANE:
-                plane = new CschPlane();
-                break;
+                return new CschPlane();
             case MainWindow.ASIN_PLANE:
-                plane = new ASinPlane();
-                break;
+                return new ASinPlane();
             case MainWindow.ACOS_PLANE:
-                plane = new ACosPlane();
-                break;
+                return new ACosPlane();
             case MainWindow.ATAN_PLANE:
-                plane = new ATanPlane();
-                break;
+                return new ATanPlane();
             case MainWindow.ACOT_PLANE:
-                plane = new ACotPlane();
-                break;
+                return new ACotPlane();
             case MainWindow.ASINH_PLANE:
-                plane = new ASinhPlane();
-                break;
+                return new ASinhPlane();
             case MainWindow.ACOSH_PLANE:
-                plane = new ACoshPlane();
-                break;
+                return new ACoshPlane();
             case MainWindow.ATANH_PLANE:
-                plane = new ATanhPlane();
-                break;
+                return new ATanhPlane();
             case MainWindow.ACOTH_PLANE:
-                plane = new ACothPlane();
-                break;
+                return new ACothPlane();
             case MainWindow.ASEC_PLANE:
-                plane = new ASecPlane();
-                break;
+                return new ASecPlane();
             case MainWindow.ACSC_PLANE:
-                plane = new ACscPlane();
-                break;
+                return new ACscPlane();
             case MainWindow.ASECH_PLANE:
-                plane = new ASechPlane();
-                break;
+                return new ASechPlane();
             case MainWindow.ACSCH_PLANE:
-                plane = new ACschPlane();
-                break;
+                return new ACschPlane();
             case MainWindow.SQRT_PLANE:
-                plane = new SqrtPlane();
-                break;
+                return new SqrtPlane();
             case MainWindow.ABS_PLANE:
-                plane = new AbsPlane();
-                break;
+                return new AbsPlane();
             case MainWindow.FOLDUP_PLANE:
-                plane = new FoldUpPlane(plane_transform_center, this);
-                break;
+                return new FoldUpPlane(plane_transform_center, f);
             case MainWindow.FOLDDOWN_PLANE:
-                plane = new FoldDownPlane(plane_transform_center, this);
-                break;
+                return new FoldDownPlane(plane_transform_center, f);
             case MainWindow.FOLDRIGHT_PLANE:
-                plane = new FoldRightPlane(plane_transform_center, this);
-                break;
+                return new FoldRightPlane(plane_transform_center, f);
             case MainWindow.FOLDLEFT_PLANE:
-                plane = new FoldLeftPlane(plane_transform_center, this);
-                break;
+                return new FoldLeftPlane(plane_transform_center, f);
             case MainWindow.FOLDIN_PLANE:
-                plane = new FoldInPlane(plane_transform_radius, this);
-                break;
+                return new FoldInPlane(plane_transform_radius, f);
             case MainWindow.FOLDOUT_PLANE:
-                plane = new FoldOutPlane(plane_transform_radius, this);
-                break;
+                return new FoldOutPlane(plane_transform_radius, f);
             case MainWindow.NEWTON3_PLANE:
-                plane = new Newton3Plane();
-                break;
+                return new Newton3Plane();
             case MainWindow.NEWTON4_PLANE:
-                plane = new Newton4Plane();
-                break;
+                return new Newton4Plane();
             case MainWindow.NEWTONGENERALIZED3_PLANE:
-                plane = new NewtonGeneralized3Plane();
-                break;
+                return new NewtonGeneralized3Plane();
             case MainWindow.NEWTONGENERALIZED8_PLANE:
-                plane = new NewtonGeneralized8Plane();
-                break;
+                return new NewtonGeneralized8Plane();
             case MainWindow.USER_PLANE:
                 if (user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
+                    return new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
+                    return new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
-                break;
             case MainWindow.GAMMA_PLANE:
-                plane = new GammaFunctionPlane();
-                break;
+                return new GammaFunctionPlane();
             case MainWindow.FACT_PLANE:
-                plane = new FactorialPlane();
-                break;
+                return new FactorialPlane();
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(plane_transform_center);
-                break;
+                return new BipolarPlane(plane_transform_center);
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(plane_transform_center);
-                break;
+                return new InversedBipolarPlane(plane_transform_center);
             case MainWindow.TWIRL_PLANE:
-                plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
-                break;
+                return new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
             case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(plane_transform_scales, plane_transform_center_hp, this);
-                break;
+                return new ShearPlane(plane_transform_scales, plane_transform_center_hp, f);
             case MainWindow.KALEIDOSCOPE_PLANE:
-                plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
-                break;
+                return new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
             case MainWindow.PINCH_PLANE:
-                plane = new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
-                break;
+                return new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
             case MainWindow.CIRCLEINVERSION_PLANE:
-                plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius, this);
-                break;
+                return new CircleInversionPlane(plane_transform_center, plane_transform_radius, f);
             case MainWindow.VARIATION_MU_PLANE:
-                plane = new MuVariationPlane(this);
-                break;
+                return new MuVariationPlane(f);
             case MainWindow.ERF_PLANE:
-                plane = new ErfPlane();
-                break;
+                return new ErfPlane();
             case MainWindow.RZETA_PLANE:
-                plane = new RiemannZetaPlane();
-                break;
+                return new RiemannZetaPlane();
             case MainWindow.INFLECTION_PLANE:
-                plane = new InflectionPlane(plane_transform_center, this);
-                break;
+                return new InflectionPlane(plane_transform_center, f);
             case MainWindow.RIPPLES_PLANE:
-                plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
-                break;
+                return new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
             case MainWindow.SKEW_PLANE:
-                plane = new SkewPlane(plane_transform_angle, plane_transform_angle2, plane_transform_center_hp, this);
-                break;
+                return new SkewPlane(plane_transform_angle, plane_transform_angle2, plane_transform_center_hp, f);
             case STRETCH_PLANE:
-                plane = new StretchPlane(plane_transform_angle, plane_transform_amount, plane_transform_center_hp, this);
-                break;
+                return new StretchPlane(plane_transform_angle, plane_transform_amount, plane_transform_center_hp, f);
             case MainWindow.INFLECTIONS_PLANE:
-                plane = new InflectionsPlane(inflections_re, inflections_im, inflectionsPower, this);
-                break;
+                return new InflectionsPlane(inflections_re, inflections_im, inflectionsPower, f);
         }
+
+        return null;
 
     }
 
@@ -4280,39 +4263,39 @@ public abstract class Fractal {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
 
         if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
+            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems, sts.applyIntensityDuringColoring);
         } else if (sts.statisticGroup == 2) {
-            if ((TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) && supportsPerturbationTheory()) {
+            if ((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory())) {
                 return;
             }
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, false, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, false, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta, sts.applyIntensityDuringColoring);
         } else if (sts.statisticGroup == 3) {
-            statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor);
+            statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor, sts.applyIntensityDuringColoring);
         } else if (sts.statisticGroup == 0) {
             switch (sts.statistic_type) {
                 case MainWindow.STRIPE_AVERAGE:
-                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.CURVATURE_AVERAGE:
-                    statistic = new CurvatureAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CurvatureAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                    statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems, sts.atomDomainNormA, sts.atomDomainNormB);
+                    statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems, sts.atomDomainNormA, sts.atomDomainNormB, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, sts.useSmoothing, sts.useAverage, false, sts.langNormType, sts.langNNorm, sts.lastXItems, sts.langNormA, sts.langNormB);
+                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, sts.useSmoothing, sts.useAverage, false, sts.langNormType, sts.langNNorm, sts.lastXItems, sts.langNormA, sts.langNormB, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.TWIN_LAMPS:
-                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, sts.useSmoothing, sts.lastXItems);
+                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, sts.useSmoothing, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.CHECKERS:
-                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.checkerNormA, sts.checkerNormB);
+                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.checkerNormA, sts.checkerNormB, sts.applyIntensityDuringColoring);
                     break;
             }
         }
@@ -4320,15 +4303,12 @@ public abstract class Fractal {
         statistic.setNormSmoothingImpl(bailout_algorithm.getNormImpl(), bailout);
 
         if(sts.normalMapCombineWithOtherStatistics && !(sts.statisticGroup == 2 || sts.statisticGroup == 3)) {
-            statistic = new CombinedStatisticWithNormalMap(statistic, new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor));
+            statistic = new CombinedStatisticWithNormalMap(statistic, new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor, sts.applyIntensityDuringColoring));
         }
 
     }
 
-    protected double getStatistic(double result, boolean escaped) {
-
-        statValue = statistic.get();
-
+    private double getStatisticInternal(double result, double statValue, boolean escaped) {
         double tempRes = Math.abs(result);
         if (tempRes == ColorAlgorithm.MAXIMUM_ITERATIONS || tempRes == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
 
@@ -4366,7 +4346,19 @@ public abstract class Fractal {
         else {
             return statValue;
         }
+    }
 
+    protected double getStatistic(double result, boolean escaped) {
+        statValue = statistic.get();
+        return getStatisticInternal(result, statValue, escaped);
+    }
+
+    public double getStatisticWithIntensity(double result, boolean escaped) {
+        double intensity = statistic.getIntensity();
+        if (intensity != 1 && ((escaped && statisticIncludeEscaped) || (!escaped && statisticIncludeNotEscaped))) {
+            return getStatisticInternal(result, statValue * intensity, escaped);
+        }
+        return result;
     }
 
     protected double getTrap(double result) {
@@ -4695,7 +4687,7 @@ public abstract class Fractal {
         }
 
         trap.setJulia(isJulia);
-        trap.setUsesHighPrecision((TaskRender.HIGH_PRECISION_CALCULATION || TaskRender.PERTURBATION_THEORY) && supportsPerturbationTheory());
+        trap.setUsesHighPrecision((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory()));
         trap.setSkipTrapCheckForIterations(ots.skipTrapCheckForIterations);
 
     }
@@ -4980,6 +4972,7 @@ public abstract class Fractal {
         total_max_iterations_ignore_max_iter = null;
         total_bla_iterations =  null;
         total_iterations = null;
+        total_samples = null;
         total_bla_steps =  null;
         total_perturb_iterations =  null;
         total_nanomb1_skipped_iterations = null;
@@ -5069,8 +5062,8 @@ public abstract class Fractal {
                 array.checkAllocation(index);
             }
 
-            array.re[index] = val.getRe();
-            array.im[index] = val.getIm();
+            array.re[index] = val.re;
+            array.im[index] = val.im;
 
             return val;
         }
@@ -5087,8 +5080,8 @@ public abstract class Fractal {
                 array.checkAllocation(index);
             }
 
-            array.re[index] = val.getRe();
-            array.im[index] = val.getIm();
+            array.re[index] = val.re;
+            array.im[index] = val.im;
             return val;
         }
     }
@@ -5182,8 +5175,8 @@ public abstract class Fractal {
                 array.checkAllocation(index);
             }
 
-            array.re[index] = val.getRe();
-            array.im[index] = val.getIm();
+            array.re[index] = val.re;
+            array.im[index] = val.im;
         }
     }
 
@@ -5390,7 +5383,7 @@ public abstract class Fractal {
     }
 
     public void setWorkSpaceData() {
-        if((TaskRender.HIGH_PRECISION_CALCULATION || TaskRender.PERTURBATION_THEORY) && supportsPerturbationTheory()) {
+        if ((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory())) {
             workSpaceData = new WorkSpaceData(this);
         }
     }
@@ -6121,80 +6114,121 @@ public abstract class Fractal {
         this.taskId = taskId;
     }
 
-    public static long total_bla_steps_sum() {
-        long sum = 0;
+    public static double total_bla_steps_sum() {
+        if (total_bla_steps == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_bla_steps.length; i++) {
             sum += total_bla_steps[i];
         }
         return sum;
     }
 
-    public static long total_bla_iterations_sum() {
-        long sum = 0;
+    public static double total_bla_iterations_sum() {
+        if (total_bla_iterations == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_bla_iterations.length; i++) {
             sum += total_bla_iterations[i];
         }
         return sum;
     }
 
-    public static long total_rebases_sum() {
-        long sum = 0;
+    public static double total_rebases_sum() {
+        if (total_rebases == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_rebases.length; i++) {
             sum += total_rebases[i];
         }
         return sum;
     }
 
-    public static long total_perturb_iterations_sum() {
-        long sum = 0;
+    public static double total_perturb_iterations_sum() {
+        if (total_perturb_iterations == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_perturb_iterations.length; i++) {
             sum += total_perturb_iterations[i];
         }
         return sum;
     }
 
-    public static long total_double_iterations_sum() {
-        long sum = 0;
+    public static double total_double_iterations_sum() {
+        if (total_double_iterations == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_double_iterations.length; i++) {
             sum += total_double_iterations[i];
         }
         return sum;
     }
 
-    public static long total_float_exp_iterations_sum() {
-        long sum = 0;
+    public static double total_float_exp_iterations_sum() {
+        if (total_float_exp_iterations == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_float_exp_iterations.length; i++) {
             sum += total_float_exp_iterations[i];
         }
         return sum;
     }
 
-    public static long total_scaled_iterations_sum() {
-        long sum = 0;
+    public static double total_scaled_iterations_sum() {
+        if (total_scaled_iterations == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_scaled_iterations.length; i++) {
             sum += total_scaled_iterations[i];
         }
         return sum;
     }
 
-    public static long total_nanomb1_skipped_iterations_sum() {
-        long sum = 0;
+    public static double total_nanomb1_skipped_iterations_sum() {
+        if (total_nanomb1_skipped_iterations == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_nanomb1_skipped_iterations.length; i++) {
             sum += total_nanomb1_skipped_iterations[i];
         }
         return sum;
     }
 
-    public static long total_iterations_sum() {
-        long sum = 0;
+    public static double total_iterations_sum() {
+        if (total_iterations == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_iterations.length; i++) {
             sum += total_iterations[i];
         }
         return sum;
     }
 
-    public static long total_realigns_sum() {
+    public static long total_samples_sum() {
+        if (total_samples == null) {
+            return 0;
+        }
         long sum = 0;
+        for(int i = 0; i < total_samples.length; i++) {
+            sum += total_samples[i];
+        }
+        return sum;
+    }
+
+    public static double total_realigns_sum() {
+        if (total_realigns == null) {
+            return 0;
+        }
+        double sum = 0;
         for(int i = 0; i < total_realigns.length; i++) {
             sum += total_realigns[i];
         }
@@ -6202,6 +6236,9 @@ public abstract class Fractal {
     }
 
     public static long total_min_iterations_get() {
+        if (total_min_iterations == null) {
+            return 0;
+        }
         long min = Long.MAX_VALUE;
         for(int i = 0; i < total_min_iterations.length; i++) {
             if(total_min_iterations[i] < min) {
@@ -6212,6 +6249,9 @@ public abstract class Fractal {
     }
 
     public static long total_max_iterations_get() {
+        if (total_max_iterations == null) {
+            return 0;
+        }
         long max = Long.MIN_VALUE;
         for(int i = 0; i < total_max_iterations.length; i++) {
             if(total_max_iterations[i] > max) {
@@ -6222,6 +6262,9 @@ public abstract class Fractal {
     }
 
     public static long total_max_iterations_ignore_max_iter_get() {
+        if (total_max_iterations_ignore_max_iter == null) {
+            return 0;
+        }
         long max = Long.MIN_VALUE;
         for(int i = 0; i < total_max_iterations_ignore_max_iter.length; i++) {
             if(total_max_iterations_ignore_max_iter[i] > max) {

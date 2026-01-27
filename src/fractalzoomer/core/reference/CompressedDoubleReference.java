@@ -84,8 +84,8 @@ public class CompressedDoubleReference extends DoubleReference implements Serial
             for(int i = 0; i < length; i++) {
                 Waypoint w = wayPointsList.get(i);
                 Complex z = w.z;
-                wayPointRe[i] = z.getRe();
-                wayPointIm[i] = z.getIm();
+                wayPointRe[i] = z.re;
+                wayPointIm[i] = z.im;
                 wayPointIteration[i] = w.iteration;
             }
         }
@@ -99,8 +99,8 @@ public class CompressedDoubleReference extends DoubleReference implements Serial
             for(int i = 0, j = oldLength; i < wayPointsList.size(); i++, j++) {
                 Waypoint w = wayPointsList.get(i);
                 Complex z = w.z;
-                wayPointRe[j] = z.getRe();
-                wayPointIm[j] = z.getIm();
+                wayPointRe[j] = z.re;
+                wayPointIm[j] = z.im;
                 wayPointIteration[j] = w.iteration;
             }
         }
@@ -120,8 +120,8 @@ public class CompressedDoubleReference extends DoubleReference implements Serial
             for(int i = 0; i < length; i++) {
                 Waypoint w = wayPointsList.get(i);
                 Complex z = w.z;
-                wayPointRe[i] = z.getRe();
-                wayPointIm[i] = z.getIm();
+                wayPointRe[i] = z.re;
+                wayPointIm[i] = z.im;
                 wayPointIteration[i] = w.iteration;
                 rebase[i] = w.rebase;
             }
@@ -137,8 +137,8 @@ public class CompressedDoubleReference extends DoubleReference implements Serial
             for(int i = 0, j = oldLength; i < wayPointsList.size(); i++, j++) {
                 Waypoint w = wayPointsList.get(i);
                 Complex z = w.z;
-                wayPointRe[j] = z.getRe();
-                wayPointIm[j] = z.getIm();
+                wayPointRe[j] = z.re;
+                wayPointIm[j] = z.im;
                 wayPointIteration[j] = w.iteration;
                 rebase[j] = w.rebase;
             }

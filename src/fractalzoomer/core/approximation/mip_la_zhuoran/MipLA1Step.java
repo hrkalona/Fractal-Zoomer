@@ -22,10 +22,10 @@ public class MipLA1Step extends MipLAStep {
         Complex resultA = A.times(stepA);
         Complex resultB = stepA.plus(stepB);
 
-        result.Ax = resultA.getRe();
-        result.Ay = resultA.getIm();
-        result.Bx = resultB.getRe();
-        result.By = resultB.getIm();
+        result.Ax = resultA.re;
+        result.Ay = resultA.im;
+        result.Bx = resultB.re;
+        result.By = resultB.im;
         result.l = getL() + step.getL();
 
         return result;
@@ -43,10 +43,10 @@ public class MipLA1Step extends MipLAStep {
 
     @Override
     public Complex getValue(Complex dz, Complex dc) {
-        double zx = dz.getRe();
-        double zy = dz.getIm();
-        double cx = dc.getRe();
-        double cy = dc.getIm();
+        double zx = dz.re;
+        double zy = dz.im;
+        double cx = dc.re;
+        double cy = dc.im;
         return new Complex(Ax * zx - Ay * zy + cx, Ax * zy + Ay * zx + cy);
     }
 
@@ -57,8 +57,8 @@ public class MipLA1Step extends MipLAStep {
 
     @Override
     public Complex getValue(Complex dz, double dc) {
-        double zx = dz.getRe();
-        double zy = dz.getIm();
+        double zx = dz.re;
+        double zy = dz.im;
         return new Complex(Ax * zx - Ay * zy + dc, Ax * zy + Ay * zx);
     }
 }

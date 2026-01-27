@@ -34,8 +34,8 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
 
     public Complex bairstowMethod(Complex z) {
 
-        double u = z.getRe();
-        double v = z.getIm();
+        double u = z.re;
+        double v = z.im;
 
         for (int i = n - 2; i >= 0; i--) {
             b[i] = a[i + 2] - u * b[i + 1] - v * b[i + 2];
@@ -60,8 +60,9 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
     @Override
     public Complex[] initialize(Complex pixel) {
 
+        double re = pixel.re;
         Complex[] complex = new Complex[1];
-        complex[0] = new Complex(-2 * pixel.getRe(), pixel.getRe() * pixel.getRe() + pixel.getIm() * pixel.getAbsIm());//z = -2s + (s^2 + t|t|)i
+        complex[0] = new Complex(-2 * re, re * re + pixel.im * pixel.getAbsIm());//z = -2s + (s^2 + t|t|)i
 
         zold = new Complex();
         zold2 = new Complex();

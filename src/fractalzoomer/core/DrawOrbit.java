@@ -369,10 +369,10 @@ public class DrawOrbit implements Runnable {
                 
             }
             else {
-                x0 = (complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x;
-                y0 = (-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y;
-                x1 = (complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size_x;
-                y1 = (-complex_orbit.get(i + 1).getIm() + temp_ycenter_size) / temp_size_image_size_y;
+                x0 = (complex_orbit.get(i).re - temp_xcenter_size) / temp_size_image_size_x;
+                y0 = (-complex_orbit.get(i).im + temp_ycenter_size) / temp_size_image_size_y;
+                x1 = (complex_orbit.get(i + 1).re - temp_xcenter_size) / temp_size_image_size_x;
+                y1 = (-complex_orbit.get(i + 1).im + temp_ycenter_size) / temp_size_image_size_y;
             }
 
             drawLine = true;
@@ -501,8 +501,8 @@ public class DrawOrbit implements Runnable {
                 y0 = (f0 - starty) / muly;
             }
             else {
-                x0 = (complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x;
-                y0 = (-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y;
+                x0 = (complex_orbit.get(i).re - temp_xcenter_size) / temp_size_image_size_x;
+                y0 = (-complex_orbit.get(i).im + temp_ycenter_size) / temp_size_image_size_y;
             }
 
             draw = true;

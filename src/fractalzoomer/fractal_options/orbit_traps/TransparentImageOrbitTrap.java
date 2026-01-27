@@ -38,8 +38,8 @@ public class TransparentImageOrbitTrap extends OrbitTrap {
 
             if (image != null) {
 
-                double x = diff.getRe();
-                double y = diff.getIm();
+                double x = diff.re;
+                double y = diff.im;
 
                 if(x < 0 || y < 0) {
                     return;

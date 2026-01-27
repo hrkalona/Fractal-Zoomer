@@ -49,8 +49,8 @@ public class BigComplex extends GenericComplex {
 
     public BigComplex(Complex z) {
 
-        re = new MyApfloat(z.getRe());
-        im = new MyApfloat(z.getIm());
+        re = new MyApfloat(z.re);
+        im = new MyApfloat(z.im);
 
     }
 
@@ -947,6 +947,11 @@ public class BigComplex extends GenericComplex {
     @Override
     public BigComplex times4() {
         return new BigComplex(re.multiply(MyApfloat.FOUR), im.multiply(MyApfloat.FOUR));
+    }
+
+    @Override
+    public BigComplex divide2() {
+        return new BigComplex(re.multiply(MyApfloat.POINT_FIVE), im.multiply(MyApfloat.POINT_FIVE));
     }
 
     @Override

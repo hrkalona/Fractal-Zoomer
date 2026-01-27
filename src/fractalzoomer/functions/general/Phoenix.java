@@ -98,8 +98,8 @@ public class Phoenix extends Julia {
     @Override
     public void function(Complex[] complex) {
 
-        double temp = complex[1].getIm();
-        Complex tempz = complex[0].square().plus_mutable(new Complex(temp * complex[2].getRe() + complex[1].getRe(), temp * complex[2].getIm()));
+        double temp = complex[1].im;
+        Complex tempz = complex[0].square().plus_mutable(new Complex(temp * complex[2].re + complex[1].re, temp * complex[2].im));
         complex[2] = complex[0];
         complex[0] = tempz;
 

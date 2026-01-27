@@ -54,8 +54,6 @@ public class SequenceRenderDialog extends JDialog {
 
     private MyJSpinner fieldZoomEveryNFrame;
 
-    private JCheckBox flipIndex;
-
     private JTextField startAtIndex;
 
     private JTextField stopAfterNSteps;
@@ -186,11 +184,6 @@ public class SequenceRenderDialog extends JDialog {
 
         fieldZoomEveryNFrame = new MyJSpinner(new SpinnerNumberModel(zss.zoom_every_n_frame, 1, 20, 1));
 
-        flipIndex = new JCheckBox("Flip Sequence Indexing");
-        flipIndex.setFocusable(false);
-        flipIndex.setSelected(zss.flipSequenceIndexing);
-        flipIndex.setToolTipText("Changes the indexing of the name to start backwards.");
-
         startAtIndex = new JTextField();
         startAtIndex.setText("" + zss.startAtSequenceIndex);
 
@@ -295,7 +288,6 @@ public class SequenceRenderDialog extends JDialog {
                 overrideMaxIterations,
                 " ",
                 "Set the zoom sequence index parameters.",
-                flipIndex,
                 "Skip Rendering before Sequence Index:",
                 startAtIndex,
                 "Sequence Index Offset:",
@@ -464,7 +456,6 @@ public class SequenceRenderDialog extends JDialog {
                             zss.blinn_light_direction_adjusting_value = tempBlinnLight;
                             zss.zoom_every_n_frame = tempZoomNFrame;
                             zss.gradient_color_cycling_adjusting_value = tempGradientColorCycling;
-                            zss.flipSequenceIndexing = flipIndex.isSelected();
                             zss.startAtSequenceIndex = startAtIdx;
                             zss.slopes_direction_adjusting_value = tempSlopes;
                             zss.setStartSize(tempStartSize);
@@ -608,7 +599,6 @@ public class SequenceRenderDialog extends JDialog {
         fieldBlinnLightCycling.setValue(zss.blinn_light_direction_adjusting_value);
         filedBumpLightCycling.setValue(zss.bump_direction_adjusting_value);
         fieldZoomEveryNFrame.setValue(zss.zoom_every_n_frame);
-        flipIndex.setSelected(zss.flipSequenceIndexing);
         startAtIndex.setText("" + zss.startAtSequenceIndex);
         stopAfterNSteps.setText("" + zss.stop_after_n_steps);
         indexOffset.setText("" + zss.sequenceIndexOffset);

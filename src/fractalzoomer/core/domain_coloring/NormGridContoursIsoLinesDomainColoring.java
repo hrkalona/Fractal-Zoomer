@@ -41,7 +41,7 @@ public class NormGridContoursIsoLinesDomainColoring extends DomainColoring {
 
         int color = applyNormColor(res.norm());
         
-        color = applyGridContours(color, res.getRe(), res.getIm());  
+        color = applyGridContours(color, res.re, res.im);
         
         return applyIsoLines(color, res.arg(), 0, 0);
 

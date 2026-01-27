@@ -46,11 +46,6 @@ public abstract  class LAInfoBase extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Stage0DetectDip(MantExpComplex z) {
-        return false;
-    }
-
-    @Override
     protected boolean Step(LAInfoRI out, int zRefIndex, ReferenceDecompressor referenceDecompressor, boolean checkDip) throws InvalidCalculationException {
         return false;
     }
@@ -231,14 +226,7 @@ public abstract  class LAInfoBase extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Stage0DetectDip(Complex z) {
-        return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * Stage0DipDetectionThreshold;
-    }
-
-    @Override
     protected boolean DetectDip(Complex z) {
         return z.chebyshevNorm() / new Complex(ZCoeffRe, ZCoeffIm).chebyshevNorm() * LAThresholdScale < LAThreshold * DipDetectionThreshold;
     }
-
-
 }

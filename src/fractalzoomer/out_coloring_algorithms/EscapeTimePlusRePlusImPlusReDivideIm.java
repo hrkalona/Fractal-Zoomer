@@ -25,8 +25,8 @@ public class EscapeTimePlusRePlusImPlusReDivideIm extends OutColorAlgorithm {
     public double getResult(OutColorData data) {
 
         Complex z = data.z;
-        double temp = z.getRe();
-        double temp2 = z.getIm();
+        double temp = z.re;
+        double temp2 = z.im;
         
         return Math.abs(EscapeTimeAlg.getResult(data) + temp + temp2 + temp / temp2);
 

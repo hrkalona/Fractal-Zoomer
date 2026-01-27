@@ -21,8 +21,8 @@ public class Xaos4TrueColorAlgorithm extends TrueColorAlgorithm {
         Complex z = data.z;
         double h, s, br;
         
-        double re = z.getRe();
-        double im = z.getIm();
+        double re = z.re;
+        double im = z.im;
 
         if (data.escaped) {
             h = Math.sin((re * re + im * im) * 0.01);

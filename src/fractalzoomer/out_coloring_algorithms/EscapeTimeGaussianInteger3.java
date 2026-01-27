@@ -26,7 +26,7 @@ public class EscapeTimeGaussianInteger3 extends OutColorAlgorithm {
         Complex z = data.z;
         Complex temp = z.sub(z.gaussian_integer());
         
-        return Math.abs(EscapeTimeAlg.getResult(data) + temp.getRe());
+        return Math.abs(EscapeTimeAlg.getResult(data) + temp.re);
  
     } 
     

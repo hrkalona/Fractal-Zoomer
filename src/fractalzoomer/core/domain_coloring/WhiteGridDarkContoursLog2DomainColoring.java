@@ -42,7 +42,7 @@ public class WhiteGridDarkContoursLog2DomainColoring extends DomainColoring {
         
         color = applyNormContours(color, res.norm());
         
-        return applyGrid(color, res.getRe(), res.getIm(), 0, 0);
+        return applyGrid(color, res.re, res.im, 0, 0);
         
     }
 

@@ -31,8 +31,8 @@ public class LAInfo extends LAInfoBase {
     protected LAInfo(int RefIndex, ReferenceDecompressor referenceDecompressor) {
         super(RefIndex);
         Complex val = LAReference.f.getReferenceValue(referenceDecompressor, Fractal.reference, RefIndex);
-        RefRe = val.getRe();
-        RefIm = val.getIm();
+        RefRe = val.re;
+        RefIm = val.im;
         ZCoeffRe = 1.0;
         ZCoeffIm = 0.0;
         CCoeffRe = 1.0;
@@ -63,14 +63,14 @@ public class LAInfo extends LAInfoBase {
         Complex ZCoeff = deep.getZCoeff().toComplex();
         Complex CCoeff = deep.getCCoeff().toComplex();
 
-        RefRe = Ref.getRe();
-        RefIm = Ref.getIm();
+        RefRe = Ref.re;
+        RefIm = Ref.im;
 
-        ZCoeffRe = ZCoeff.getRe();
-        ZCoeffIm = ZCoeff.getIm();
+        ZCoeffRe = ZCoeff.re;
+        ZCoeffIm = ZCoeff.im;
 
-        CCoeffRe = CCoeff.getRe();
-        CCoeffIm = CCoeff.getIm();
+        CCoeffRe = CCoeff.re;
+        CCoeffIm = CCoeff.im;
 
         LAThreshold = new MantExp(deep.LAThresholdExp, deep.LAThresholdMant).toDouble();
         LAThresholdC = new MantExp(deep.LAThresholdCExp, deep.LAThresholdCMant).toDouble();
@@ -104,11 +104,11 @@ public class LAInfo extends LAInfoBase {
         Complex outZCoeff = z2.times(ZCoeff);
         Complex outCCoeff = z2.times(CCoeff).plus_mutable(1);
 
-        out.ZCoeffRe = outZCoeff.getRe();
-        out.ZCoeffIm = outZCoeff.getIm();
+        out.ZCoeffRe = outZCoeff.re;
+        out.ZCoeffIm = outZCoeff.im;
 
-        out.CCoeffRe = outCCoeff.getRe();
-        out.CCoeffIm = outCCoeff.getIm();
+        out.CCoeffRe = outCCoeff.re;
+        out.CCoeffIm = outCCoeff.im;
 
         if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
                 || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)
@@ -166,11 +166,11 @@ public class LAInfo extends LAInfoBase {
         out.RefRe = RefRe;
         out.RefIm = RefIm;
 
-        out.ZCoeffRe = outZCoeff.getRe();
-        out.ZCoeffIm = outZCoeff.getIm();
+        out.ZCoeffRe = outZCoeff.re;
+        out.ZCoeffIm = outZCoeff.im;
 
-        out.CCoeffRe = outCCoeff.getRe();
-        out.CCoeffIm = outCCoeff.getIm();
+        out.CCoeffRe = outCCoeff.re;
+        out.CCoeffIm = outCCoeff.im;
 
         if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
         || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)

@@ -10,8 +10,8 @@ public class BLALStep extends BLABase {
 
     protected BLALStep(double r2, Complex A, Complex B, int l) {
         super(r2, A);
-        this.Bx = B.getRe();
-        this.By = B.getIm();
+        this.Bx = B.re;
+        this.By = B.im;
         this.l = l;
     }
 
@@ -20,10 +20,10 @@ public class BLALStep extends BLABase {
 
         //double zxn = Ax * zx - Ay * zy + Bx * cx - By * cy;
         //double zyn = Ax * zy + Ay * zx + Bx * cy + By * cx;
-        double zx = DeltaSubN.getRe();
-        double zy = DeltaSubN.getIm();
-        double cx = DeltaSub0.getRe();
-        double cy = DeltaSub0.getIm();
+        double zx = DeltaSubN.re;
+        double zy = DeltaSubN.im;
+        double cx = DeltaSub0.re;
+        double cy = DeltaSub0.im;
         return new Complex(Ax * zx - Ay * zy + Bx * cx - By * cy, Ax * zy + Ay * zx + Bx * cy + By * cx);
         //return  Complex.AtXpBtY(A, DeltaSubN, B, DeltaSub0);
     }
@@ -35,8 +35,8 @@ public class BLALStep extends BLABase {
 
     @Override
     public Complex getValue(Complex DeltaSubN, double cx) {
-        double zx = DeltaSubN.getRe();
-        double zy = DeltaSubN.getIm();
+        double zx = DeltaSubN.re;
+        double zy = DeltaSubN.im;
         return new Complex(Ax * zx - Ay * zy + Bx * cx, Ax * zy + Ay * zx + By * cx);
     }
 

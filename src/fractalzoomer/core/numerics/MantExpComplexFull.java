@@ -32,9 +32,10 @@ public class MantExpComplexFull extends MantExpComplex implements Serializable {
         this.re = new MantExp(other.re);
         this.im = new MantExp(other.im);
     }
+
     protected MantExpComplexFull(Complex c) {
-        re = new MantExp(c.getRe());
-        im = new MantExp(c.getIm());
+        re = new MantExp(c.re);
+        im = new MantExp(c.im);
     }
 
     protected MantExpComplexFull(DDComplex c) {

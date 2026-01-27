@@ -32,6 +32,7 @@ public class MyApfloat extends Apfloat {
     public static Apint TWENTYFOUR;
     public static Apint THIRTYTWO;
     public static Apint ZERO;
+    public static Apfloat POINT_FIVE;
 
     public static Apfloat E;
     public static Apfloat MAX_DOUBLE_SIZE;
@@ -192,6 +193,7 @@ public class MyApfloat extends Apfloat {
         SIXTEEN = new Apint(16);
         TWENTYFOUR = new Apint(24);
         THIRTYTWO = new Apint(32);
+        POINT_FIVE = new MyApfloat(0.5);
         E = fp.e();
         TWO_PI = fp.multiply(PI, TWO);
         MAX_DOUBLE_SIZE = new MyApfloat(1.0e-300);
@@ -284,8 +286,8 @@ public class MyApfloat extends Apfloat {
         super(value.trim(), precision);
     }
 
-    public MyApfloat(String value, int radix) {
-        super(value.trim(), precision, radix);
+    public static Apfloat fromBase2String(String value, long numBits) {
+        return new Apfloat(value.trim(), numBits, 2);
     }
 
     public static Apfloat getPi() {

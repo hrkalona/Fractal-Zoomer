@@ -1,3 +1,10 @@
+Version 1.0.9.6
+    -Added Broyden method in Root Finding Methods
+    -Added High Precision support for some extra functions
+    -Updated the default settings for BLA to increase performance
+    -Added CLI support in Minimal Renderer
+    -Various bug fixes and improvements
+
 Version 1.0.9.5
     -Added a new post-processing algorithm for image texture mapping
     -Added a new post-processing algorithm for light effects

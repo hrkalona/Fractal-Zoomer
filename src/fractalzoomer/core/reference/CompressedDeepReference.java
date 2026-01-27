@@ -399,7 +399,7 @@ public class CompressedDeepReference extends DeepReference implements Serializab
 
     @Override
     public boolean hasTwoExponents() {
-        return wayPointExpIm != null;
+        return wayPointExpRe.length != 0 && wayPointExpRe.length == wayPointExpIm.length;
     }
 
     @Override

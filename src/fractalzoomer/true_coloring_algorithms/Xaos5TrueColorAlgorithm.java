@@ -21,8 +21,8 @@ public class Xaos5TrueColorAlgorithm extends TrueColorAlgorithm {
         Complex z = data.z;
         int r, g, b;
 
-        double re = z.getRe();
-        double im = z.getIm();
+        double re = z.re;
+        double im = z.im;
         double resqr = re * re;
         double imsqr = im * im;
 

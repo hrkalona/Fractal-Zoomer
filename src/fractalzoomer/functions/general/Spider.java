@@ -2,6 +2,7 @@
 package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.numerics.GenericComplex;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -43,6 +44,8 @@ public class Spider extends Julia {
             init_val = new DefaultInitialValue();
         }
 
+        defaultInitVal = new DefaultInitialValue();
+
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
         
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
@@ -66,6 +69,7 @@ public class Spider extends Julia {
 
         pertur_val = new DefaultPerturbation();
         init_val = new DefaultInitialValue();
+        defaultInitVal = new DefaultInitialValue();
     }
 
     //orbit
@@ -91,7 +95,7 @@ public class Spider extends Julia {
         else {
             init_val = new DefaultInitialValue();
         }
-
+        defaultInitVal = new DefaultInitialValue();
     }
 
     public Spider(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, double xJuliaCenter, double yJuliaCenter) {
@@ -99,6 +103,7 @@ public class Spider extends Julia {
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, xJuliaCenter, yJuliaCenter);
         pertur_val = new DefaultPerturbation();
         init_val = new DefaultInitialValue();
+        defaultInitVal = new DefaultInitialValue();
     }
 
     @Override
@@ -107,6 +112,37 @@ public class Spider extends Julia {
         complex[0].square_mutable().plus_mutable(complex[1]);
         complex[1].divide_mutable(2).plus_mutable(complex[0]);
 
+    }
+
+    @Override
+    public boolean supportsHighPrecision() {
+        return true;
+    }
+
+    @Override
+    public void function(GenericComplex[] complex) {
+        complex[0] = complex[0].square().plus(complex[1]);
+        complex[1] = complex[1].divide2().plus(complex[0]);
+    }
+
+    @Override
+    public boolean supportsMpfrBignum() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsMpirBignum() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsBignum() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsBigIntnum() {
+        return true;
     }
     
 }

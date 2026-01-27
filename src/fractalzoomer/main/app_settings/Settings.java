@@ -493,6 +493,11 @@ public class Settings implements Constants {
         }
 
         max_iterations = settings.getMaxIterations();
+
+        if (max_iterations > MAX_ITERATIONS_NUMBER) {
+            max_iterations = MAX_ITERATIONS_NUMBER;
+        }
+
         ps.color_choice = settings.getColorChoice();
 
         fractal_color = settings.getFractalColor();
@@ -1408,6 +1413,10 @@ public class Settings implements Constants {
             ds.domain_height_method = ((SettingsFractals1081) settings).getDomainHeightMethod();
         }
 
+        if (fns.period > MAX_ITERATIONS_NUMBER) {
+            fns.period = MAX_ITERATIONS_NUMBER;
+        }
+
         if(version < 1083) {
             pps.sts.normalMapDeFadeAlgorithm = defaults.pps.sts.normalMapDeFadeAlgorithm;
             pps.sts.normalMapDEUpperLimitFactor = defaults.pps.sts.normalMapDEUpperLimitFactor;
@@ -1998,6 +2007,12 @@ public class Settings implements Constants {
             pps.ts.textureOffset = ((SettingsFractals1095)settings).getTextureOffset();
         }
 
+        if (version < 1096) {
+            pps.sts.applyIntensityDuringColoring = defaults.pps.sts.applyIntensityDuringColoring;
+        } else {
+            pps.sts.applyIntensityDuringColoring = ((SettingsFractals1096)settings).getApplyStatisticIntensityDuringColoring();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -2483,7 +2498,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1095(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW, TaskRender.SPLIT_INTO_RECTANGLE_AREAS, TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM, TaskRender.AREA_DIMENSION_X, TaskRender.AREA_DIMENSION_Y);
+            SettingsFractals settings = new SettingsFractals1096(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW, TaskRender.SPLIT_INTO_RECTANGLE_AREAS, TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM, TaskRender.AREA_DIMENSION_X, TaskRender.AREA_DIMENSION_Y);
             file_temp.writeObject(settings);
             file_temp.flush();
             file_temp.close();
@@ -2637,14 +2652,14 @@ public class Settings implements Constants {
         } else if (isConvergingType()) {
             fns.user_out_coloring_algorithm = 0;
 
-            fns.outcoloring_formula = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.outcoloring_formula = "n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
 
             fns.user_outcoloring_conditions[0] = "im(z)";
             fns.user_outcoloring_conditions[1] = "0";
 
-            fns.user_outcoloring_condition_formula[0] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
-            fns.user_outcoloring_condition_formula[1] = "-(n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp))) + 50)";
-            fns.user_outcoloring_condition_formula[2] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.user_outcoloring_condition_formula[0] = "n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.user_outcoloring_condition_formula[1] = "-(n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp))) + 50)";
+            fns.user_outcoloring_condition_formula[2] = "n + (log(cbail) - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
         } else if (fns.function == MAGNET1) {
             fns.user_out_coloring_algorithm = 1;
 
@@ -3073,7 +3088,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERIPOLY || function == RAFIS_RAFIULLAHPOLY || function == RAFIULLAH1POLY
                 || function == CHANGBUM_CHUN3POLY || function == EZZATI_SALEKI1POLY || function == FENGPOLY
                 || function == KING1POLY || function == NOOR_GUPTAPOLY || function == HARMONIC_SIMPSON_NEWTONPOLY
-                || function == NEDZHIBOVPOLY || function == SIMPSON_NEWTONPOLY;
+                || function == NEDZHIBOVPOLY || function == SIMPSON_NEWTONPOLY || function == BROYDENPOLY;
 
     }
 
@@ -3090,7 +3105,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERI3 || function == RAFIS_RAFIULLAH3 || function == RAFIULLAH13
                 || function == CHANGBUM_CHUN33 || function == EZZATI_SALEKI13 || function == FENG3
                 || function == KING13 || function == NOOR_GUPTA3 || function == HARMONIC_SIMPSON_NEWTON3
-                || function == NEDZHIBOV3 || function == SIMPSON_NEWTON3;
+                || function == NEDZHIBOV3 || function == SIMPSON_NEWTON3 || function == BROYDEN3;
 
 
     }
@@ -3108,7 +3123,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERIGENERALIZED3 || function == RAFIS_RAFIULLAHGENERALIZED3 || function == RAFIULLAH1GENERALIZED3
                 || function == CHANGBUM_CHUN3GENERALIZED3 || function == EZZATI_SALEKI1GENERALIZED3 || function == FENGGENERALIZED3
                 || function == KING1GENERALIZED3 || function == NOOR_GUPTAGENERALIZED3 || function == HARMONIC_SIMPSON_NEWTONGENERALIZED3
-                || function == NEDZHIBOVGENERALIZED3 || function == SIMPSON_NEWTONGENERALIZED3;
+                || function == NEDZHIBOVGENERALIZED3 || function == SIMPSON_NEWTONGENERALIZED3 || function == BROYDENGENERALIZED3;
 
 
 
@@ -3127,7 +3142,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERIGENERALIZED8 || function == RAFIS_RAFIULLAHGENERALIZED8 || function == RAFIULLAH1GENERALIZED8
                 || function == CHANGBUM_CHUN3GENERALIZED8 || function == EZZATI_SALEKI1GENERALIZED8 || function == FENGGENERALIZED8
                 || function == KING1GENERALIZED8 || function == NOOR_GUPTAGENERALIZED8 || function == HARMONIC_SIMPSON_NEWTONGENERALIZED8
-                || function == NEDZHIBOVGENERALIZED8 || function == SIMPSON_NEWTONGENERALIZED8;
+                || function == NEDZHIBOVGENERALIZED8 || function == SIMPSON_NEWTONGENERALIZED8 || function == BROYDENGENERALIZED8;
 
 
     }
@@ -3145,7 +3160,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERISIN || function == RAFIS_RAFIULLAHSIN || function == RAFIULLAH1SIN
                 || function == CHANGBUM_CHUN3SIN || function == EZZATI_SALEKI1SIN || function == FENGSIN
                 || function == KING1SIN || function == NOOR_GUPTASIN || function == HARMONIC_SIMPSON_NEWTONSIN
-                || function == NEDZHIBOVSIN || function == SIMPSON_NEWTONSIN;
+                || function == NEDZHIBOVSIN || function == SIMPSON_NEWTONSIN || function == BROYDENSIN;
 
 
     }
@@ -3163,7 +3178,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERICOS || function == RAFIS_RAFIULLAHCOS || function == RAFIULLAH1COS
                 || function == CHANGBUM_CHUN3COS || function == EZZATI_SALEKI1COS || function == FENGCOS
                 || function == KING1COS || function == NOOR_GUPTACOS || function == HARMONIC_SIMPSON_NEWTONCOS
-                || function == NEDZHIBOVCOS || function == SIMPSON_NEWTONCOS;
+                || function == NEDZHIBOVCOS || function == SIMPSON_NEWTONCOS || function == BROYDENCOS;
 
 
     }
@@ -3181,7 +3196,7 @@ public class Settings implements Constants {
                 || function == MAHESHWERI4 || function == RAFIS_RAFIULLAH4|| function == RAFIULLAH14
                 || function == CHANGBUM_CHUN34 || function == EZZATI_SALEKI14 || function == FENG4
                 || function == KING14 || function == NOOR_GUPTA4 || function == HARMONIC_SIMPSON_NEWTON4
-                || function == NEDZHIBOV4 || function == SIMPSON_NEWTON4;
+                || function == NEDZHIBOV4 || function == SIMPSON_NEWTON4 || function == BROYDEN4;
 
 
     }
@@ -3291,7 +3306,8 @@ public class Settings implements Constants {
     public static boolean isOneFunctionsRootFindingMethodFormula(int function) {
         return function == SECANTFORMULA ||
                 function == STEFFENSENFORMULA ||
-                function == MULLERFORMULA;
+                function == MULLERFORMULA ||
+                function == BROYDENFORMULA;
     }
 
     public static boolean isTwoFunctionsRootFindingMethodFormula(int function) {
@@ -3471,6 +3487,24 @@ public class Settings implements Constants {
 
         return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH);
     }
+
+    public boolean supportsHighPrecision() {
+        if(ds.domain_coloring) {
+            return false;
+        }
+
+        if(julia_map) {
+            return false;
+        }
+
+        if(fns.julia && fns.juliter) {
+            return false;
+        }
+
+        return (fns.function == MANDELBROTSIXTH || fns.function == MANDELBROTSEVENTH || fns.function == MANDELBROTEIGHTH
+                || fns.function == MANDELBROTNINTH || fns.function == MANDELBROTTENTH || fns.function == SPIDER);
+    }
+
     public boolean supportsPerturbationTheory() {
 
         if(ds.domain_coloring) {
@@ -3511,7 +3545,7 @@ public class Settings implements Constants {
     }
 
     public boolean isHighPrecisionInUse() {
-        return TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory();
+        return TaskRender.HIGH_PRECISION_CALCULATION && (supportsPerturbationTheory() || supportsHighPrecision());
     }
 
     public boolean isPeriodInUse() {
@@ -3634,13 +3668,15 @@ public class Settings implements Constants {
             return pps.ots.useTraps || fns.tcs.trueColorIn
                     || (pps.sts.statistic && pps.sts.statisticGroup == 2 && pps.sts.equicontinuityOverrideColoring)
                     || (pps.sts.statistic && (pps.sts.statisticGroup == 3 || pps.sts.normalMapCombineWithOtherStatistics))
-                    || (pps.sts.statistic && pps.sts.statisticGroup == 4);
+                    || (pps.sts.statistic && pps.sts.statisticGroup == 4)
+                    || (pps.sts.statistic && pps.sts.applyIntensityDuringColoring);
         }
 
         return pps.ots.useTraps || fns.tcs.trueColorOut || fns.tcs.trueColorIn
                 || (pps.sts.statistic && pps.sts.statisticGroup == 2 && pps.sts.equicontinuityOverrideColoring)
                 || (pps.sts.statistic && (pps.sts.statisticGroup == 3 || pps.sts.normalMapCombineWithOtherStatistics))
-                || (pps.sts.statistic && pps.sts.statisticGroup == 4);
+                || (pps.sts.statistic && pps.sts.statisticGroup == 4)
+                || (pps.sts.statistic && pps.sts.applyIntensityDuringColoring);
     }
 
     public boolean supportsBilinearApproximation2() {
@@ -3670,6 +3706,8 @@ public class Settings implements Constants {
         }
         versionStr += temp2.charAt(i);
 
+        boolean addPerturbationCheck = parent instanceof MainWindow;
+
         final JCheckBox renderWithPerturbation = new JCheckBox("Render With Perturbation Theory");
         renderWithPerturbation.setSelected(true);
         renderWithPerturbation.setFocusable(false);
@@ -3677,8 +3715,8 @@ public class Settings implements Constants {
 
         Object[] message = {
                 file + " (version:  " + versionStr + ")\nwas successfully loaded.",
-                isPertubationTheoryInUse() ? " " : null,
-                isPertubationTheoryInUse() ? renderWithPerturbation : null};
+                addPerturbationCheck && isPertubationTheoryInUse() ? " " : null,
+                addPerturbationCheck && isPertubationTheoryInUse() ? renderWithPerturbation : null};
 
         JOptionPane.showMessageDialog(parent, message, "Settings Loaded", JOptionPane.INFORMATION_MESSAGE);
 

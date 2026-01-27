@@ -30,7 +30,8 @@ public abstract class GenericStatistic {
     protected int lastXItems;
     protected boolean keepLastXItems;
     protected int samples;
-    protected double statistic_intensity;
+    private double statistic_intensity;
+    private boolean apply_intensity_during_coloring = true;
     protected Complex z_val;
     protected Complex zold_val;
     protected Complex zold2_val;
@@ -64,8 +65,9 @@ public abstract class GenericStatistic {
     protected double log_bailout;
     protected double log_convergent_bailout;
     
-    protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
+    protected GenericStatistic(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems, boolean applyIntensityDuringColoring) {
         this.statistic_intensity = statistic_intensity;
+        this.apply_intensity_during_coloring = applyIntensityDuringColoring;
         z_val = new Complex();
         zold_val = new Complex();
         zold2_val = new Complex();
@@ -416,5 +418,13 @@ public abstract class GenericStatistic {
             log_convergent_bailout = Math.log(convergent_bailout * convergent_bailout);
         }
     }
-    
+
+    public double applyIntensity(double value) {
+        return apply_intensity_during_coloring ? value : value * statistic_intensity;
+    }
+
+    public boolean shouldApplyIntensityDuringColoring() {
+        return apply_intensity_during_coloring;
+    }
+
 }
