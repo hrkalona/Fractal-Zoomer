@@ -3671,6 +3671,8 @@ public class Settings implements Constants {
         }
         versionStr += temp2.charAt(i);
 
+        boolean addPerturbationCheck = parent instanceof MainWindow;
+
         final JCheckBox renderWithPerturbation = new JCheckBox("Render With Perturbation Theory");
         renderWithPerturbation.setSelected(true);
         renderWithPerturbation.setFocusable(false);
@@ -3678,8 +3680,8 @@ public class Settings implements Constants {
 
         Object[] message = {
                 file + " (version:  " + versionStr + ")\nwas successfully loaded.",
-                isPertubationTheoryInUse() ? " " : null,
-                isPertubationTheoryInUse() ? renderWithPerturbation : null};
+                addPerturbationCheck && isPertubationTheoryInUse() ? " " : null,
+                addPerturbationCheck && isPertubationTheoryInUse() ? renderWithPerturbation : null};
 
         JOptionPane.showMessageDialog(parent, message, "Settings Loaded", JOptionPane.INFORMATION_MESSAGE);
 

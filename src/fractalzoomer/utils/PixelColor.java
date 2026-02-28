@@ -2,10 +2,12 @@
 package fractalzoomer.utils;
 
 import fractalzoomer.gui.RoundedPanel;
-import fractalzoomer.main.CommonFunctions;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  *
@@ -28,55 +30,41 @@ public class PixelColor implements Runnable {
     
     @Override
     public void run() {
-
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        int width = gd.getDisplayMode().getWidth();
-        int height = gd.getDisplayMode().getHeight();
-
-        Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
-
-        double scaleX = ((double)width) / screenDimension.width;
-        double scaleY = ((double)height) / screenDimension.height;
-
-        int v = CommonFunctions.getJavaVersion();
-
-        if(v > 8) {
-            scaleX = 1;
-            scaleY = 1;
-        }
-
-
-
         try {
             Robot robot = new Robot();
-            //Rectangle screenRect = new Rectangle(width, height);
 
-            while(running) {
-                /*long time = System.currentTimeMillis();
-                while(System.currentTimeMillis() - time < 20) {
-                    yield();
-                }*/
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            int width = gd.getDisplayMode().getWidth();
+            int height = gd.getDisplayMode().getHeight();
 
-                
-                Color color = robot.getPixelColor((int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX), (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY));
+            Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
 
+            double scaleX = ((double)width) / screenDimension.width;
+            double scaleY = ((double)height) / screenDimension.height;
 
-//                BufferedImage capture = robot.createScreenCapture(screenRect);
-//
-//                Color color = new Color(capture.getRGB((int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX), (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY)));
-                ptr.setBackground(color);
-                ptr2.setText("R: " + String.format("%3d", color.getRed()) + " G: " + String.format("%3d", color.getGreen()) + " B: " + String.format("%3d", color.getBlue()));
-
-                Thread.sleep(20);
+            if ("true".equals(System.getProperty("sun.java2d.dpiaware"))) {
+                scaleX = 1;
+                scaleY = 1;
             }
 
-        }
-        catch(AWTException ex) {
-            running = false;
-        }
-        catch(InterruptedException ex2) {
-            running = false;
-        }
+            while(running) {
+                try {
+                    int x = (int)(MouseInfo.getPointerInfo().getLocation().getX() * scaleX);
+                    int y = (int)(MouseInfo.getPointerInfo().getLocation().getY() * scaleY);
+                    Color color;
+                    if (x < 0 || x >= width || y < 0 || y >= height) {
+                        color = Color.BLACK;
+                    } else {
+                        color = robot.getPixelColor(x, y);
+                    }
+
+                    ptr.setBackground(color);
+                    ptr2.setText("R: " + String.format("%3d", color.getRed()) + " G: " + String.format("%3d", color.getGreen()) + " B: " + String.format("%3d", color.getBlue()));
+                    Thread.sleep(20);
+                } catch (Exception ex) {}
+            }
+
+        } catch(Exception ex) {}
     }
 
 }

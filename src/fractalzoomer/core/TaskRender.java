@@ -2106,6 +2106,7 @@ public abstract class TaskRender implements Runnable {
         long total_calculated_pixels = total_calculated.sum();
         long total_calculated_extra_pixels = total_calculated_extra.sum();
         long total_completed_pixels = total_completed.sum();
+        long total_samples_sum = Fractal.total_samples_sum();
 
         if(d3) {
             total = detail * detail;
@@ -2167,26 +2168,26 @@ public abstract class TaskRender implements Runnable {
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() && Fractal.Nanomb1CalculationTime > 0 ? NANOMB1_CALCULATION_ELAPSED_TIME_LABEL + Fractal.Nanomb1CalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 M: <b>" + NANOMB1_M + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? "<li>Nanomb1 N: <b>" + NANOMB1_N + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? NANOMB1_SKIPPED_ITERATIONS_PER_PIXEL_STRING_LABEL + String.format("%.4f", Fractal.total_nanomb1_skipped_iterations_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>": "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 3 && fractal.supportsNanomb1() ? NANOMB1_SKIPPED_ITERATIONS_PER_PIXEL_STRING_LABEL + String.format("%.4f", Fractal.total_nanomb1_skipped_iterations_sum() / total_samples_sum) + "</b><br>": "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && (usesBLA && Fractal.BLACalculationTime > 0) ? BLA_CALCULATION_ELAPSED_TIME_LABEL + Fractal.BLACalculationTime + " ms</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Precision: <b>" + TaskRender.BLA_BITS + " bits</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 2 && fractal.supportsBilinearApproximation()  ? "<li>BLA Starting Level: <b>" + TaskRender.BLA_STARTING_LEVEL + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && APPROXIMATION_ALGORITHM == 5 && fractal.supportsBilinearApproximation3()  ? "<li>BLA Starting Level: <b>" + TaskRender.BLA3_STARTING_LEVEL + "</b><br>" : "") +
                 (!HIGH_PRECISION_CALCULATION && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Entries: <b>" + fractal.getBLAEntries() + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? BLA_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_bla_iterations_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps_sum() == 0 ? "N/A" : String.format("%.4f", Fractal.total_bla_iterations_sum() / ((double)Fractal.total_bla_steps_sum()))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? PERTURBATION_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_perturb_iterations_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.4f", Fractal.total_bla_steps_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.4f", (Fractal.total_bla_steps_sum() + Fractal.total_perturb_iterations_sum()) / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? SCALED_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_scaled_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && !isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_realigns_sum() / ((double) total_calculated_pixels * (totalSamples)))) + "</b><br>" : "") +
-                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.4f", Fractal.total_rebases_sum() / ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
-                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? AVERAGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", (Fractal.total_iterations_sum())/ ((double) total_calculated_pixels * (totalSamples))) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? BLA_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_bla_iterations_sum() / total_samples_sum) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Iterations Per BLA Step: <b>" +  (Fractal.total_bla_steps_sum() == 0 ? "N/A" : String.format("%.4f", Fractal.total_bla_iterations_sum() / Fractal.total_bla_steps_sum())) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? PERTURBATION_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", Fractal.total_perturb_iterations_sum() / total_samples_sum) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>BLA Steps Per Pixel: <b>" + String.format("%.4f", Fractal.total_bla_steps_sum() / total_samples_sum) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && usesBLA  ? "<li>Total Steps Per Pixel: <b>" + String.format("%.4f", (Fractal.total_bla_steps_sum() + Fractal.total_perturb_iterations_sum()) / total_samples_sum) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / total_samples_sum)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? SCALED_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_scaled_iterations_sum() / total_samples_sum)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / total_samples_sum)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? EXTENDED_RANGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_float_exp_iterations_sum() / total_samples_sum)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && (TaskRender.PERTUBATION_PIXEL_ALGORITHM == 0 || !fractal.supportsScaledIterations()) && isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / total_samples_sum)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && !isDeep ? NORMAL_DOUBLE_ITERATIONS_PER_PIXEL_STRING_LABEL +  (String.format("%.4f", Fractal.total_double_iterations_sum() / total_samples_sum)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation && !usesBLA && TaskRender.PERTUBATION_PIXEL_ALGORITHM == 1 && fractal.supportsScaledIterations() && isDeep ? "<li>Re-Aligns Per Pixel: <b>" +  (String.format("%.4f", Fractal.total_realigns_sum() / total_samples_sum)) + "</b><br>" : "") +
+                (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY && supportsPerturbation ? "<li>Rebases Per Pixel: <b>" +  String.format("%.4f", Fractal.total_rebases_sum() / total_samples_sum) + "</b><br>" : "") +
+                (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? AVERAGE_ITERATIONS_PER_PIXEL_STRING_LABEL +  String.format("%.4f", (Fractal.total_iterations_sum()) / total_samples_sum) + "</b><br>" : "") +
                 (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? MINIMUM_ITERATIONS_STRING_LABEL +  Fractal.total_min_iterations_get() + "</b><br>" : "") +
                 (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? MAXIMUM_ITERATIONS_STRING_LABEL +  Fractal.total_max_iterations_get() + "</b><br>" : "") +
                 (((HIGH_PRECISION_CALCULATION && GATHER_HIGHPRECISION_STATISTICS) || (!HIGH_PRECISION_CALCULATION && GATHER_PERTURBATION_STATISTICS && PERTURBATION_THEORY)) && supportsPerturbation ? MAXIMUM_ITERATIONS_IGNORE_NOT_ESCAPED_STRING_LABEL +  Fractal.total_max_iterations_ignore_max_iter_get() + "</b><br>" : "") +
@@ -7198,13 +7199,13 @@ public abstract class TaskRender implements Runnable {
         Fractal.BLACalculationTime = 0;
         Fractal.Nanomb1CalculationTime = 0;
 
-        Fractal.total_bla_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_bla_steps = new long[TOTAL_NUM_TASKS];
-        Fractal.total_perturb_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_nanomb1_skipped_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_double_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_scaled_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_float_exp_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_bla_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_bla_steps = new double[TOTAL_NUM_TASKS];
+        Fractal.total_perturb_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_nanomb1_skipped_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_double_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_scaled_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_float_exp_iterations = new double[TOTAL_NUM_TASKS];
 
         GenericComplex temp = loc.getReferencePoint();
 
@@ -7218,7 +7219,8 @@ public abstract class TaskRender implements Runnable {
     }
 
     public void initializeHighPrecision() {
-        Fractal.total_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_samples = new long[TOTAL_NUM_TASKS];
 
         Fractal.total_min_iterations = new long[TOTAL_NUM_TASKS];
         Arrays.fill(Fractal.total_min_iterations,  Long.MAX_VALUE);
@@ -7277,16 +7279,17 @@ public abstract class TaskRender implements Runnable {
         Fractal.BLACalculationTime = 0;
         Fractal.Nanomb1CalculationTime = 0;
 
-        Fractal.total_bla_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_bla_steps = new long[TOTAL_NUM_TASKS];
-        Fractal.total_perturb_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_nanomb1_skipped_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_double_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_scaled_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_float_exp_iterations = new long[TOTAL_NUM_TASKS];
-        Fractal.total_rebases = new long[TOTAL_NUM_TASKS];
-        Fractal.total_realigns = new long[TOTAL_NUM_TASKS];
-        Fractal.total_iterations = new long[TOTAL_NUM_TASKS];
+        Fractal.total_bla_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_bla_steps = new double[TOTAL_NUM_TASKS];
+        Fractal.total_perturb_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_nanomb1_skipped_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_double_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_scaled_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_float_exp_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_rebases = new double[TOTAL_NUM_TASKS];
+        Fractal.total_realigns = new double[TOTAL_NUM_TASKS];
+        Fractal.total_iterations = new double[TOTAL_NUM_TASKS];
+        Fractal.total_samples = new long[TOTAL_NUM_TASKS];
 
         Fractal.total_min_iterations = new long[TOTAL_NUM_TASKS];
         Arrays.fill(Fractal.total_min_iterations,  Long.MAX_VALUE);

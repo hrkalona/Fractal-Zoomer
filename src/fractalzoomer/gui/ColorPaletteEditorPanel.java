@@ -457,7 +457,11 @@ class ColorPoint implements Comparable<ColorPoint> {
                     "Length:",
             length_field};
 
-            JOptionPane.showMessageDialog(this, message, "Import Active Palette", JOptionPane.INFORMATION_MESSAGE);
+            int ans = JOptionPane.showConfirmDialog(this, message, "Import Active Palette", JOptionPane.YES_NO_OPTION);
+
+            if (ans == JOptionPane.NO_OPTION || ans == JOptionPane.CLOSED_OPTION) {
+                return;
+            }
 
             int custom_length = colors.length;
             try {

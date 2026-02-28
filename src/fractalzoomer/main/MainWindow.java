@@ -2688,7 +2688,7 @@ public class MainWindow extends JFrame implements Constants {
 
             String filename = file.toString();
             try {
-                s.readSettings(ptr, filename, scroll_pane, false, false);
+                s.readSettings(ptr, filename, ptr, false, false);
 
                 TaskRender.setDomainImageData(image_width, image_height, s.ds.domain_coloring);
 
@@ -13240,7 +13240,7 @@ public class MainWindow extends JFrame implements Constants {
         try {
             Path path = Paths.get(filename);
             if (Files.exists(path) && Files.isRegularFile(path)) {
-                s.readSettings(ptr, filename, scroll_pane, true, true);
+                s.readSettings(ptr, filename, ptr, true, true);
                 prepareUI();
                 return true;
             }

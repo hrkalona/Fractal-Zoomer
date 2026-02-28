@@ -171,24 +171,25 @@ public abstract class Fractal {
 
     protected long realigns;
 
-    public static long[] total_float_exp_iterations;
-    public static long[] total_double_iterations;
-    public static long[] total_scaled_iterations;
+    public static double[] total_float_exp_iterations;
+    public static double[] total_double_iterations;
+    public static double[] total_scaled_iterations;
 
-    public static long[] total_rebases;
-    public static long[] total_realigns;
+    public static double[] total_rebases;
+    public static double[] total_realigns;
 
     public static long[] total_min_iterations;
     public static long[] total_max_iterations;
     public static long[] total_max_iterations_ignore_max_iter;
-    public static long[] total_iterations;
+    public static double[] total_iterations;
+    public static long[] total_samples;
 
 
-    public static long[] total_bla_iterations;
-    public static long[] total_bla_steps;
-    public static long[] total_perturb_iterations;
+    public static double[] total_bla_iterations;
+    public static double[] total_bla_steps;
+    public static double[] total_perturb_iterations;
 
-    public static long[] total_nanomb1_skipped_iterations;
+    public static double[] total_nanomb1_skipped_iterations;
 
     public static ReferenceOrbit referenceOrbit;
     public static ReferenceOrbit secondReferenceOrbit;
@@ -1069,7 +1070,7 @@ public abstract class Fractal {
             progress.setValue(progress.getMaximum());
             progress.setString(NANOMB1_CALCULATION_STR + " 100%");
         }
-        total_nanomb1_skipped_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_nanomb1_skipped_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     public void calculateBLAWrapper(boolean deepZoom, Location externalLocation, JProgressBar progress) {
@@ -1090,9 +1091,9 @@ public abstract class Fractal {
             progress.setValue(progress.getMaximum());
             progress.setString(BLA_CALCULATION_STR + " 100%");
         }
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     public void calculateBLA2Wrapper(boolean deepZoom, Location externalLocation, JProgressBar progress) {
@@ -1131,9 +1132,9 @@ public abstract class Fractal {
             catch (Exception ex) {}
         }
 
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     public void calculateBLA3Wrapper(boolean deepZoom, JProgressBar progress) {
@@ -1155,9 +1156,9 @@ public abstract class Fractal {
             progress.setString(BLA_CALCULATION_STR + " 100%");
         }
 
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
 
@@ -1196,9 +1197,9 @@ public abstract class Fractal {
 //            catch (Exception ex) {}
 //        }
 
-        total_bla_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_bla_steps = new long[TaskRender.TOTAL_NUM_TASKS];
-        total_perturb_iterations = new long[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_bla_steps = new double[TaskRender.TOTAL_NUM_TASKS];
+        total_perturb_iterations = new double[TaskRender.TOTAL_NUM_TASKS];
     }
 
     protected void calculateSeries(Apfloat dsize, boolean deepZoom, Location externalLocation, JProgressBar progress) {
@@ -1810,6 +1811,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1828,6 +1830,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1852,6 +1855,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1874,6 +1878,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -1895,6 +1900,7 @@ public abstract class Fractal {
                 total_min_iterations[taskId] = iterations;
             }
             total_iterations[taskId] += iterations;
+            total_samples[taskId]++;
             if(iterations < max_iterations && iterations > total_max_iterations_ignore_max_iter[taskId]) {
                 total_max_iterations_ignore_max_iter[taskId] = iterations;
             }
@@ -4980,6 +4986,7 @@ public abstract class Fractal {
         total_max_iterations_ignore_max_iter = null;
         total_bla_iterations =  null;
         total_iterations = null;
+        total_samples = null;
         total_bla_steps =  null;
         total_perturb_iterations =  null;
         total_nanomb1_skipped_iterations = null;
@@ -6121,80 +6128,88 @@ public abstract class Fractal {
         this.taskId = taskId;
     }
 
-    public static long total_bla_steps_sum() {
-        long sum = 0;
+    public static double total_bla_steps_sum() {
+        double sum = 0;
         for(int i = 0; i < total_bla_steps.length; i++) {
             sum += total_bla_steps[i];
         }
         return sum;
     }
 
-    public static long total_bla_iterations_sum() {
-        long sum = 0;
+    public static double total_bla_iterations_sum() {
+        double sum = 0;
         for(int i = 0; i < total_bla_iterations.length; i++) {
             sum += total_bla_iterations[i];
         }
         return sum;
     }
 
-    public static long total_rebases_sum() {
-        long sum = 0;
+    public static double total_rebases_sum() {
+        double sum = 0;
         for(int i = 0; i < total_rebases.length; i++) {
             sum += total_rebases[i];
         }
         return sum;
     }
 
-    public static long total_perturb_iterations_sum() {
-        long sum = 0;
+    public static double total_perturb_iterations_sum() {
+        double sum = 0;
         for(int i = 0; i < total_perturb_iterations.length; i++) {
             sum += total_perturb_iterations[i];
         }
         return sum;
     }
 
-    public static long total_double_iterations_sum() {
-        long sum = 0;
+    public static double total_double_iterations_sum() {
+        double sum = 0;
         for(int i = 0; i < total_double_iterations.length; i++) {
             sum += total_double_iterations[i];
         }
         return sum;
     }
 
-    public static long total_float_exp_iterations_sum() {
-        long sum = 0;
+    public static double total_float_exp_iterations_sum() {
+        double sum = 0;
         for(int i = 0; i < total_float_exp_iterations.length; i++) {
             sum += total_float_exp_iterations[i];
         }
         return sum;
     }
 
-    public static long total_scaled_iterations_sum() {
-        long sum = 0;
+    public static double total_scaled_iterations_sum() {
+        double sum = 0;
         for(int i = 0; i < total_scaled_iterations.length; i++) {
             sum += total_scaled_iterations[i];
         }
         return sum;
     }
 
-    public static long total_nanomb1_skipped_iterations_sum() {
-        long sum = 0;
+    public static double total_nanomb1_skipped_iterations_sum() {
+        double sum = 0;
         for(int i = 0; i < total_nanomb1_skipped_iterations.length; i++) {
             sum += total_nanomb1_skipped_iterations[i];
         }
         return sum;
     }
 
-    public static long total_iterations_sum() {
-        long sum = 0;
+    public static double total_iterations_sum() {
+        double sum = 0;
         for(int i = 0; i < total_iterations.length; i++) {
             sum += total_iterations[i];
         }
         return sum;
     }
 
-    public static long total_realigns_sum() {
+    public static long total_samples_sum() {
         long sum = 0;
+        for(int i = 0; i < total_samples.length; i++) {
+            sum += total_samples[i];
+        }
+        return sum;
+    }
+
+    public static double total_realigns_sum() {
+        double sum = 0;
         for(int i = 0; i < total_realigns.length; i++) {
             sum += total_realigns[i];
         }

@@ -786,7 +786,7 @@ public class BLAS {
         for (int level = firstLevel; level < L; ++level) {
             int ixm = (ix << level) + 1;
             if (m == ixm && z2 < (tempB = b[level][ix]).r2) {
-                if(iterations + tempB.getL() <= max_iterations) {
+                if(((long)iterations) + tempB.getL() <= max_iterations) {
                     B = tempB;
                 }
             } else {
@@ -837,7 +837,7 @@ public class BLAS {
         }
 
         for (int level = zeros; level >= firstLevel; --level) {
-            if (z2 < (tempB = b[level][ix]).r2 && iterations + tempB.getL() <= max_iterations) {
+            if (z2 < (tempB = b[level][ix]).r2 && ((long)iterations) + tempB.getL() <= max_iterations) {
                 return tempB;
             }
             ix = ix << 1;
@@ -859,7 +859,7 @@ public class BLAS {
             if (m == ixm) {
                 tempB = bdeep[level][ix];
                 if(z2.compareToBothPositiveReduced(tempB.r2exp, tempB.r2) < 0
-                        && iterations + tempB.getL() <= max_iterations) {
+                        && ((long)iterations) + tempB.getL() <= max_iterations) {
                     B = tempB;
                 }
             } else {
@@ -916,7 +916,7 @@ public class BLAS {
 
         for (int level = zeros; level >= firstLevel; --level) {
             tempB = bdeep[level][ix];
-            if (z2.compareToBothPositiveReduced(tempB.r2exp, tempB.r2) < 0 && iterations + tempB.getL() <= max_iterations) {
+            if (z2.compareToBothPositiveReduced(tempB.r2exp, tempB.r2) < 0 && ((long)iterations) + tempB.getL() <= max_iterations) {
                 return tempB;
             }
             ix = ix << 1;
