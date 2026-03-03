@@ -303,7 +303,7 @@ public abstract class Fractal {
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        plane = PlaneFactory(this, xCenter, yCenter, size, max_iterations, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, globalVars);
 
         BailoutConditionFactory(bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_transform_center);
 
@@ -337,7 +337,7 @@ public abstract class Fractal {
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower);
+        plane = PlaneFactory(this, xCenter, yCenter, size, max_iterations, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_center_hp, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, inflections_re, inflections_im, inflectionsPower, globalVars);
 
         pixel_orbit = getTransformedPixel(pixel_orbit);
 
@@ -3920,215 +3920,150 @@ public abstract class Fractal {
 
     }
 
-    private void PlaneFactory(int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower) {
+    public static Plane PlaneFactory(Fractal f, double xCenter, double yCenter, double size, int max_iterations, int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, Apfloat[] plane_transform_center_hp, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, ArrayList<Double> inflections_re, ArrayList<Double> inflections_im, double inflectionsPower, Complex[] globalVars) {
 
         switch (plane_type) {
             case MainWindow.MU_PLANE:
-                plane = new MuPlane();
-                break;
+                return new MuPlane();
             case MainWindow.MU_SQUARED_PLANE:
-                plane = new MuSquaredPlane(this);
-                break;
+                return new MuSquaredPlane(f);
             case MainWindow.MU_FOURTH_PLANE:
-                plane = new MuFourthPlane();
-                break;
+                return new MuFourthPlane();
             case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
-                plane = new MuSquaredImaginaryPlane();
-                break;
+                return new MuSquaredImaginaryPlane();
             case MainWindow.INVERSED_MU_PLANE:
-                plane = new InversedMuPlane(this);
-                break;
+                return new InversedMuPlane(f);
             case MainWindow.INVERSED_MU2_PLANE:
-                plane = new InversedMu2Plane(this);
-                break;
+                return new InversedMu2Plane(f);
             case MainWindow.INVERSED_MU3_PLANE:
-                plane = new InversedMu3Plane(this);
-                break;
+                return new InversedMu3Plane(f);
             case MainWindow.INVERSED_MU4_PLANE:
-                plane = new InversedMu4Plane(this);
-                break;
+                return new InversedMu4Plane(f);
             case MainWindow.LAMBDA_PLANE:
-                plane = new LambdaPlane(this);
-                break;
+                return new LambdaPlane(f);
             case MainWindow.INVERSED_LAMBDA_PLANE:
-                plane = new InversedLambdaPlane(this);
-                break;
+                return new InversedLambdaPlane(f);
             case MainWindow.INVERSED_LAMBDA2_PLANE:
-                plane = new InversedLambda2Plane(this);
-                break;
+                return new InversedLambda2Plane(f);
             case MainWindow.EXP_PLANE:
-                plane = new ExpPlane();
-                break;
+                return new ExpPlane();
             case MainWindow.LOG_PLANE:
-                plane = new LogPlane();
-                break;
+                return new LogPlane();
             case MainWindow.SIN_PLANE:
-                plane = new SinPlane();
-                break;
+                return new SinPlane();
             case MainWindow.COS_PLANE:
-                plane = new CosPlane();
-                break;
+                return new CosPlane();
             case MainWindow.TAN_PLANE:
-                plane = new TanPlane();
-                break;
+                return new TanPlane();
             case MainWindow.COT_PLANE:
-                plane = new CotPlane();
-                break;
+                return new CotPlane();
             case MainWindow.SINH_PLANE:
-                plane = new SinhPlane();
-                break;
+                return new SinhPlane();
             case MainWindow.COSH_PLANE:
-                plane = new CoshPlane();
-                break;
+                return new CoshPlane();
             case MainWindow.TANH_PLANE:
-                plane = new TanhPlane();
-                break;
+                return new TanhPlane();
             case MainWindow.COTH_PLANE:
-                plane = new CothPlane();
-                break;
+                return new CothPlane();
             case MainWindow.SEC_PLANE:
-                plane = new SecPlane();
-                break;
+                return new SecPlane();
             case MainWindow.CSC_PLANE:
-                plane = new CscPlane();
-                break;
+                return new CscPlane();
             case MainWindow.SECH_PLANE:
-                plane = new SechPlane();
-                break;
+                return new SechPlane();
             case MainWindow.CSCH_PLANE:
-                plane = new CschPlane();
-                break;
+                return new CschPlane();
             case MainWindow.ASIN_PLANE:
-                plane = new ASinPlane();
-                break;
+                return new ASinPlane();
             case MainWindow.ACOS_PLANE:
-                plane = new ACosPlane();
-                break;
+                return new ACosPlane();
             case MainWindow.ATAN_PLANE:
-                plane = new ATanPlane();
-                break;
+                return new ATanPlane();
             case MainWindow.ACOT_PLANE:
-                plane = new ACotPlane();
-                break;
+                return new ACotPlane();
             case MainWindow.ASINH_PLANE:
-                plane = new ASinhPlane();
-                break;
+                return new ASinhPlane();
             case MainWindow.ACOSH_PLANE:
-                plane = new ACoshPlane();
-                break;
+                return new ACoshPlane();
             case MainWindow.ATANH_PLANE:
-                plane = new ATanhPlane();
-                break;
+                return new ATanhPlane();
             case MainWindow.ACOTH_PLANE:
-                plane = new ACothPlane();
-                break;
+                return new ACothPlane();
             case MainWindow.ASEC_PLANE:
-                plane = new ASecPlane();
-                break;
+                return new ASecPlane();
             case MainWindow.ACSC_PLANE:
-                plane = new ACscPlane();
-                break;
+                return new ACscPlane();
             case MainWindow.ASECH_PLANE:
-                plane = new ASechPlane();
-                break;
+                return new ASechPlane();
             case MainWindow.ACSCH_PLANE:
-                plane = new ACschPlane();
-                break;
+                return new ACschPlane();
             case MainWindow.SQRT_PLANE:
-                plane = new SqrtPlane();
-                break;
+                return new SqrtPlane();
             case MainWindow.ABS_PLANE:
-                plane = new AbsPlane();
-                break;
+                return new AbsPlane();
             case MainWindow.FOLDUP_PLANE:
-                plane = new FoldUpPlane(plane_transform_center, this);
-                break;
+                return new FoldUpPlane(plane_transform_center, f);
             case MainWindow.FOLDDOWN_PLANE:
-                plane = new FoldDownPlane(plane_transform_center, this);
-                break;
+                return new FoldDownPlane(plane_transform_center, f);
             case MainWindow.FOLDRIGHT_PLANE:
-                plane = new FoldRightPlane(plane_transform_center, this);
-                break;
+                return new FoldRightPlane(plane_transform_center, f);
             case MainWindow.FOLDLEFT_PLANE:
-                plane = new FoldLeftPlane(plane_transform_center, this);
-                break;
+                return new FoldLeftPlane(plane_transform_center, f);
             case MainWindow.FOLDIN_PLANE:
-                plane = new FoldInPlane(plane_transform_radius, this);
-                break;
+                return new FoldInPlane(plane_transform_radius, f);
             case MainWindow.FOLDOUT_PLANE:
-                plane = new FoldOutPlane(plane_transform_radius, this);
-                break;
+                return new FoldOutPlane(plane_transform_radius, f);
             case MainWindow.NEWTON3_PLANE:
-                plane = new Newton3Plane();
-                break;
+                return new Newton3Plane();
             case MainWindow.NEWTON4_PLANE:
-                plane = new Newton4Plane();
-                break;
+                return new Newton4Plane();
             case MainWindow.NEWTONGENERALIZED3_PLANE:
-                plane = new NewtonGeneralized3Plane();
-                break;
+                return new NewtonGeneralized3Plane();
             case MainWindow.NEWTONGENERALIZED8_PLANE:
-                plane = new NewtonGeneralized8Plane();
-                break;
+                return new NewtonGeneralized8Plane();
             case MainWindow.USER_PLANE:
                 if (user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
+                    return new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
+                    return new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
-                break;
             case MainWindow.GAMMA_PLANE:
-                plane = new GammaFunctionPlane();
-                break;
+                return new GammaFunctionPlane();
             case MainWindow.FACT_PLANE:
-                plane = new FactorialPlane();
-                break;
+                return new FactorialPlane();
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(plane_transform_center);
-                break;
+                return new BipolarPlane(plane_transform_center);
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(plane_transform_center);
-                break;
+                return new InversedBipolarPlane(plane_transform_center);
             case MainWindow.TWIRL_PLANE:
-                plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
-                break;
+                return new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
             case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(plane_transform_scales, plane_transform_center_hp, this);
-                break;
+                return new ShearPlane(plane_transform_scales, plane_transform_center_hp, f);
             case MainWindow.KALEIDOSCOPE_PLANE:
-                plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
-                break;
+                return new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
             case MainWindow.PINCH_PLANE:
-                plane = new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
-                break;
+                return new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
             case MainWindow.CIRCLEINVERSION_PLANE:
-                plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius, this);
-                break;
+                return new CircleInversionPlane(plane_transform_center, plane_transform_radius, f);
             case MainWindow.VARIATION_MU_PLANE:
-                plane = new MuVariationPlane(this);
-                break;
+                return new MuVariationPlane(f);
             case MainWindow.ERF_PLANE:
-                plane = new ErfPlane();
-                break;
+                return new ErfPlane();
             case MainWindow.RZETA_PLANE:
-                plane = new RiemannZetaPlane();
-                break;
+                return new RiemannZetaPlane();
             case MainWindow.INFLECTION_PLANE:
-                plane = new InflectionPlane(plane_transform_center, this);
-                break;
+                return new InflectionPlane(plane_transform_center, f);
             case MainWindow.RIPPLES_PLANE:
-                plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
-                break;
+                return new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
             case MainWindow.SKEW_PLANE:
-                plane = new SkewPlane(plane_transform_angle, plane_transform_angle2, plane_transform_center_hp, this);
-                break;
+                return new SkewPlane(plane_transform_angle, plane_transform_angle2, plane_transform_center_hp, f);
             case STRETCH_PLANE:
-                plane = new StretchPlane(plane_transform_angle, plane_transform_amount, plane_transform_center_hp, this);
-                break;
+                return new StretchPlane(plane_transform_angle, plane_transform_amount, plane_transform_center_hp, f);
             case MainWindow.INFLECTIONS_PLANE:
-                plane = new InflectionsPlane(inflections_re, inflections_im, inflectionsPower, this);
-                break;
+                return new InflectionsPlane(inflections_re, inflections_im, inflectionsPower, f);
         }
+
+        return null;
 
     }
 

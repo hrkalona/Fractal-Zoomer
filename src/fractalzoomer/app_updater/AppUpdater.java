@@ -2,6 +2,8 @@
 
 package fractalzoomer.app_updater;
 
+import fractalzoomer.main.Constants;
+
 import java.io.*;
 import java.net.URL;
 import java.util.StringTokenizer;
@@ -78,7 +80,7 @@ public class AppUpdater {
         String[] res = new String[2];
 
         if(latestVersion != -1) {
-            if(currentVersion < latestVersion) {
+            if((currentVersion < latestVersion) || (Constants.beta && currentVersion == latestVersion)) {
                 res[0] = "Version " + convertVersion(latestVersion) + " is available! Click here to download.";
                 res[1] = DOWNLOAD_URL;
 

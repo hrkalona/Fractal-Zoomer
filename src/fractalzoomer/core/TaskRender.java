@@ -22,6 +22,7 @@ import fractalzoomer.core.numerics.mpfr.LibMpfr;
 import fractalzoomer.core.numerics.mpfr.MpfrBigNum;
 import fractalzoomer.core.numerics.mpir.LibMpir;
 import fractalzoomer.core.numerics.mpir.MpirBigNum;
+import fractalzoomer.core.reference.ReferenceCompressor;
 import fractalzoomer.core.reference.ReferenceOrbit;
 import fractalzoomer.core.reference.ReferenceOrbitBundle;
 import fractalzoomer.core.rendering_algorithms.BoundaryTracingRender;
@@ -7232,22 +7233,31 @@ public abstract class TaskRender implements Runnable {
         Arrays.fill(Fractal.total_max_iterations_ignore_max_iter,  Long.MIN_VALUE);
     }
 
-    private GenericComplex loadReference(GenericComplex newRef, Location loc, boolean deepZoom) {
+    private void setLoadedReferencePerturbationOptions(ReferenceOrbit referenceOrbit, boolean deepZoom) {
+        //Todo: Set some basic stuff, the correct thing would be to set the precision as well and the bignum lib to match
+        COMPRESS_REFERENCE = deepZoom ? referenceOrbit.referenceDeepData.Reference.compressed : referenceOrbit.referenceData.Reference.compressed;
+        ReferenceCompressor.CompressionError = deepZoom ? referenceOrbit.referenceDeepData.Reference.getCompressionError() : referenceOrbit.referenceData.Reference.getCompressionError();
+        ReferenceCompressor.setCompressionError();
+
+        if(deepZoom) {
+            TaskRender.MANTEXPCOMPLEX_FORMAT = referenceOrbit.referenceDeepData.Reference.hasTwoExponents() ? 1: 0;
+        }
+    }
+
+    private void loadReference(GenericComplex newRef, Location loc, boolean deepZoom) {
         try {
-            if (LOAD_REFERENCE_FILE_PATH == null) {
-                return LOADED_REFERENCE ? Fractal.referenceOrbit.refPoint : newRef;
-            }
             ObjectInputStream file_temp = new ObjectInputStream(new FileInputStream(LOAD_REFERENCE_FILE_PATH));
             ReferenceOrbitBundle referenceOrbitBundle = (ReferenceOrbitBundle) file_temp.readObject();
             if(referenceOrbitBundle.referenceOrbits == null || referenceOrbitBundle.referenceOrbits.length == 0 || referenceOrbitBundle.referenceOrbits[0] == null || referenceOrbitBundle.referenceOrbits[0].isJulia) {
                 System.out.println("The loaded reference is not valid");
-                return newRef;
+                return;
             }
             if (fractal.isJulia() && (referenceOrbitBundle.referenceOrbits.length < 2 || referenceOrbitBundle.referenceOrbits[1] == null || !referenceOrbitBundle.referenceOrbits[1].isJulia)) {
                 System.out.println("The loaded reference is not valid");
-                return newRef;
+                return;
             }
             ReferenceOrbit refOrbit = referenceOrbitBundle.referenceOrbits[0];
+            setLoadedReferencePerturbationOptions(refOrbit, deepZoom);
             refOrbit.build(NumericLibrary.getBignumImplementation(size, fractal));
             ReferenceOrbit secondRefOrbit = null;
             if (fractal.isJulia()) {
@@ -7257,7 +7267,7 @@ public abstract class TaskRender implements Runnable {
             if (refOrbit.isValid(newRef, fractal, deepZoom)) { //Just check the main ref
                 LOADED_REFERENCE = true;
                 fractal.setReference(refOrbit, secondRefOrbit, loc);
-                return refOrbit.refPoint;
+                return;
             } else {
                 System.out.println("The loaded reference is not valid");
             }
@@ -7268,7 +7278,7 @@ public abstract class TaskRender implements Runnable {
         finally {
             LOAD_REFERENCE_FILE_PATH = null;
         }
-        return newRef;
+        return;
     }
 
     private void calculateReference(Location loc) {
@@ -7307,8 +7317,12 @@ public abstract class TaskRender implements Runnable {
 
         boolean isDeep = useExtendedRange(size, fractal);
 
-        if (fractal.supportsReferenceSavingOrLoading() && (LOAD_REFERENCE_FILE_PATH != null || LOADED_REFERENCE)) {
-            refPoint = loadReference(refPoint, loc, isDeep);
+        if (fractal.supportsReferenceSavingOrLoading() && LOAD_REFERENCE_FILE_PATH != null) {
+            loadReference(refPoint, loc, isDeep);
+        }
+
+        if (LOADED_REFERENCE) {
+            refPoint = Fractal.referenceOrbit.refPoint;
         }
 
         int max_ref_iterations = fractal.getReferenceMaxIterations();
