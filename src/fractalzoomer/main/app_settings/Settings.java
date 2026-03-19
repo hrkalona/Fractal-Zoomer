@@ -493,6 +493,11 @@ public class Settings implements Constants {
         }
 
         max_iterations = settings.getMaxIterations();
+
+        if (max_iterations > MAX_ITERATIONS_NUMBER) {
+            max_iterations = MAX_ITERATIONS_NUMBER;
+        }
+
         ps.color_choice = settings.getColorChoice();
 
         fractal_color = settings.getFractalColor();
@@ -1406,6 +1411,10 @@ public class Settings implements Constants {
             pps.ots.showOnlyTraps = ((SettingsFractals1081) settings).getShowOnlyTraps();
             pps.ots.background = ((SettingsFractals1081) settings).getTrapBgColor();
             ds.domain_height_method = ((SettingsFractals1081) settings).getDomainHeightMethod();
+        }
+
+        if (fns.period > MAX_ITERATIONS_NUMBER) {
+            fns.period = MAX_ITERATIONS_NUMBER;
         }
 
         if(version < 1083) {

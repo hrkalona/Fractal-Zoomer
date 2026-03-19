@@ -26,7 +26,7 @@ public interface Constants {
     public static final int TOTAL_FUNCTION_FILTERS = 11;
     public static final int TOTAL_PLANE_INFLUENCES = 3;
 
-    public static final int MAX_ITERATIONS_NUMBER = Integer.MAX_VALUE;
+    public static final int MAX_ITERATIONS_NUMBER = Integer.MAX_VALUE - 5;
 
     public static final String SA_CALCULATION_STR = "SA Calculation:";
 

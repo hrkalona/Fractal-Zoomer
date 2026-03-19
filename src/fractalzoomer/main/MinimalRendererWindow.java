@@ -3200,7 +3200,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             enableStop();
             setOptions(false);
             runsOnSequenceMode = true;
-            sequenceIndex = zss.flipSequenceIndexing ? numberOfSequenceSteps : 1;
+            sequenceIndex = 1;
 
             Apfloat[] originalRotCenter = new Apfloat[2];
             originalRotCenter[0] = s.fns.rotation_center[0];
@@ -3248,7 +3248,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     s.max_iterations = originalMaxIterations;
                 }
 
-                if(zss.startAtSequenceIndex == 0 || (!zss.flipSequenceIndexing && sequenceIndex >= zss.startAtSequenceIndex) || (zss.flipSequenceIndexing && sequenceIndex <= zss.startAtSequenceIndex) ) {
+                if(zss.startAtSequenceIndex == 0 || (sequenceIndex >= zss.startAtSequenceIndex)) {
                     render();
 
                     try {
@@ -3267,12 +3267,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     renderCount++;
                 }
 
-                if(zss.flipSequenceIndexing) {
-                    sequenceIndex--;
-                }
-                else {
-                    sequenceIndex++;
-                }
+                sequenceIndex++;
 
                 if(zss.stop_after_n_steps > 0) {
                     totalprogress.setValue((int)(renderCount / divisor));

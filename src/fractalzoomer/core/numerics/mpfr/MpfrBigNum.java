@@ -789,7 +789,8 @@ public class MpfrBigNum {
         byte[] buf = new byte[n];
         String template = "%." + MyApfloat.precision + "R*g";
         mpfr_snprintf(buf, n, template, rounding, mpfrMemory.peer);
-        return new String(buf).trim();
+        String str = new String(buf).trim();
+        return str.replace(',', '.');
     }
 
     public Apfloat toApfloat() { return new MyApfloat(toFullString());}
