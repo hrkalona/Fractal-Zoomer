@@ -95,7 +95,7 @@ public class PlaneVisualizer {
 
         double temp_size_image_size = size / image_size;
 
-        int step = 20;
+        int step = 10;
         int color_step = image_size / step;
 
         int FROMx = 0;
@@ -181,7 +181,7 @@ public class PlaneVisualizer {
 
                     if(x1 >= 0 && x1 < image_size && y1 >= 0 && y1 < image_size) {
                         if(color_mode == 1 ) {
-                            rgbs2[y1 * image_size + x1] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                            rgbs2[y1 * image_size + x1] = Color.HSBtoRGB((float)(((double) new_x) / step / color_step), (float)(((double) new_x) / step / color_step) * 0.5f + (float)(((double) new_y) / step / color_step) * 0.5f, 0.2f + 0.8f * (float)(((double) new_y) / step / color_step));
                         }
                         else {
                             if(new_y % step == 0) {

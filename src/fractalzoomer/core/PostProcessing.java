@@ -198,29 +198,21 @@ public class PostProcessing {
             int wr = 0, wg = 0, wb = 0;
 
             if (ls.specularReflectionMethod > 0) {
-                double lreflx = nx * NdotL * 2 - lx;
-                double lrefly = ny * NdotL * 2 - ly;
+                double lreflxN = nx * NdotL * 2 - lx;
+                double lreflyN = ny * NdotL * 2 - ly;
+                double lreflzN = lreflz;
 
-                double refx = 0.5 * (1 - Math.atan2(lreflx, lreflz) / Math.PI);
+                double nlenRefl = Math.sqrt(lreflxN * lreflxN + lreflyN * lreflyN + lreflzN * lreflzN);
 
-                if (refx > 1) {
-                    refx--;
-                } else if (refx < 0) {
-                    refx++;
-                }
+                lreflxN = lreflxN / nlenRefl;
+                lreflyN = lreflyN / nlenRefl;
+                lreflzN = lreflzN / nlenRefl;
 
-                double refy;
+                double u = 0.5 * (1 - Math.atan2(lreflxN, lreflzN) / Math.PI);
+                double v = 0.5 + Math.asin(lreflyN) / Math.PI;
 
-                if (lrefly >= 1) {
-                    refy = 1;
-                } else if (lrefly <= -1) {
-                    refy = 0;
-                } else {
-                    refy = 0.5 + Math.asin(lrefly) / Math.PI;
-                }
-
-                int indexx = (int) (refx * (window_image.getWidth() - 1) + 0.5);
-                int indexy = (int) (refy * (window_image.getHeight() - 1) + 0.5);
+                int indexx = (int) (u * (window_image.getWidth() - 1) + 0.5);
+                int indexy = (int) (v * (window_image.getHeight() - 1) + 0.5);
 
                 int window_color = window_image.getRGB(indexx, indexy);
 
