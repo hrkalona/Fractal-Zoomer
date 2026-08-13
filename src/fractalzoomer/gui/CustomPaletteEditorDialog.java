@@ -633,7 +633,12 @@ public class CustomPaletteEditorDialog extends JDialog {
             }
 
             try {
-                CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                Color[] colors = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2.0) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+//                System.out.print("{");
+//                for (int i  = 0; i < colors.length; i++) {
+//                    System.out.print(colors[i].getRGB() + ", ");
+//                }
+//                System.out.println("}");
             } catch (Exception ex) {
                 length_label.setText("0");
                 Graphics2D g = colors.createGraphics();
@@ -1361,7 +1366,11 @@ public class CustomPaletteEditorDialog extends JDialog {
                     "Length:",
                     length_field};
 
-            JOptionPane.showMessageDialog(this, message, "Import Active Palette", JOptionPane.INFORMATION_MESSAGE);
+            int ans = JOptionPane.showConfirmDialog(this, message, "Import Active Palette", JOptionPane.YES_NO_OPTION);
+
+            if (ans == JOptionPane.NO_OPTION || ans == JOptionPane.CLOSED_OPTION) {
+                return;
+            }
 
             int custom_length = pcolors.length;
             try {

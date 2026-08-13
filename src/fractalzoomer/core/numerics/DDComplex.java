@@ -1531,6 +1531,13 @@ public class DDComplex extends GenericComplex {
     }
 
     @Override
+    public DDComplex divide2() {
+        DoubleDouble point_five = new DoubleDouble(0.5);
+        return new DDComplex(re.multiply(point_five), im.multiply(point_five));
+    }
+
+
+    @Override
     public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this.toComplex());}
 
     @Override

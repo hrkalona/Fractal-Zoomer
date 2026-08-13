@@ -21,7 +21,6 @@ public class ZoomSequenceSettings {
 
     public double zoom_factor;
 
-    public boolean flipSequenceIndexing;
     public long startAtSequenceIndex;
     public long sequenceIndexOffset;
     public  String sizeStr;
@@ -53,7 +52,6 @@ public class ZoomSequenceSettings {
         sizeStr = startSize.toString();
 
         zoom_factor = 2.0;
-        flipSequenceIndexing = false;
         startAtSequenceIndex = 0;
 
         saveSettingsOnEachStep = false;
