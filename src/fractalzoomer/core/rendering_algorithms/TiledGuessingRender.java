@@ -30,7 +30,7 @@ public class TiledGuessingRender extends TaskRender {
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         initialize(location);
 

@@ -3481,6 +3481,24 @@ public class Settings implements Constants {
 
         return (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH);
     }
+
+    public boolean supportsHighPrecision() {
+        if(ds.domain_coloring) {
+            return false;
+        }
+
+        if(julia_map) {
+            return false;
+        }
+
+        if(fns.julia && fns.juliter) {
+            return false;
+        }
+
+        return (fns.function == MANDELBROTSIXTH || fns.function == MANDELBROTSEVENTH || fns.function == MANDELBROTEIGHTH
+                || fns.function == MANDELBROTNINTH || fns.function == MANDELBROTTENTH || fns.function == SPIDER);
+    }
+
     public boolean supportsPerturbationTheory() {
 
         if(ds.domain_coloring) {
@@ -3521,7 +3539,7 @@ public class Settings implements Constants {
     }
 
     public boolean isHighPrecisionInUse() {
-        return TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory();
+        return TaskRender.HIGH_PRECISION_CALCULATION && (supportsPerturbationTheory() || supportsHighPrecision());
     }
 
     public boolean isPeriodInUse() {

@@ -950,6 +950,11 @@ public class BigComplex extends GenericComplex {
     }
 
     @Override
+    public BigComplex divide2() {
+        return new BigComplex(re.multiply(MyApfloat.POINT_FIVE), im.multiply(MyApfloat.POINT_FIVE));
+    }
+
+    @Override
     public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     @Override

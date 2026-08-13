@@ -690,6 +690,14 @@ public abstract class Fractal {
         return false;
     }
 
+    public boolean supportsHighPrecision() {
+        return false;
+    }
+
+    public boolean supportsPerturbationTheoryOrHighPrecision() {
+        return supportsPerturbationTheory() || supportsHighPrecision();
+    }
+
     public boolean supportsReferenceCompression() {
         return false;
     }
@@ -819,7 +827,7 @@ public abstract class Fractal {
 
         if(lib == ARBITRARY_MPFR) {
 
-            workSpaceData.z.set(defaultInitVal.getValue(null));
+            workSpaceData.z.set(defaultInitVal.getValueGeneric(pixel));
             complex[0] = workSpaceData.z;//z
 
             workSpaceData.c.set(pixel);
@@ -839,7 +847,7 @@ public abstract class Fractal {
         }
         else if(lib == ARBITRARY_MPIR) {
 
-            workSpaceData.zp.set(defaultInitVal.getValue(null));
+            workSpaceData.zp.set(defaultInitVal.getValueGeneric(pixel));
             complex[0] = workSpaceData.zp;//z
 
             workSpaceData.cp.set(pixel);
@@ -858,7 +866,7 @@ public abstract class Fractal {
             gc0 = workSpaceData.c0p;
         }
         else if (lib == ARBITRARY_BUILT_IN) {
-            complex[0] = new BigNumComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new BigNumComplex();
@@ -867,7 +875,7 @@ public abstract class Fractal {
             gc0 = complex[1];
         }
         else if (lib == ARBITRARY_BIGINT) {
-            complex[0] = new BigIntNumComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new BigIntNumComplex();
@@ -876,7 +884,7 @@ public abstract class Fractal {
             gc0 = complex[1];
         }
         else if(lib == ARBITRARY_DOUBLEDOUBLE) {
-            complex[0] = new DDComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new DDComplex();
@@ -885,7 +893,7 @@ public abstract class Fractal {
             gc0 = complex[1];
         }
         else {
-            complex[0] = new BigComplex(defaultInitVal.getValue(null));//z
+            complex[0] = defaultInitVal.getValueGeneric(pixel);//z
             complex[1] = pixel;//c
 
             gzold = new BigComplex();
@@ -3776,7 +3784,7 @@ public abstract class Fractal {
 
     public String getInitialValue() {
 
-        if ((TaskRender.HIGH_PRECISION_CALCULATION || TaskRender.PERTURBATION_THEORY) && supportsPerturbationTheory()) {
+        if ((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory())) {
             if (isJulia) {
                 return "c";
             }
@@ -3805,7 +3813,7 @@ public abstract class Fractal {
         switch (bailout_test_algorithm) {
 
             case MainWindow.BAILOUT_CONDITION_CIRCLE:
-                if(TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheory()) {
+                if(TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) {
                     bailout_algorithm2 = new CircleBailoutPreCalcNormCondition(bailout_squared);
                     bailout_algorithm = new CircleBailoutCondition(bailout_squared, true, this);
                 }
@@ -4223,7 +4231,7 @@ public abstract class Fractal {
         if (sts.statisticGroup == 1) {
             statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
         } else if (sts.statisticGroup == 2) {
-            if ((TaskRender.PERTURBATION_THEORY || TaskRender.HIGH_PRECISION_CALCULATION) && supportsPerturbationTheory()) {
+            if ((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory())) {
                 return;
             }
             statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, false, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
@@ -4636,7 +4644,7 @@ public abstract class Fractal {
         }
 
         trap.setJulia(isJulia);
-        trap.setUsesHighPrecision((TaskRender.HIGH_PRECISION_CALCULATION || TaskRender.PERTURBATION_THEORY) && supportsPerturbationTheory());
+        trap.setUsesHighPrecision((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory()));
         trap.setSkipTrapCheckForIterations(ots.skipTrapCheckForIterations);
 
     }
@@ -5332,7 +5340,7 @@ public abstract class Fractal {
     }
 
     public void setWorkSpaceData() {
-        if((TaskRender.HIGH_PRECISION_CALCULATION || TaskRender.PERTURBATION_THEORY) && supportsPerturbationTheory()) {
+        if ((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory())) {
             workSpaceData = new WorkSpaceData(this);
         }
     }
@@ -6064,6 +6072,9 @@ public abstract class Fractal {
     }
 
     public static double total_bla_steps_sum() {
+        if (total_bla_steps == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_bla_steps.length; i++) {
             sum += total_bla_steps[i];
@@ -6072,6 +6083,9 @@ public abstract class Fractal {
     }
 
     public static double total_bla_iterations_sum() {
+        if (total_bla_iterations == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_bla_iterations.length; i++) {
             sum += total_bla_iterations[i];
@@ -6080,6 +6094,9 @@ public abstract class Fractal {
     }
 
     public static double total_rebases_sum() {
+        if (total_rebases == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_rebases.length; i++) {
             sum += total_rebases[i];
@@ -6088,6 +6105,9 @@ public abstract class Fractal {
     }
 
     public static double total_perturb_iterations_sum() {
+        if (total_perturb_iterations == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_perturb_iterations.length; i++) {
             sum += total_perturb_iterations[i];
@@ -6096,6 +6116,9 @@ public abstract class Fractal {
     }
 
     public static double total_double_iterations_sum() {
+        if (total_double_iterations == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_double_iterations.length; i++) {
             sum += total_double_iterations[i];
@@ -6104,6 +6127,9 @@ public abstract class Fractal {
     }
 
     public static double total_float_exp_iterations_sum() {
+        if (total_float_exp_iterations == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_float_exp_iterations.length; i++) {
             sum += total_float_exp_iterations[i];
@@ -6112,6 +6138,9 @@ public abstract class Fractal {
     }
 
     public static double total_scaled_iterations_sum() {
+        if (total_scaled_iterations == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_scaled_iterations.length; i++) {
             sum += total_scaled_iterations[i];
@@ -6120,6 +6149,9 @@ public abstract class Fractal {
     }
 
     public static double total_nanomb1_skipped_iterations_sum() {
+        if (total_nanomb1_skipped_iterations == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_nanomb1_skipped_iterations.length; i++) {
             sum += total_nanomb1_skipped_iterations[i];
@@ -6128,6 +6160,9 @@ public abstract class Fractal {
     }
 
     public static double total_iterations_sum() {
+        if (total_iterations == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_iterations.length; i++) {
             sum += total_iterations[i];
@@ -6136,6 +6171,9 @@ public abstract class Fractal {
     }
 
     public static long total_samples_sum() {
+        if (total_samples == null) {
+            return 0;
+        }
         long sum = 0;
         for(int i = 0; i < total_samples.length; i++) {
             sum += total_samples[i];
@@ -6144,6 +6182,9 @@ public abstract class Fractal {
     }
 
     public static double total_realigns_sum() {
+        if (total_realigns == null) {
+            return 0;
+        }
         double sum = 0;
         for(int i = 0; i < total_realigns.length; i++) {
             sum += total_realigns[i];
@@ -6152,6 +6193,9 @@ public abstract class Fractal {
     }
 
     public static long total_min_iterations_get() {
+        if (total_min_iterations == null) {
+            return 0;
+        }
         long min = Long.MAX_VALUE;
         for(int i = 0; i < total_min_iterations.length; i++) {
             if(total_min_iterations[i] < min) {
@@ -6162,6 +6206,9 @@ public abstract class Fractal {
     }
 
     public static long total_max_iterations_get() {
+        if (total_max_iterations == null) {
+            return 0;
+        }
         long max = Long.MIN_VALUE;
         for(int i = 0; i < total_max_iterations.length; i++) {
             if(total_max_iterations[i] > max) {
@@ -6172,6 +6219,9 @@ public abstract class Fractal {
     }
 
     public static long total_max_iterations_ignore_max_iter_get() {
+        if (total_max_iterations_ignore_max_iter == null) {
+            return 0;
+        }
         long max = Long.MIN_VALUE;
         for(int i = 0; i < total_max_iterations_ignore_max_iter.length; i++) {
             if(total_max_iterations_ignore_max_iter[i] > max) {

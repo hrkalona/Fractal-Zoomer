@@ -1819,7 +1819,7 @@ public abstract class TaskRender implements Runnable {
     }
     private String getBigNumString(int bigNumLib, int arbitraryLib) {
 
-        if(!domain_coloring && HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory()) {
+        if(!domain_coloring && HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) {
             if(arbitraryLib == Constants.ARBITRARY_BUILT_IN && fractal.supportsBignum()) {
                 return _getBigNumLibString(BigNum.getName()) + _getBigNumLibPrecString(BigNum.getPrecision());
             }
@@ -1987,7 +1987,7 @@ public abstract class TaskRender implements Runnable {
         if(!domain_coloring && (PERTURBATION_THEORY && !HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory()) {
             return "<li>Using <b>Perturbation Theory</b><br>";
         }
-        else if(!domain_coloring && HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory()) {
+        else if(!domain_coloring && HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) {
             return "<li>Using <b>Arbitrary Precision</b><br>";
         }
         else {
@@ -3549,7 +3549,7 @@ public abstract class TaskRender implements Runnable {
             WaitOnCondition.WaitOnCyclicBarrier(reference_sync);
             location.setReference(Fractal.referenceOrbit.refPoint);
         }
-        else if(HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheory()) {
+        else if(HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) {
             if (reference_calc_sync.getAndIncrement() == 0) {
                 initializeHighPrecision();
             }
@@ -3559,7 +3559,7 @@ public abstract class TaskRender implements Runnable {
 
     protected void quickRender(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         initialize(location);
 
@@ -3888,7 +3888,7 @@ public abstract class TaskRender implements Runnable {
 
     protected void render3D(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         initialize(location);
 
@@ -4025,7 +4025,7 @@ public abstract class TaskRender implements Runnable {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, detail, detail, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);

@@ -2852,6 +2852,11 @@ public final class Complex extends GenericComplex implements Serializable {
 
     }
 
+    @Override
+    public Complex divide2() {
+        return new Complex(re * 0.5, im * 0.5);
+    }
+
     /*
      * z1 + z2
      */

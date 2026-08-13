@@ -860,6 +860,12 @@ public class BigDecNumComplex extends GenericComplex {
     }
 
     @Override
+    public BigDecNumComplex divide2() {
+        BigDecNum point_five = new BigDecNum(0.5);
+        return new BigDecNumComplex(re.mult(point_five), im.mult(point_five));
+    }
+
+    @Override
     public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
 
