@@ -278,9 +278,9 @@ public class ReferenceOrbit implements Serializable {
         if(lastZValue == null || refPoint == null || LastCalculationSize == null) {
             return false;
         }
-        if(!highPrecisionTypeName.equals(getHighPrecisionTypeName(newRefPoint))) {
-            return false;
-        }
+//        if(!highPrecisionTypeName.equals(getHighPrecisionTypeName(newRefPoint))) {
+//            return false;
+//        }
 
         BigComplex newBc = newRefPoint.toBigComplex();
         String newRefpointRe = newBc.getRe().toString(true);

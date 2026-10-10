@@ -1205,7 +1205,7 @@ public class LAReference {
         LAstep las;
 
         int l = LAj.StepLength;
-        boolean usuable  = iterations + l <= max_iterations;
+        boolean usuable  = ((long)iterations) + l <= max_iterations;
 
         if(usuable) {
             las = LAj.Prepare(f, dz);
@@ -1234,7 +1234,7 @@ public class LAReference {
         LAstep las;
 
         int l = LAj.StepLength;
-        boolean usuable  = iterations + l <= max_iterations;
+        boolean usuable  = ((long)iterations) + l <= max_iterations;
 
         if(usuable) {
             las = LAj.Prepare(f, dre, dim);
@@ -1263,7 +1263,7 @@ public class LAReference {
         LAstep las;
 
         int l = LAj.StepLength;
-        boolean usuable = iterations + l <= max_iterations;
+        boolean usuable = ((long)iterations) + l <= max_iterations;
 
         if(usuable) {
             las = LAj.Prepare(f, dz);

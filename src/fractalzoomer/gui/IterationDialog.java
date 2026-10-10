@@ -77,8 +77,8 @@ public class IterationDialog extends JDialog {
                             if (temp < 1) {
                                 JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
-                            } else if (temp >  MainWindow.MAX_ITERATIONS_NUMBER) {
-                                JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be less than 2147483648.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            } else if (temp > MainWindow.MAX_ITERATIONS_NUMBER) {
+                                JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be less than " + (MainWindow.MAX_ITERATIONS_NUMBER + 1) + ".", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

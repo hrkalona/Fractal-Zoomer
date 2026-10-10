@@ -88,6 +88,8 @@ public abstract class GenericComplex {
 
     public GenericComplex conjugate_mutable() {return null;}
 
+    public GenericComplex divide2() {return null;}
+
     public GenericComplex times2() {return null;}
 
     public GenericComplex times2(MpfrBigNum temp1, MpfrBigNum temp2) {return null;}

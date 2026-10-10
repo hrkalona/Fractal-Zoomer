@@ -578,9 +578,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             batchRenderButton.setEnabled(opt);
             sequenceRenderButton.setEnabled(opt);
             outputDirectoryButton.setEnabled(opt);
-            if(s.polar_projection) {
-                polarLargeRenderButton.setEnabled(opt);
-            }
+            polarLargeRenderButton.setEnabled(opt);
             splitImageRenderButton.setEnabled(opt);
 
             if(opt) {
@@ -632,7 +630,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                 renderButton.setEnabled(true);
                 sequenceRenderButton.setEnabled(true);
                 overviewButton.setVisible(true);
-                polarLargeRenderButton.setEnabled(s.polar_projection);
+                polarLargeRenderButton.setEnabled(true);
                 splitImageRenderButton.setEnabled(true);
 
                 MainWindow.SaveSettingsPath = file.getParent();
@@ -748,8 +746,9 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         }
 
         try {
+            int taskId = 0;
             for(int i = 0; i < tasks.length; i++) {
-                for(int j = 0; j < tasks[i].length; j++) {
+                for(int j = 0; j < tasks[i].length; j++, taskId++) {
 
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
                     if(s.fns.julia) {
@@ -898,7 +897,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                             }
                         }
                     }
-                    tasks[i][j].setTaskId(i * tasks.length + j);
+                    tasks[i][j].setTaskId(taskId);
                     tasks[i][j].setUsesSquareChunks(thread_grouping == 0 || ((thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) && m == n));
                 }
             }
@@ -2963,6 +2962,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             runsOnLargePolarImageMode = true;
 
             Apfloat originalSize = s.size;
+            boolean oldPolarProjection = s.polar_projection;
+            s.polar_projection = true;
 
             for(int k = 0; k < number_of_polar_images; k++) {
                 render();
@@ -3017,6 +3018,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             runsOnLargePolarImageMode = false;
 
             s.size = originalSize;
+            s.polar_projection = oldPolarProjection;
 
             cleanUp();
             setOptions(true);
@@ -3148,7 +3150,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         }
 
         TaskRender.SAVE_REFERENCE = zss.saveReference;
-        TaskRender.SAVE_REFERENCE_FILE_PATH = path.resolve(settingsName + ".ref").toAbsolutePath().toString();
+        String referenceFileName = settingsName + (TaskRender.COMPRESS_REFERENCE ? ".compressed" : "") + ".ref";
+        TaskRender.SAVE_REFERENCE_FILE_PATH = path.resolve(referenceFileName).toAbsolutePath().toString();
 
         TaskRender.LOAD_REFERENCE_FILE_PATH = zss.loadReferenceFilePath;
         if (TaskRender.LOAD_REFERENCE_FILE_PATH.isEmpty()) {
@@ -3197,7 +3200,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             enableStop();
             setOptions(false);
             runsOnSequenceMode = true;
-            sequenceIndex = zss.flipSequenceIndexing ? numberOfSequenceSteps : 1;
+            sequenceIndex = 1;
 
             Apfloat[] originalRotCenter = new Apfloat[2];
             originalRotCenter[0] = s.fns.rotation_center[0];
@@ -3245,7 +3248,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     s.max_iterations = originalMaxIterations;
                 }
 
-                if(zss.startAtSequenceIndex == 0 || (!zss.flipSequenceIndexing && sequenceIndex >= zss.startAtSequenceIndex) || (zss.flipSequenceIndexing && sequenceIndex <= zss.startAtSequenceIndex) ) {
+                if(zss.startAtSequenceIndex == 0 || (sequenceIndex >= zss.startAtSequenceIndex)) {
                     render();
 
                     try {
@@ -3264,12 +3267,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     renderCount++;
                 }
 
-                if(zss.flipSequenceIndexing) {
-                    sequenceIndex--;
-                }
-                else {
-                    sequenceIndex++;
-                }
+                sequenceIndex++;
 
                 if(zss.stop_after_n_steps > 0) {
                     totalprogress.setValue((int)(renderCount / divisor));

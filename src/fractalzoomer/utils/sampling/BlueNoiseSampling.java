@@ -52,10 +52,9 @@ public class BlueNoiseSampling {
     private static double minDistance(Point2D.Double p, List<Point2D.Double> points) {
         double minDist = Double.MAX_VALUE;
         for (Point2D.Double other : points) {
-            //double dist = Math.hypot(p.x - other.x, p.y - other.y);
             double dx = other.x - p.x;
             double dy = other.y - p.y;
-            double dist = Math.sqrt(dx * dx + dy * dy);
+            double dist = dx * dx + dy * dy;
             minDist = Math.min(minDist, dist);
         }
         return minDist;

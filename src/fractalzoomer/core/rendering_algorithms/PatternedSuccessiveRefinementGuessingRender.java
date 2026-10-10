@@ -215,7 +215,7 @@ public class PatternedSuccessiveRefinementGuessingRender extends SuccessiveRefin
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         initialize(location);
 
@@ -451,7 +451,7 @@ public class PatternedSuccessiveRefinementGuessingRender extends SuccessiveRefin
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
@@ -681,7 +681,7 @@ public class PatternedSuccessiveRefinementGuessingRender extends SuccessiveRefin
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
@@ -973,7 +973,7 @@ public class PatternedSuccessiveRefinementGuessingRender extends SuccessiveRefin
     @Override
     protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         initialize(location);
 
@@ -1351,7 +1351,7 @@ public class PatternedSuccessiveRefinementGuessingRender extends SuccessiveRefin
     @Override
     protected void quickRender(int image_width, int image_height, boolean polar) throws StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         initialize(location);
 

@@ -84,6 +84,7 @@ public class FractalFunctionsMenu extends MyMenu {
     private JMenu king1_type_functions;
     private JMenu noor_gupta_type_functions;
     private JMenu harmonic_simpson_newton_type_functions;
+    private JMenu broyden_type_functions;
 
     private JMenu nedzhibov_type_functions;
     private JMenu simpson_newton_type_functions;
@@ -451,6 +452,10 @@ public class FractalFunctionsMenu extends MyMenu {
             functionNames[i + MainWindow.SIMPSON_NEWTON3] = "Simpson-Newton " + rootPostfixes[i];
         }
 
+        for(int i = 0; i < rootPostfixes.length; i++) {
+            functionNames[i + MainWindow.BROYDEN3] = "Broyden " + rootPostfixes[i];
+        }
+
         functionNames[MainWindow.MAGNET_PATAKI2] = "Magnet Pataki";
         functionNames[MainWindow.MAGNET_PATAKI3] = "Magnet Pataki 3";
         functionNames[MainWindow.MAGNET_PATAKI4] = "Magnet Pataki 4";
@@ -527,6 +532,7 @@ public class FractalFunctionsMenu extends MyMenu {
         harmonic_simpson_newton_type_functions = new MyMenu("Harmonic-Simpson-Newton Method");
         nedzhibov_type_functions = new MyMenu("Nedzhibov Method");
         simpson_newton_type_functions = new MyMenu("Simpson-Newton Method");
+        broyden_type_functions = new MyMenu("Broyden Method");
         
         root_finding_functions2 = new MyMenu("Root Finding Methods (2)");
         root_finding_functions3 = new MyMenu("Root Finding Methods (3)");
@@ -1150,6 +1156,8 @@ public class FractalFunctionsMenu extends MyMenu {
         root_finding_functions3.add(rafiullah1_type_functions);
         root_finding_functions3.addSeparator();
         root_finding_functions3.add(rafis_rafiullah_type_functions);
+        root_finding_functions3.addSeparator();
+        root_finding_functions3.add(broyden_type_functions);
 
 
         add(root_finding_functions);
@@ -2044,6 +2052,16 @@ public class FractalFunctionsMenu extends MyMenu {
             fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
             fractal_functions[i].addActionListener(e -> ptr.setFunction(temp));
             simpson_newton_type_functions.add(fractal_functions[i]);
+            functions_button_group.add(fractal_functions[i]);
+        }
+
+        for(int i = MainWindow.BROYDEN3; i <=  MainWindow.BROYDENFORMULA; i++) {
+
+            final int temp = i;
+
+            fractal_functions[i] = new JRadioButtonMenuItem(functionNames[i]);
+            fractal_functions[i].addActionListener(e -> ptr.setFunction(temp));
+            broyden_type_functions.add(fractal_functions[i]);
             functions_button_group.add(fractal_functions[i]);
         }
 
