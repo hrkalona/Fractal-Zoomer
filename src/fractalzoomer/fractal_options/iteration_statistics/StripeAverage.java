@@ -15,8 +15,8 @@ public class StripeAverage extends GenericStatistic {
     private double StripeDensity;
 
 
-    public StripeAverage(double statistic_intensity, double StripeDensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
-        super(statistic_intensity, useSmoothing, useAverage, lastXItems);
+    public StripeAverage(double statistic_intensity, double StripeDensity, boolean useSmoothing, boolean useAverage, int lastXItems, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, useSmoothing, useAverage, lastXItems, applyIntensityDuringColoring);
         sum = 0;
         sum2 = 0;
         this.StripeDensity = StripeDensity;
@@ -90,7 +90,7 @@ public class StripeAverage extends GenericStatistic {
         }
 
         if(!useSmoothing) {
-            return sum * statistic_intensity;
+            return applyIntensity(sum);
         }
 
         double smoothing;
@@ -105,7 +105,7 @@ public class StripeAverage extends GenericStatistic {
             smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
         }
 
-        return method.interpolate(sum, sum2, smoothing) * statistic_intensity;
+        return applyIntensity(method.interpolate(sum, sum2, smoothing));
 
     }
     

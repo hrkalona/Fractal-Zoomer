@@ -27,8 +27,8 @@ public class RootColoring extends GenericStatistic {
         roots = new ArrayList<>();
     }
 
-    public RootColoring(double scaling, int max_iterations, int[] rootColors, boolean rootSmooting, Fractal fractal, int unmmaped_root_color, boolean capTo1) {
-        super(0, false, false, 0);
+    public RootColoring(double scaling, int max_iterations, int[] rootColors, boolean rootSmooting, Fractal fractal, int unmmaped_root_color, boolean capTo1, boolean applyIntensityDuringColoring) {
+        super(0, false, false, 0, applyIntensityDuringColoring);
         rootTolerance = 1e-10;
         highlightTolerance = 1e-3;
         this.scaling = scaling;

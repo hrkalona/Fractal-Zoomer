@@ -16,8 +16,8 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
     private double StripeDenominatorFactor;
     private Complex root;
     
-    public CosArgDivideInverseNorm(double statistic_intensity, double StripeDensity, double StripeDenominatorFactor, boolean useSmoothing, int lastXItems) {
-        super(statistic_intensity, useSmoothing, false, lastXItems);
+    public CosArgDivideInverseNorm(double statistic_intensity, double StripeDensity, double StripeDenominatorFactor, boolean useSmoothing, int lastXItems, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, useSmoothing, false, lastXItems, applyIntensityDuringColoring);
         sum = 0;
         sum2 = 0;
         this.StripeDenominatorFactor = StripeDenominatorFactor;
@@ -79,7 +79,7 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
         }
 
         if(!useSmoothing) {
-            return sum * statistic_intensity;
+            return applyIntensity(sum);
         }
 
         double smoothing;
@@ -111,7 +111,7 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
             }
         }
 
-        return method.interpolate(sum, sum2, smoothing) * statistic_intensity;
+        return applyIntensity(method.interpolate(sum, sum2, smoothing));
         
     }
     

@@ -16,8 +16,8 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
     private Norm normImpl;
     private int normtType;
 
-    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, int normtType, double langNorm, int lastXItems, double a, double b) {
-        super(statistic_intensity, useSmoothing, useAverage, lastXItems);
+    public DiscreteLagrangianDescriptors(double statistic_intensity, double power, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, int normtType, double langNorm, int lastXItems, double a, double b, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, useSmoothing, useAverage, lastXItems, applyIntensityDuringColoring);
         sum = 0;
         sum2 = 0;
         lastx = 0;
@@ -196,7 +196,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         }
 
         if(!useSmoothing) {
-            return sum * statistic_intensity;
+            return applyIntensity(sum);
         }
 
         double smoothing;
@@ -229,7 +229,7 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
             }
         }
 
-        return method.interpolate(sum, sum2, smoothing) * statistic_intensity;
+        return applyIntensity(method.interpolate(sum, sum2, smoothing));
 
     }
 

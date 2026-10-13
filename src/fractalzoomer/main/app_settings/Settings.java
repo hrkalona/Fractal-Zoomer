@@ -3662,13 +3662,15 @@ public class Settings implements Constants {
             return pps.ots.useTraps || fns.tcs.trueColorIn
                     || (pps.sts.statistic && pps.sts.statisticGroup == 2 && pps.sts.equicontinuityOverrideColoring)
                     || (pps.sts.statistic && (pps.sts.statisticGroup == 3 || pps.sts.normalMapCombineWithOtherStatistics))
-                    || (pps.sts.statistic && pps.sts.statisticGroup == 4);
+                    || (pps.sts.statistic && pps.sts.statisticGroup == 4)
+                    || (pps.sts.statistic && pps.sts.applyIntensityDuringColoring);
         }
 
         return pps.ots.useTraps || fns.tcs.trueColorOut || fns.tcs.trueColorIn
                 || (pps.sts.statistic && pps.sts.statisticGroup == 2 && pps.sts.equicontinuityOverrideColoring)
                 || (pps.sts.statistic && (pps.sts.statisticGroup == 3 || pps.sts.normalMapCombineWithOtherStatistics))
-                || (pps.sts.statistic && pps.sts.statisticGroup == 4);
+                || (pps.sts.statistic && pps.sts.statisticGroup == 4)
+                || (pps.sts.statistic && pps.sts.applyIntensityDuringColoring);
     }
 
     public boolean supportsBilinearApproximation2() {

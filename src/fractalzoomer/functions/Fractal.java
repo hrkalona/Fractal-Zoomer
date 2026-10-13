@@ -4229,39 +4229,39 @@ public abstract class Fractal {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
 
         if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems);
+            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing, sts.lastXItems, sts.applyIntensityDuringColoring);
         } else if (sts.statisticGroup == 2) {
             if ((TaskRender.HIGH_PRECISION_CALCULATION && supportsPerturbationTheoryOrHighPrecision()) || (TaskRender.PERTURBATION_THEORY && supportsPerturbationTheory())) {
                 return;
             }
-            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, false, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, false, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta, sts.applyIntensityDuringColoring);
         } else if (sts.statisticGroup == 3) {
-            statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor);
+            statistic = new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor, sts.applyIntensityDuringColoring);
         } else if (sts.statisticGroup == 0) {
             switch (sts.statistic_type) {
                 case MainWindow.STRIPE_AVERAGE:
-                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.TRIANGLE_INEQUALITY_AVERAGE:
-                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new TriangleInequalityAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.CURVATURE_AVERAGE:
-                    statistic = new CurvatureAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CurvatureAverage(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems);
+                    statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
-                    statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems, sts.atomDomainNormA, sts.atomDomainNormB);
+                    statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity, sts.atomNormType, sts.atomNNorm, sts.lastXItems, sts.atomDomainNormA, sts.atomDomainNormB, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
-                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, sts.useSmoothing, sts.useAverage, false, sts.langNormType, sts.langNNorm, sts.lastXItems, sts.langNormA, sts.langNormB);
+                    statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, sts.useSmoothing, sts.useAverage, false, sts.langNormType, sts.langNNorm, sts.lastXItems, sts.langNormA, sts.langNormB, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.TWIN_LAMPS:
-                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, sts.useSmoothing, sts.lastXItems);
+                    statistic = new TwinLamps(sts.statistic_intensity, sts.twlFunction, sts.twlPoint, sts.useSmoothing, sts.lastXItems, sts.applyIntensityDuringColoring);
                     break;
                 case MainWindow.CHECKERS:
-                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.checkerNormA, sts.checkerNormB);
+                    statistic = new Checkers(sts.statistic_intensity, sts.patternScale, sts.checkerNormType, sts.checkerNormValue, sts.useSmoothing, sts.useAverage, sts.lastXItems, sts.checkerNormA, sts.checkerNormB, sts.applyIntensityDuringColoring);
                     break;
             }
         }
@@ -4269,15 +4269,12 @@ public abstract class Fractal {
         statistic.setNormSmoothingImpl(bailout_algorithm.getNormImpl(), bailout);
 
         if(sts.normalMapCombineWithOtherStatistics && !(sts.statisticGroup == 2 || sts.statisticGroup == 3)) {
-            statistic = new CombinedStatisticWithNormalMap(statistic, new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor));
+            statistic = new CombinedStatisticWithNormalMap(statistic, new NormalMap(sts.statistic_intensity, getPower(), sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, sts.normalMapDEUpperLimitFactor, sts.normalMapDEAAEffect, sts.normalMapOverrideColoring, sts.normalMapDeFadeAlgorithm, sts.normalMapDistanceEstimatorfactor, sts.applyIntensityDuringColoring));
         }
 
     }
 
-    protected double getStatistic(double result, boolean escaped) {
-
-        statValue = statistic.get();
-
+    private double getStatisticInternal(double result, double statValue, boolean escaped) {
         double tempRes = Math.abs(result);
         if (tempRes == ColorAlgorithm.MAXIMUM_ITERATIONS || tempRes == ColorAlgorithm.MAXIMUM_ITERATIONS_DE) {
 
@@ -4315,7 +4312,18 @@ public abstract class Fractal {
         else {
             return statValue;
         }
+    }
 
+    protected double getStatistic(double result, boolean escaped) {
+        statValue = statistic.get();
+        return getStatisticInternal(result, statValue, escaped);
+    }
+
+    public double getStatisticWithIntensity(double result, boolean escaped) {
+        if ((escaped && statisticIncludeEscaped) || (!escaped && statisticIncludeNotEscaped)) {
+            return getStatisticInternal(result, statValue * statistic.getIntensity(), escaped);
+        }
+        return result;
     }
 
     protected double getTrap(double result) {

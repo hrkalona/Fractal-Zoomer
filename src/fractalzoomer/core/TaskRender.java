@@ -2842,26 +2842,35 @@ public abstract class TaskRender implements Runnable {
             }
         }
         else if(sts.statistic) {
-            if (sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring &&
-                    !((!sts.statisticIncludeNotEscaped && (!escaped || isMaximumIterations(result)))
-                            || (!sts.statisticIncludeEscaped && escaped && !isMaximumIterations(result)))) {
-                color = getEquicontinuityColor(result, escaped);
-            }
-            else if ((sts.statisticGroup == 3 || sts.normalMapCombineWithOtherStatistics) &&
-                    !((!sts.statisticIncludeNotEscaped && (!escaped || isMaximumIterations(result)))
-                            || (!sts.statisticIncludeEscaped && escaped && !isMaximumIterations(result)))) {
-                color = getNormalMapColor(result, escaped);
-            }
-            else if (sts.statisticGroup == 4 &&
-                    !((!sts.statisticIncludeNotEscaped && (!escaped || isMaximumIterations(result)))
-                            || (!sts.statisticIncludeEscaped && escaped && !isMaximumIterations(result)))) {
-                color = getRootColor(result, escaped);
-            }
-            else {
+            GenericStatistic statistic = fractal.getStatisticInstance();
+
+            if (statistic != null) {
+                if (statistic.shouldApplyIntensityDuringColoring()) {
+                    result = fractal.getStatisticWithIntensity(result, escaped);
+                }
+
+                if (sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring &&
+                        !((!sts.statisticIncludeNotEscaped && (!escaped || isMaximumIterations(result)))
+                                || (!sts.statisticIncludeEscaped && escaped && !isMaximumIterations(result)))) {
+                    color = getEquicontinuityColor(result, escaped, statistic);
+                }
+                else if ((sts.statisticGroup == 3 || sts.normalMapCombineWithOtherStatistics) &&
+                        !((!sts.statisticIncludeNotEscaped && (!escaped || isMaximumIterations(result)))
+                                || (!sts.statisticIncludeEscaped && escaped && !isMaximumIterations(result)))) {
+                    color = getNormalMapColor(result, escaped, statistic);
+                }
+                else if (sts.statisticGroup == 4 &&
+                        !((!sts.statisticIncludeNotEscaped && (!escaped || isMaximumIterations(result)))
+                                || (!sts.statisticIncludeEscaped && escaped && !isMaximumIterations(result)))) {
+                    color = getRootColor(result, escaped, statistic);
+                }
+                else {
+                    color = getStandardColor(result, escaped);
+                }
+            } else {
                 color = getStandardColor(result, escaped);
             }
-        }
-        else {
+        } else {
             color = getStandardColor(result, escaped);
         }
 
@@ -2879,13 +2888,7 @@ public abstract class TaskRender implements Runnable {
         return result == ColorAlgorithm.MAXIMUM_ITERATIONS || result == ColorAlgorithm.MAXIMUM_ITERATIONS_DE;
     }
 
-    private int getEquicontinuityColor(double result, boolean escaped) {
-        GenericStatistic statistic = fractal.getStatisticInstance();
-
-        if(statistic == null) {
-            return getStandardColor(result, escaped);
-        }
-
+    private int getEquicontinuityColor(double result, boolean escaped, GenericStatistic statistic) {
         double L = escaped ? statistic.getValueForColoring() : statistic.getValueNotEscapedForColoring();
 
         double argValue = 0;
@@ -2936,13 +2939,7 @@ public abstract class TaskRender implements Runnable {
         return 0xFF000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2];
     }
 
-    private int getNormalMapColor(double result, boolean escaped) {
-        GenericStatistic statistic = fractal.getStatisticInstance();
-
-        if(statistic == null) {
-            return getStandardColor(result, escaped);
-        }
-
+    private int getNormalMapColor(double result, boolean escaped, GenericStatistic statistic) {
         int color = getStandardColor(result, escaped);
 
         if(sts.normalMapOverrideColoring && sts.normalMapColoring ==  1 && !isMaximumIterations(result)) {
@@ -3005,13 +3002,7 @@ public abstract class TaskRender implements Runnable {
         return output_color;
     }
 
-    private int getRootColor(double result, boolean escaped) {
-        GenericStatistic statistic = fractal.getStatisticInstance();
-
-        if(statistic == null) {
-            return getStandardColor(result, escaped);
-        }
-
+    private int getRootColor(double result, boolean escaped, GenericStatistic statistic) {
         int color = ((RootColoring)statistic).getRootColor();
 
         if(color == 0) {

@@ -98,6 +98,8 @@ public class StatisticsSettings implements Constants {
     public double checkerNormB;
 
     public boolean rootScalingCapto1;
+
+    public boolean applyIntensityDuringColoring;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -188,6 +190,8 @@ public class StatisticsSettings implements Constants {
         langNormA = copy.langNormA;
         langNormB = copy.langNormB;
         rootScalingCapto1 = copy.rootScalingCapto1;
+
+        applyIntensityDuringColoring = copy.applyIntensityDuringColoring;
 
     }
     
@@ -282,5 +286,7 @@ public class StatisticsSettings implements Constants {
         langNormA = 1;
         langNormB = 1;
         rootScalingCapto1 = true;
+
+        applyIntensityDuringColoring = true;
     }
 }
