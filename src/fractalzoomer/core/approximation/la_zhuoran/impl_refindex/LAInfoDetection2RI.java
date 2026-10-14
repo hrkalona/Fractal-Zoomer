@@ -30,11 +30,6 @@ public class LAInfoDetection2RI extends LAInfoRI {
     }
 
     @Override
-    protected boolean Stage0DetectDip(Complex z) {
-        return z.chebyshevNorm() < MinMag * Stage0DipDetectionThreshold2;
-    }
-
-    @Override
     protected GenericLAInfo Step(int RefIndex, ReferenceDecompressor referenceDecompressor) throws InvalidCalculationException {
         LAInfoDetection2RI Result = new LAInfoDetection2RI();
 

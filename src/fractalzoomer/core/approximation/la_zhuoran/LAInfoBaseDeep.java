@@ -100,11 +100,6 @@ public abstract class LAInfoBaseDeep extends GenericLAInfo {
     }
 
     @Override
-    protected boolean Stage0DetectDip(Complex z) {
-        return false;
-    }
-
-    @Override
     protected boolean Composite(LAInfoDeepRI out, LAInfoDeepRI LA, ReferenceDecompressor referenceDecompressor, boolean checkDip) {
         return false;
     }
@@ -137,11 +132,6 @@ public abstract class LAInfoBaseDeep extends GenericLAInfo {
     @Override
     protected boolean DetectDip(MantExpComplex z) {
         return z.chebyshevNorm().divide(new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(DipDetectionThreshold)) < 0;
-    }
-
-    @Override
-    protected boolean Stage0DetectDip(MantExpComplex z) {
-        return z.chebyshevNorm().divide(new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0DipDetectionThreshold)) < 0;
     }
 
     @Override

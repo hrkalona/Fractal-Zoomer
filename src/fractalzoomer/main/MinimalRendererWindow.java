@@ -166,9 +166,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
     public MinimalRendererWindow() {
         super();
 
-        if (!cliBatchMode) {
-            preloadPreferences();
-        }
+        preloadPreferences();
 
         NativeLoader.init();
 
@@ -3077,6 +3075,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
             runsOnBatchingMode = true;
             batchIndex = 1;
+            boolean failed = false;
 
             for(int k = 0; k < files.size(); k++) {
                 try {
@@ -3106,16 +3105,17 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     }
                 } catch (Exception ex) {
                     if (cliBatchMode) {
-                        System.out.println("Failed to render: " + lastLoadedFile);
+                        System.out.println("Failed to render: " + lastLoadedFile + " Error: " + ex.getMessage());
                     }
+                    failed = true;
                 }
 
                 try {
                     for (Future<?> future : futures) {
                         future.get();
                     }
-                } catch (InterruptedException ex) {
-                } catch (ExecutionException ex) {
+                } catch (InterruptedException | ExecutionException ex) {
+                    failed = true;
                 }
                 batchIndex++;
 
@@ -3139,7 +3139,14 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                 disableStop();
                 stopGlobalTimer();
             } else {
-                System.exit(0);
+                NumericLibrary.deleteLibs();
+                new Timer().schedule(new TimerTask() {
+                    public void run() {
+                        Runtime.getRuntime().halt(-1);
+                    }
+                }, 8000);
+                TaskRender.shutdownThreadPools();
+                System.exit(failed ? 1 : 0);
             }
         });
 
@@ -3149,7 +3156,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         List<String> files = Files.walk(Paths.get(cliBatchDirectory))
                 .filter(Files::isRegularFile)
-                .filter(file -> file.toString().toLowerCase().endsWith(".fzs")).map(f -> f.toAbsolutePath().toString()).collect(Collectors.toList());
+                .filter(file -> file.toString().toLowerCase().endsWith(".fzs")).map(f -> f.toAbsolutePath().toString()).sorted().collect(Collectors.toList());
 
         startBatchRender(files);
     }
@@ -3604,14 +3611,16 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                 mw.setVisible(true);
             }
 
-            boolean actionOk = mw.getCommonFunctions().copyLib();
+            boolean actionOk = mw.getCommonFunctions().copyLib(MinimalRendererWindow.cliBatchMode);
             mw.getCommonFunctions().exportCodeFilesNoUi();
 
             if(actionOk) {
                 mw.getCommonFunctions().compileCode(false);
             }
 
-            mw.getCommonFunctions().checkForUpdate(false);
+            if (!MinimalRendererWindow.cliBatchMode) {
+                mw.getCommonFunctions().checkForUpdate(false);
+            }
 
             if (MinimalRendererWindow.cliBatchMode) {
                 mw.cliBatchRender();

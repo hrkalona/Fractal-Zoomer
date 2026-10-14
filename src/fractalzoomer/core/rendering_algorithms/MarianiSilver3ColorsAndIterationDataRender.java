@@ -41,12 +41,42 @@ public class MarianiSilver3ColorsAndIterationDataRender extends MarianiSilver3Re
 
     @Override
     protected boolean isNotTheSame(int loc, int pixel_color, double pixel_value) {
-        return rgbs[loc] != pixel_color || image_iterations[loc] != pixel_value;
+        if (pixelData != null) {
+            if(rgbs[loc] != pixel_color) {
+                return true;
+            }
+
+            double[] loc_values = pixelData[loc].values;
+            for (int i = 0; i < loc_values.length; i++) {
+                if (pixel_value != loc_values[i]) {
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            return rgbs[loc] != pixel_color || image_iterations[loc] != pixel_value;
+        }
     }
 
     @Override
     protected boolean isNotTheSameFastJulia(int loc, int pixel_color, double pixel_value) {
-        return rgbs[loc] != pixel_color || image_iterations_fast_julia[loc] != pixel_value;
+        if (pixelData_fast_julia != null && pixelData_fast_julia[0].values != null) {
+            if(rgbs[loc] != pixel_color) {
+                return true;
+            }
+
+            double[] loc_values = pixelData_fast_julia[loc].values;
+            for (int i = 0; i < loc_values.length; i++) {
+                if (pixel_value != loc_values[i]) {
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            return rgbs[loc] != pixel_color || image_iterations_fast_julia[loc] != pixel_value;
+        }
     }
 
 }

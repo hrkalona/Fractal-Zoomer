@@ -35,26 +35,146 @@ public class PatternedSuccessiveRefinementGuessingColorsAndIterationDataRender e
 
     @Override
     protected boolean isTheSame(int loca, int locb, int locc, int locd) {
-        return rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd]
-                && image_iterations[loca] == image_iterations[locb] && image_iterations[locb] == image_iterations[locc] && image_iterations[locc] == image_iterations[locd];
+        if (pixelData != null) {
+            if (!(rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd])) {
+                return false;
+            }
+
+            double loc_a_data = image_iterations[loca];
+            double[] loc_a_values = pixelData[loca].values;
+            for (int i = 0; i < loc_a_values.length; i++) {
+                if (loc_a_data != loc_a_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_b_values = pixelData[locb].values;
+            for (int i = 0; i < loc_b_values.length; i++) {
+                if (loc_a_data != loc_b_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_c_values = pixelData[locc].values;
+            for (int i = 0; i < loc_c_values.length; i++) {
+                if (loc_a_data != loc_c_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_d_values = pixelData[locd].values;
+            for (int i = 0; i < loc_d_values.length; i++) {
+                if (loc_a_data != loc_d_values[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd]
+                    && image_iterations[loca] == image_iterations[locb] && image_iterations[locb] == image_iterations[locc] && image_iterations[locc] == image_iterations[locd];
+        }
     }
 
     @Override
     protected boolean isTheSameFastJulia(int loca, int locb, int locc, int locd) {
-        return rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd]
-                && image_iterations_fast_julia[loca] == image_iterations_fast_julia[locb] && image_iterations_fast_julia[locb] == image_iterations_fast_julia[locc] && image_iterations_fast_julia[locc] == image_iterations_fast_julia[locd];
+        if (pixelData_fast_julia != null && pixelData_fast_julia[0].values != null) {
+            if (!(rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd])) {
+                return false;
+            }
+
+            double loc_a_data = image_iterations_fast_julia[loca];
+            double[] loc_a_values = pixelData_fast_julia[loca].values;
+            for (int i = 0; i < loc_a_values.length; i++) {
+                if (loc_a_data != loc_a_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_b_values = pixelData_fast_julia[locb].values;
+            for (int i = 0; i < loc_b_values.length; i++) {
+                if (loc_a_data != loc_b_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_c_values = pixelData_fast_julia[locc].values;
+            for (int i = 0; i < loc_c_values.length; i++) {
+                if (loc_a_data != loc_c_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_d_values = pixelData_fast_julia[locd].values;
+            for (int i = 0; i < loc_d_values.length; i++) {
+                if (loc_a_data != loc_d_values[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd]
+                    && image_iterations_fast_julia[loca] == image_iterations_fast_julia[locb] && image_iterations_fast_julia[locb] == image_iterations_fast_julia[locc] && image_iterations_fast_julia[locc] == image_iterations_fast_julia[locd];
+        }
     }
 
     @Override
     protected boolean isTheSame(int loca, int locb) {
-        return rgbs[loca] == rgbs[locb]
-                && image_iterations[loca] == image_iterations[locb];
+        if (pixelData != null) {
+            if (rgbs[loca] != rgbs[locb]) {
+                return false;
+            }
+
+            double loc_a_data = image_iterations[loca];
+            double[] loc_a_values = pixelData[loca].values;
+            for (int i = 0; i < loc_a_values.length; i++) {
+                if (loc_a_data != loc_a_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_b_values = pixelData[locb].values;
+            for (int i = 0; i < loc_b_values.length; i++) {
+                if (loc_a_data != loc_b_values[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return rgbs[loca] == rgbs[locb]
+                    && image_iterations[loca] == image_iterations[locb];
+        }
     }
 
     @Override
     protected boolean isTheSameFastJulia(int loca, int locb) {
-        return rgbs[loca] == rgbs[locb] &&
-                image_iterations_fast_julia[loca] == image_iterations_fast_julia[locb];
+        if (pixelData_fast_julia != null && pixelData_fast_julia[0].values != null) {
+            if (rgbs[loca] != rgbs[locb]) {
+                return false;
+            }
+
+            double loc_a_data = image_iterations_fast_julia[loca];
+            double[] loc_a_values = pixelData_fast_julia[loca].values;
+            for (int i = 0; i < loc_a_values.length; i++) {
+                if (loc_a_data != loc_a_values[i]) {
+                    return false;
+                }
+            }
+
+            double[] loc_b_values = pixelData_fast_julia[locb].values;
+            for (int i = 0; i < loc_b_values.length; i++) {
+                if (loc_a_data != loc_b_values[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return rgbs[loca] == rgbs[locb] &&
+                    image_iterations_fast_julia[loca] == image_iterations_fast_julia[locb];
+        }
     }
 
 }

@@ -4320,8 +4320,9 @@ public abstract class Fractal {
     }
 
     public double getStatisticWithIntensity(double result, boolean escaped) {
-        if ((escaped && statisticIncludeEscaped) || (!escaped && statisticIncludeNotEscaped)) {
-            return getStatisticInternal(result, statValue * statistic.getIntensity(), escaped);
+        double intensity = statistic.getIntensity();
+        if (intensity != 1 && ((escaped && statisticIncludeEscaped) || (!escaped && statisticIncludeNotEscaped))) {
+            return getStatisticInternal(result, statValue * intensity, escaped);
         }
         return result;
     }
