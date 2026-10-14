@@ -37,35 +37,30 @@ public class SuccessiveRefinementGuessingColorsAndIterationDataRender extends Su
     @Override
     protected boolean isTheSame(int loca, int locb, int locc, int locd) {
         if (pixelData != null) {
-            if (!(rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd])) {
+            if (rgbs[loca] != rgbs[locb] || rgbs[locb] != rgbs[locc] || rgbs[locc] != rgbs[locd]
+                    || image_iterations[loca] != image_iterations[locb] || image_iterations[locb] != image_iterations[locc] || image_iterations[locc] != image_iterations[locd]) {
                 return false;
             }
 
-            double loc_a_data = image_iterations[loca];
             double[] loc_a_values = pixelData[loca].values;
-            for (int i = 0; i < loc_a_values.length; i++) {
-                if (loc_a_data != loc_a_values[i]) {
-                    return false;
-                }
-            }
 
             double[] loc_b_values = pixelData[locb].values;
             for (int i = 0; i < loc_b_values.length; i++) {
-                if (loc_a_data != loc_b_values[i]) {
+                if (loc_a_values[i] != loc_b_values[i]) {
                     return false;
                 }
             }
 
             double[] loc_c_values = pixelData[locc].values;
             for (int i = 0; i < loc_c_values.length; i++) {
-                if (loc_a_data != loc_c_values[i]) {
+                if (loc_b_values[i] != loc_c_values[i]) {
                     return false;
                 }
             }
 
             double[] loc_d_values = pixelData[locd].values;
             for (int i = 0; i < loc_d_values.length; i++) {
-                if (loc_a_data != loc_d_values[i]) {
+                if (loc_c_values[i] != loc_d_values[i]) {
                     return false;
                 }
             }
@@ -80,35 +75,30 @@ public class SuccessiveRefinementGuessingColorsAndIterationDataRender extends Su
     @Override
     protected boolean isTheSameFastJulia(int loca, int locb, int locc, int locd) {
         if (pixelData_fast_julia != null && pixelData_fast_julia[0].values != null) {
-            if (!(rgbs[loca] == rgbs[locb] && rgbs[locb] == rgbs[locc] && rgbs[locc] == rgbs[locd])) {
+            if (rgbs[loca] != rgbs[locb] || rgbs[locb] != rgbs[locc] || rgbs[locc] != rgbs[locd]
+                    || image_iterations_fast_julia[loca] != image_iterations_fast_julia[locb] || image_iterations_fast_julia[locb] != image_iterations_fast_julia[locc] || image_iterations_fast_julia[locc] != image_iterations_fast_julia[locd]) {
                 return false;
             }
 
-            double loc_a_data = image_iterations_fast_julia[loca];
             double[] loc_a_values = pixelData_fast_julia[loca].values;
-            for (int i = 0; i < loc_a_values.length; i++) {
-                if (loc_a_data != loc_a_values[i]) {
-                    return false;
-                }
-            }
 
             double[] loc_b_values = pixelData_fast_julia[locb].values;
             for (int i = 0; i < loc_b_values.length; i++) {
-                if (loc_a_data != loc_b_values[i]) {
+                if (loc_a_values[i] != loc_b_values[i]) {
                     return false;
                 }
             }
 
             double[] loc_c_values = pixelData_fast_julia[locc].values;
             for (int i = 0; i < loc_c_values.length; i++) {
-                if (loc_a_data != loc_c_values[i]) {
+                if (loc_b_values[i] != loc_c_values[i]) {
                     return false;
                 }
             }
 
             double[] loc_d_values = pixelData_fast_julia[locd].values;
             for (int i = 0; i < loc_d_values.length; i++) {
-                if (loc_a_data != loc_d_values[i]) {
+                if (loc_c_values[i] != loc_d_values[i]) {
                     return false;
                 }
             }
@@ -123,21 +113,16 @@ public class SuccessiveRefinementGuessingColorsAndIterationDataRender extends Su
     @Override
     protected boolean isTheSame(int loca, int locb) {
         if (pixelData != null) {
-            if (rgbs[loca] != rgbs[locb]) {
+            if (rgbs[loca] != rgbs[locb] || image_iterations[loca] != image_iterations[locb]) {
                 return false;
             }
 
-            double loc_a_data = image_iterations[loca];
+
             double[] loc_a_values = pixelData[loca].values;
-            for (int i = 0; i < loc_a_values.length; i++) {
-                if (loc_a_data != loc_a_values[i]) {
-                    return false;
-                }
-            }
 
             double[] loc_b_values = pixelData[locb].values;
             for (int i = 0; i < loc_b_values.length; i++) {
-                if (loc_a_data != loc_b_values[i]) {
+                if (loc_a_values[i] != loc_b_values[i]) {
                     return false;
                 }
             }
@@ -152,21 +137,16 @@ public class SuccessiveRefinementGuessingColorsAndIterationDataRender extends Su
     @Override
     protected boolean isTheSameFastJulia(int loca, int locb) {
         if (pixelData_fast_julia != null && pixelData_fast_julia[0].values != null) {
-            if (rgbs[loca] != rgbs[locb]) {
+            if (rgbs[loca] != rgbs[locb] || image_iterations_fast_julia[loca] != image_iterations_fast_julia[locb]) {
                 return false;
             }
 
-            double loc_a_data = image_iterations_fast_julia[loca];
             double[] loc_a_values = pixelData_fast_julia[loca].values;
-            for (int i = 0; i < loc_a_values.length; i++) {
-                if (loc_a_data != loc_a_values[i]) {
-                    return false;
-                }
-            }
+
 
             double[] loc_b_values = pixelData_fast_julia[locb].values;
             for (int i = 0; i < loc_b_values.length; i++) {
-                if (loc_a_data != loc_b_values[i]) {
+                if (loc_a_values[i] != loc_b_values[i]) {
                     return false;
                 }
             }
@@ -177,5 +157,4 @@ public class SuccessiveRefinementGuessingColorsAndIterationDataRender extends Su
                     image_iterations_fast_julia[loca] == image_iterations_fast_julia[locb];
         }
     }
-
 }

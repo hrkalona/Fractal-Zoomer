@@ -40,15 +40,16 @@ public class MarianiSilverColorsAndIterationDataRender extends MarianiSilverRend
     }
 
     @Override
-    protected boolean isNotTheSame(int loc, int pixel_color, double pixel_value) {
+    protected boolean isNotTheSame(int loc, int pixel_color, double pixel_value, int pixel_loc) {
         if (pixelData != null) {
-            if(rgbs[loc] != pixel_color) {
+            if(rgbs[loc] != pixel_color || image_iterations[loc] != pixel_value) {
                 return true;
             }
 
             double[] loc_values = pixelData[loc].values;
+            double[] pixel_loc_values = pixelData[pixel_loc].values;
             for (int i = 0; i < loc_values.length; i++) {
-                if (pixel_value != loc_values[i]) {
+                if (pixel_loc_values[i] != loc_values[i]) {
                     return true;
                 }
             }
@@ -60,15 +61,16 @@ public class MarianiSilverColorsAndIterationDataRender extends MarianiSilverRend
     }
 
     @Override
-    protected boolean isNotTheSameFastJulia(int loc, int pixel_color, double pixel_value) {
+    protected boolean isNotTheSameFastJulia(int loc, int pixel_color, double pixel_value, int pixel_loc) {
         if (pixelData_fast_julia != null && pixelData_fast_julia[0].values != null) {
-            if(rgbs[loc] != pixel_color) {
+            if(rgbs[loc] != pixel_color || image_iterations_fast_julia[loc] != pixel_value) {
                 return true;
             }
 
             double[] loc_values = pixelData_fast_julia[loc].values;
+            double[] pixel_loc_values = pixelData_fast_julia[pixel_loc].values;
             for (int i = 0; i < loc_values.length; i++) {
-                if (pixel_value != loc_values[i]) {
+                if (pixel_loc_values[i] != loc_values[i]) {
                     return true;
                 }
             }
@@ -78,5 +80,4 @@ public class MarianiSilverColorsAndIterationDataRender extends MarianiSilverRend
             return rgbs[loc] != pixel_color || image_iterations_fast_julia[loc] != pixel_value;
         }
     }
-
 }

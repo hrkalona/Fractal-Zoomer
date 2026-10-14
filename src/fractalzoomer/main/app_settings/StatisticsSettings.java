@@ -287,6 +287,6 @@ public class StatisticsSettings implements Constants {
         langNormB = 1;
         rootScalingCapto1 = true;
 
-        applyIntensityDuringColoring = false;
+        applyIntensityDuringColoring = true;
     }
 }

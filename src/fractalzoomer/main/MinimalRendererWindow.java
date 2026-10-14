@@ -188,6 +188,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         TaskRender.SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS = false;
         TaskRender.GATHER_PERTURBATION_STATISTICS = true;
         TaskRender.PERTURBATION_THEORY = true;
+        TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
 
         int procs = Runtime.getRuntime().availableProcessors();
         if (cliBatchMode && cliBatchThreads > 0) {

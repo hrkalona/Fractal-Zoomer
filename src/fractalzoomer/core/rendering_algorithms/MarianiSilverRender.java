@@ -236,6 +236,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         int temp_starting_pixel_color;
         double temp_starting_value;
         boolean temp_starting_escaped;
+        int temp_starting_pixel;
 
         int skippedColor;
 
@@ -264,6 +265,7 @@ public class MarianiSilverRender extends QueueBasedRender {
 
             loc = y * image_width + x;
 
+            temp_starting_pixel = loc;
             temp_starting_value = image_iterations[loc];
             temp_starting_pixel_color = rgbs[loc];
             temp_starting_escaped = escaped[loc];
@@ -272,26 +274,26 @@ public class MarianiSilverRender extends QueueBasedRender {
             int same_count = 0;
             for (loc = slice_FROMy * image_width + x, loc2 = slice_TOy * image_width + x; x <= slice_TOx; x++, loc++, loc2++) {
                 if(PERIMETER_ACCURACY == 1) {
-                    if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                    if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                         whole_area = false;
                         break;
                     }
                 }
                 else {
-                    same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                    same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                 }
             }
 
             if (whole_area) {
                 for (y = slice_FROMyp1, loc = y * image_width + slice_FROMx, loc2 = y * image_width + slice_TOx; y <= slice_TOy - 1; y++, loc += image_width, loc2 += image_width) {
                     if(PERIMETER_ACCURACY == 1) {
-                        if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                        if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                             whole_area = false;
                             break;
                         }
                     }
                     else {
-                        same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                        same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                     }
                 }
             }
@@ -1346,6 +1348,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         int temp_starting_pixel_color;
         double temp_starting_value;
         boolean temp_starting_escaped;
+        int temp_starting_pixel;
         PixelExtraData temp_starting_pixel_extra_data = null;
 
         int skippedColor;
@@ -1377,6 +1380,8 @@ public class MarianiSilverRender extends QueueBasedRender {
             temp_starting_value = image_iterations[loc];
             temp_starting_pixel_color = rgbs[loc];
             temp_starting_escaped = escaped[loc];
+            temp_starting_pixel = loc;
+
             if(storeExtraData) {
                 temp_starting_pixel_extra_data = pixelData[loc];
             }
@@ -1385,26 +1390,26 @@ public class MarianiSilverRender extends QueueBasedRender {
             int same_count = 0;
             for (loc = slice_FROMy * image_width + x, loc2 = slice_TOy * image_width + x; x <= slice_TOx; x++, loc++, loc2++) {
                 if(PERIMETER_ACCURACY == 1) {
-                    if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                    if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                         whole_area = false;
                         break;
                     }
                 }
                 else {
-                    same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                    same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                 }
             }
 
             if (whole_area) {
                 for (y = slice_FROMyp1, loc = y * image_width + slice_FROMx, loc2 = y * image_width + slice_TOx; y <= slice_TOy - 1; y++, loc += image_width, loc2 += image_width) {
                     if(PERIMETER_ACCURACY == 1) {
-                        if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                        if (isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                             whole_area = false;
                             break;
                         }
                     }
                     else {
-                        same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                        same_count += (!isNotTheSame(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSame(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                     }
                 }
             }
@@ -1624,6 +1629,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         int temp_starting_pixel_color;
         double temp_starting_value;
         boolean temp_starting_escaped;
+        int temp_starting_pixel;
 
         int skippedColor;
 
@@ -1654,31 +1660,32 @@ public class MarianiSilverRender extends QueueBasedRender {
             temp_starting_value = image_iterations_fast_julia[loc];
             temp_starting_pixel_color = rgbs[loc];
             temp_starting_escaped = escaped_fast_julia[loc];
+            temp_starting_pixel = loc;
 
             int loc2;
             int same_count = 0;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
                 if(PERIMETER_ACCURACY == 1) {
-                    if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                    if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                         whole_area = false;
                         break;
                     }
                 }
                 else {
-                    same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                    same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                 }
             }
 
             if (whole_area) {
                 for (y = slice_FROMyp1, loc = y * image_size + slice_FROMx, loc2 = y * image_size + slice_TOx; y <= slice_TOy - 1; y++, loc += image_size, loc2 += image_size) {
                     if(PERIMETER_ACCURACY == 1) {
-                        if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                        if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                             whole_area = false;
                             break;
                         }
                     }
                     else {
-                        same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                        same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                     }
                 }
             }
@@ -1968,6 +1975,7 @@ public class MarianiSilverRender extends QueueBasedRender {
         double temp_starting_value;
         boolean temp_starting_escaped;
         PixelExtraData temp_starting_pixel_extra_data = null;
+        int temp_starting_pixel;
 
         int skippedColor;
 
@@ -1998,6 +2006,7 @@ public class MarianiSilverRender extends QueueBasedRender {
             temp_starting_value = image_iterations_fast_julia[loc];
             temp_starting_pixel_color = rgbs[loc];
             temp_starting_escaped = escaped_fast_julia[loc];
+            temp_starting_pixel = loc;
             if(storeExtraData) {
                 temp_starting_pixel_extra_data = pixelData_fast_julia[loc];
             }
@@ -2006,26 +2015,26 @@ public class MarianiSilverRender extends QueueBasedRender {
             int same_count = 0;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
                 if(PERIMETER_ACCURACY == 1) {
-                    if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                    if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                         whole_area = false;
                         break;
                     }
                 }
                 else {
-                    same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                    same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                 }
             }
 
             if (whole_area) {
                 for (y = slice_FROMyp1, loc = y * image_size + slice_FROMx, loc2 = y * image_size + slice_TOx; y <= slice_TOy - 1; y++, loc += image_size, loc2 += image_size) {
                     if(PERIMETER_ACCURACY == 1) {
-                        if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value)) {
+                        if (isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) || isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel)) {
                             whole_area = false;
                             break;
                         }
                     }
                     else {
-                        same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value) ? 1 : 0);
+                        same_count += (!isNotTheSameFastJulia(loc, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0) + (!isNotTheSameFastJulia(loc2, temp_starting_pixel_color, temp_starting_value, temp_starting_pixel) ? 1 : 0);
                     }
                 }
             }
@@ -2076,11 +2085,11 @@ public class MarianiSilverRender extends QueueBasedRender {
 
     }
 
-    protected boolean isNotTheSame(int loc, int pixel_color, double pixel_value) {
+    protected boolean isNotTheSame(int loc, int pixel_color, double pixel_value, int pixel_loc) {
         return rgbs[loc] != pixel_color;
     }
 
-    protected boolean isNotTheSameFastJulia(int loc, int pixel_color, double pixel_value) {
+    protected boolean isNotTheSameFastJulia(int loc, int pixel_color, double pixel_value, int pixel_loc) {
         return rgbs[loc] != pixel_color;
     }
 
