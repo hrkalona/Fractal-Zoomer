@@ -742,6 +742,11 @@ public class BigNumComplex extends GenericComplex {
     }
 
     @Override
+    public BigNumComplex divide2() {
+        return new BigNumComplex(re.divide2(), im.divide2());
+    }
+
+    @Override
     public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this);}
 
     @Override

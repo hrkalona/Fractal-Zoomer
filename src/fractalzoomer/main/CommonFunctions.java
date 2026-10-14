@@ -121,7 +121,7 @@ public class CommonFunctions implements Constants {
         return new Object[]{0, ""};
     }
 
-    public boolean copyLib() {
+    public boolean copyLib(boolean quiet) {
 
         if (!Platform.isWindows()) {
             return true;
@@ -145,13 +145,17 @@ public class CommonFunctions implements Constants {
                         InputStream src = getClass().getResourceAsStream("/fractalzoomer/lib/tools.jar");
                         Files.copy(src, filePath);
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to " + path + "\nMake sure you run this application as an Administrator.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        if (!quiet) {
+                            JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to " + path + "\nMake sure you run this application as an Administrator.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        }
                         return false;
                     }
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to the JRE lib folder.\nThe JRE installation path was not found.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
+            if (!quiet) {
+                JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to the JRE lib folder.\nThe JRE installation path was not found.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
+            }
             return false;
         }
 

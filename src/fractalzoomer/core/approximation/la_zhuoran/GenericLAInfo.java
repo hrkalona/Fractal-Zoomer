@@ -188,9 +188,7 @@ public abstract class GenericLAInfo {
     protected abstract boolean isLAThresholdZero();
     protected abstract boolean isZCoeffZero();
     protected abstract boolean DetectDip(Complex z);
-    protected abstract boolean Stage0DetectDip(Complex z);
     protected abstract boolean DetectDip(MantExpComplex z);
-    protected abstract boolean Stage0DetectDip(MantExpComplex z);
 
     protected boolean DetectDip(GenericComplex z) {
         if(z instanceof  Complex) {

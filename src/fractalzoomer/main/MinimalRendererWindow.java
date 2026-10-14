@@ -41,11 +41,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static fractalzoomer.gui.CpuLabel.CPU_DELAY;
@@ -154,6 +156,13 @@ public class MinimalRendererWindow extends JFrame implements Constants {
     private long imageWriteTime;
     private long writeExtraSequenceFilesTime;
 
+    public static boolean cliBatchMode = false;
+    public static String cliBatchDirectory = ".";
+    public static int cliBatchImageWidth = 1024;
+    public static int cliBatchImageHeight = 768;
+    public static int cliBatchThreads = 0;
+    public static String cliOutputDir = ".";
+
     public MinimalRendererWindow() {
         super();
 
@@ -177,8 +186,15 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         TaskRender.USE_NON_BLOCKING_RENDERING = false;
         TaskRender.GREEDY_ALGORITHM_SELECTION = SUCCESSIVE_REFINEMENT;
         TaskRender.SUCCESSIVE_REFINEMENT_FILL_UNKNOWN_AREAS = false;
+        TaskRender.GATHER_PERTURBATION_STATISTICS = true;
+        TaskRender.PERTURBATION_THEORY = true;
+        TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
 
         int procs = Runtime.getRuntime().availableProcessors();
+        if (cliBatchMode && cliBatchThreads > 0) {
+            procs = cliBatchThreads;
+        }
+
         ArrayList<Integer> factors = CommonFunctions.getAllFactors(procs);
         int index = factors.size() / 2 - 1;
         m = factors.get(index);
@@ -192,250 +208,12 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         periodicity_checking = false;
 
-        Locale.setDefault(Locale.US);
-
-        image_width = 1000;
-        image_height = 1000;
-        setSize(615, 605);
-        setTitle(TITLE);
-
-        loadPreferences();
-
-        previewPanel = new JPanel() {
-            @Override
-            public void paintComponent(Graphics g) {
-
-                super.paintComponent(g);
-
-                Graphics2D g2d = ((Graphics2D)g);
-                //if(ptr.getOrbit()) {
-                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                //}
-                g.drawImage(preview_image, 0, 0, null);
-
-            }
-        };
-
-        previewFrame = new JDialog();
-        previewFrame.setTitle(PREVIEW_TITLE);
-        previewFrame.setContentPane(previewPanel);
-        previewFrame.setResizable(false);
-        previewFrame.setIconImage(MainWindow.getIcon("mandelMinimalRenderer.png").getImage());
-        previewFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        previewFrame.addWindowListener(new WindowAdapter() {
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-
-
-
-            }
-        });
-
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        // Get the current screen size
-        Dimension scrnsize = toolkit.getScreenSize();
-
-        if(scrnsize.getHeight() > getHeight()) {
-            setLocation((int)((scrnsize.getWidth() / 2.0) - (getWidth() / 2.0)), (int)((scrnsize.getHeight() / 2.0) - (getHeight() / 2.0)) - 23);
-        }
-        else {
-            setLocation((int)((scrnsize.getWidth() / 2.0) - (getWidth() / 2.0)), 0);
-        }
-
-        setResizable(false);
-
-        JPanel main_panel = new JPanel();
-        main_panel.setLayout(new GridLayout(10, 1));
-        main_panel.setBackground(Constants.bg_color);
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        addWindowListener(new WindowAdapter() {
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-
-                exit(0);
-
-            }
-        });
-
-        setIconImage(MainWindow.getIcon("mandelMinimalRenderer.png").getImage());
-
-        settings_label = new JLabel("");
-        settings_label.setIcon(MainWindow.getIcon("checkmark.png"));
-        settings_label.setVisible(false);
-        settings_label.setPreferredSize(new Dimension(380, 32));
-
-        overviewButton = new MyButton("", MainWindow.getIcon("overview.png"));
-        overviewButton.setFocusable(false);
-        overviewButton.setToolTipText("Creates a report of all the active fractal options.");
-        overviewButton.setVisible(false);
-        overviewButton.addActionListener(e -> overview());
-
-        metricsButton = new MyButton("", MainWindow.getIcon("chart.png"));
-        metricsButton.setFocusable(false);
-        metricsButton.setToolTipText("Displays some time-series metrics.");
-        metricsButton.addActionListener(e -> Metrics());
-
-        statsButton = new MyButton("", MainWindow.getIcon("stats.png"));
-        statsButton.setFocusable(false);
-        statsButton.setToolTipText("Displays the statistics of last rendered fractal.");
-        statsButton.setEnabled(false);
-        statsButton.addActionListener(e -> Stats());
-
-        taskStatsButton = new MyButton("", MainWindow.getIcon("stats_tasks.png"));
-        taskStatsButton.setFocusable(false);
-        taskStatsButton.setToolTipText("Displays the task statistics of last rendered fractal.");
-        taskStatsButton.addActionListener(e -> TaskStats());
-        taskStatsButton.setEnabled(false);
-
-        multipleRendersTrendButton = new MyButton("", MainWindow.getIcon("line_chart.png"));
-        multipleRendersTrendButton.setFocusable(false);
-        multipleRendersTrendButton.setToolTipText("Displays a trend of some statistics.");
-        multipleRendersTrendButton.addActionListener(e -> TrendStats());
-        multipleRendersTrendButton.setEnabled(false);
-
-        JPanel p1 = new JPanel();
-        p1.setBackground(Constants.bg_color);
-        p1.add(settings_label);
-        p1.add(overviewButton);
-
-        stopRenderButton = new MyButton("");
-        stopRenderButton.setIcon(MainWindow.getIcon("abort.png"));
-        stopRenderButton.setFocusable(false);
-        stopRenderButton.setEnabled(false);
-        stopRenderButton.setToolTipText("Stops the render.");
-        stopRenderButton.addActionListener(e -> {
-            stopped = true;
-            stopRenderButton.setEnabled(false);
-        });
-
-        JPanel p10 = new JPanel(new FlowLayout());
-        p10.setBackground(Constants.bg_color);
-        p10.add(statsButton);
-        p10.add(taskStatsButton);
-        p10.add(stopRenderButton);
-        p10.add(multipleRendersTrendButton);
-        p10.add(metricsButton);
-
-        Dimension buttonDimension = new Dimension(220, 32);
-
-        loadButton = new MyButton("Load", MainWindow.getIcon("load.png"));
-        loadButton.setFocusable(false);
-        loadButton.setPreferredSize(buttonDimension);
-        loadButton.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
-
-        loadButton.addActionListener(e -> loadSettings());
-
-        batchRenderButton = new MyButton("Batch Render", MainWindow.getIcon("batch_render.png"));
-        batchRenderButton.setFocusable(false);
-        batchRenderButton.setPreferredSize(buttonDimension);
-        batchRenderButton.setToolTipText("Renders a batch of parameters.");
-
-        batchRenderButton.addActionListener(e -> batchRender());
-
-        sequenceRenderButton = new MyButton("Zoom Sequence Render", MainWindow.getIcon("sequence.png"));
-        sequenceRenderButton.setFocusable(false);
-        sequenceRenderButton.setPreferredSize(buttonDimension);
-        sequenceRenderButton.setToolTipText("Renders a zoom sequence.");
-        sequenceRenderButton.setEnabled(false);
-        sequenceRenderButton.addActionListener(e -> sequenceRender());
-
-
-        imageSizeButton = new MyButton("Image Size", MainWindow.getIcon("image_size.png"));
-        imageSizeButton.setFocusable(false);
-        imageSizeButton.setPreferredSize(buttonDimension);
-        imageSizeButton.setToolTipText("Sets the image size.");
-
-        imageSizeButton.addActionListener(e -> setSizeOfImage());
-
-
-        threadsButton = new MyButton("Threads", MainWindow.getIcon("threads.png"));
-        threadsButton.setFocusable(false);
-        threadsButton.setPreferredSize(buttonDimension);
-        threadsButton.setToolTipText("Sets the number of parallel rendering threads.");
-
-        threadsButton.addActionListener(e -> setThreadsNumber());
-
-
-
-        renderingAlgorithmsButton = new MyButton("Rendering Algorithms", MainWindow.getIcon("rendering_algorithm.png"));
-        renderingAlgorithmsButton.setFocusable(false);
-        renderingAlgorithmsButton.setPreferredSize(buttonDimension);
-        renderingAlgorithmsButton.setToolTipText("Sets the rendering algorithms options.");
-
-        renderingAlgorithmsButton.addActionListener(e -> setRenderingAlgorithms());
-
-
-        renderButton = new MyButton("Render Image", MainWindow.getIcon("save_image.png"));
-        renderButton.setFocusable(false);
-        renderButton.setEnabled(false);
-        renderButton.setPreferredSize(buttonDimension);
-        renderButton.setToolTipText("Renders the image and saves it to disk.");
-
-        renderButton.addActionListener(e -> {
-            startGlobalTimer();
-            Location.offset = new PixelOffset();
-            render();
-        });
-
-        polarLargeRenderButton = new MyButton("Large Polar Image", MainWindow.getIcon("polar_projection.png"));
-        polarLargeRenderButton.setFocusable(false);
-        polarLargeRenderButton.setEnabled(false);
-        polarLargeRenderButton.setPreferredSize(buttonDimension);
-        polarLargeRenderButton.setToolTipText("Renders a large polar projection image and saves it to disk.");
-
-        polarLargeRenderButton.addActionListener(e -> polarLargeRender());
-
-        splitImageRenderButton = new MyButton("Split Image Render", MainWindow.getIcon("split_image.png"));
-        splitImageRenderButton.setFocusable(false);
-        splitImageRenderButton.setEnabled(false);
-        splitImageRenderButton.setPreferredSize(buttonDimension);
-        splitImageRenderButton.setToolTipText("Renders a grid of images.");
-
-        splitImageRenderButton.addActionListener(e -> splitImageRender());
-
-        perturbationTheoryButton = new MyButton("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
-        perturbationTheoryButton.setFocusable(false);
-        perturbationTheoryButton.setPreferredSize(buttonDimension);
-        perturbationTheoryButton.setToolTipText("Sets the perturbation theory settings.");
-
-        perturbationTheoryButton.addActionListener(e -> setPerturbationTheory());
-
-        outputDirectoryButton = new MyButton("Output Directory");
-        outputDirectoryButton.setIcon(MainWindow.getIcon("output_directory.png"));
-        outputDirectoryButton.setFocusable(false);
-        outputDirectoryButton.setPreferredSize(buttonDimension);
-        outputDirectoryButton.setToolTipText("Set the output directory.");
-
-
-        outputDirectoryButton.addActionListener(e -> setOutputDirectory());
-
-
-        compileButton = new MyButton("Compile User Code", MainWindow.getIcon("compile.png"));
-        compileButton.setFocusable(false);
-        compileButton.setPreferredSize(buttonDimension);
-        compileButton.setToolTipText("Compiles the java code, containing the user defined functions.");
-
-        compileButton.addActionListener(e -> common.compileCode(true));
-
-        aboutButton = new MyButton("About", MainWindow.getIcon("about.png"));
-        aboutButton.setFocusable(false);
-        aboutButton.setPreferredSize(buttonDimension);
-
-        aboutButton.addActionListener(e -> displayAboutInfo());
-
-        helpButton = new MyButton("Help", MainWindow.getIcon("help.png"));
-        helpButton.setFocusable(false);
-        helpButton.setPreferredSize(buttonDimension);
-
-        helpButton.addActionListener(e -> displayHelp());
+        common = new CommonFunctions(ptr);
 
         progress = new JProgressBar();
         progress.setPreferredSize(new Dimension(445, 22));
         progress.setMaximumSize(progress.getPreferredSize());
-        if(MainWindow.useCustomLaf) {
+        if (MainWindow.useCustomLaf) {
             progress.setFont(new Font("Arial", Font.PLAIN, 11));
         }
         //progress.setMinimumSize(progress.getPreferredSize());
@@ -445,119 +223,360 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         progress.setVisible(false);
 
+        if (!cliBatchMode) {
+            Locale.setDefault(Locale.US);
 
-        totalprogress = new JProgressBar();
-        totalprogress.setPreferredSize(new Dimension(445, 22));
-        if(MainWindow.useCustomLaf) {
-            totalprogress.setFont(new Font("Arial", Font.PLAIN, 11));
+            image_width = 1000;
+            image_height = 1000;
+            setSize(615, 605);
+            setTitle(TITLE);
+
+            loadPreferences();
+
+            previewPanel = new JPanel() {
+                @Override
+                public void paintComponent(Graphics g) {
+
+                    super.paintComponent(g);
+
+                    Graphics2D g2d = ((Graphics2D) g);
+                    //if(ptr.getOrbit()) {
+                    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    //}
+                    g.drawImage(preview_image, 0, 0, null);
+
+                }
+            };
+
+            previewFrame = new JDialog();
+            previewFrame.setTitle(PREVIEW_TITLE);
+            previewFrame.setContentPane(previewPanel);
+            previewFrame.setResizable(false);
+            previewFrame.setIconImage(MainWindow.getIcon("mandelMinimalRenderer.png").getImage());
+            previewFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            previewFrame.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosing(WindowEvent e) {
+
+
+                }
+            });
+
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            // Get the current screen size
+            Dimension scrnsize = toolkit.getScreenSize();
+
+            if (scrnsize.getHeight() > getHeight()) {
+                setLocation((int) ((scrnsize.getWidth() / 2.0) - (getWidth() / 2.0)), (int) ((scrnsize.getHeight() / 2.0) - (getHeight() / 2.0)) - 23);
+            } else {
+                setLocation((int) ((scrnsize.getWidth() / 2.0) - (getWidth() / 2.0)), 0);
+            }
+
+            setResizable(false);
+
+            JPanel main_panel = new JPanel();
+            main_panel.setLayout(new GridLayout(10, 1));
+            main_panel.setBackground(Constants.bg_color);
+            setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+            addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosing(WindowEvent e) {
+
+                    exit(0);
+
+                }
+            });
+
+            setIconImage(MainWindow.getIcon("mandelMinimalRenderer.png").getImage());
+
+            settings_label = new JLabel("");
+            settings_label.setIcon(MainWindow.getIcon("checkmark.png"));
+            settings_label.setVisible(false);
+            settings_label.setPreferredSize(new Dimension(380, 32));
+
+            overviewButton = new MyButton("", MainWindow.getIcon("overview.png"));
+            overviewButton.setFocusable(false);
+            overviewButton.setToolTipText("Creates a report of all the active fractal options.");
+            overviewButton.setVisible(false);
+            overviewButton.addActionListener(e -> overview());
+
+            metricsButton = new MyButton("", MainWindow.getIcon("chart.png"));
+            metricsButton.setFocusable(false);
+            metricsButton.setToolTipText("Displays some time-series metrics.");
+            metricsButton.addActionListener(e -> Metrics());
+
+            statsButton = new MyButton("", MainWindow.getIcon("stats.png"));
+            statsButton.setFocusable(false);
+            statsButton.setToolTipText("Displays the statistics of last rendered fractal.");
+            statsButton.setEnabled(false);
+            statsButton.addActionListener(e -> Stats());
+
+            taskStatsButton = new MyButton("", MainWindow.getIcon("stats_tasks.png"));
+            taskStatsButton.setFocusable(false);
+            taskStatsButton.setToolTipText("Displays the task statistics of last rendered fractal.");
+            taskStatsButton.addActionListener(e -> TaskStats());
+            taskStatsButton.setEnabled(false);
+
+            multipleRendersTrendButton = new MyButton("", MainWindow.getIcon("line_chart.png"));
+            multipleRendersTrendButton.setFocusable(false);
+            multipleRendersTrendButton.setToolTipText("Displays a trend of some statistics.");
+            multipleRendersTrendButton.addActionListener(e -> TrendStats());
+            multipleRendersTrendButton.setEnabled(false);
+
+            JPanel p1 = new JPanel();
+            p1.setBackground(Constants.bg_color);
+            p1.add(settings_label);
+            p1.add(overviewButton);
+
+            stopRenderButton = new MyButton("");
+            stopRenderButton.setIcon(MainWindow.getIcon("abort.png"));
+            stopRenderButton.setFocusable(false);
+            stopRenderButton.setEnabled(false);
+            stopRenderButton.setToolTipText("Stops the render.");
+            stopRenderButton.addActionListener(e -> {
+                stopped = true;
+                stopRenderButton.setEnabled(false);
+            });
+
+            JPanel p10 = new JPanel(new FlowLayout());
+            p10.setBackground(Constants.bg_color);
+            p10.add(statsButton);
+            p10.add(taskStatsButton);
+            p10.add(stopRenderButton);
+            p10.add(multipleRendersTrendButton);
+            p10.add(metricsButton);
+
+            Dimension buttonDimension = new Dimension(220, 32);
+
+            loadButton = new MyButton("Load", MainWindow.getIcon("load.png"));
+            loadButton.setFocusable(false);
+            loadButton.setPreferredSize(buttonDimension);
+            loadButton.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
+
+            loadButton.addActionListener(e -> loadSettings());
+
+            batchRenderButton = new MyButton("Batch Render", MainWindow.getIcon("batch_render.png"));
+            batchRenderButton.setFocusable(false);
+            batchRenderButton.setPreferredSize(buttonDimension);
+            batchRenderButton.setToolTipText("Renders a batch of parameters.");
+
+            batchRenderButton.addActionListener(e -> batchRender());
+
+            sequenceRenderButton = new MyButton("Zoom Sequence Render", MainWindow.getIcon("sequence.png"));
+            sequenceRenderButton.setFocusable(false);
+            sequenceRenderButton.setPreferredSize(buttonDimension);
+            sequenceRenderButton.setToolTipText("Renders a zoom sequence.");
+            sequenceRenderButton.setEnabled(false);
+            sequenceRenderButton.addActionListener(e -> sequenceRender());
+
+
+            imageSizeButton = new MyButton("Image Size", MainWindow.getIcon("image_size.png"));
+            imageSizeButton.setFocusable(false);
+            imageSizeButton.setPreferredSize(buttonDimension);
+            imageSizeButton.setToolTipText("Sets the image size.");
+
+            imageSizeButton.addActionListener(e -> setSizeOfImage());
+
+
+            threadsButton = new MyButton("Threads", MainWindow.getIcon("threads.png"));
+            threadsButton.setFocusable(false);
+            threadsButton.setPreferredSize(buttonDimension);
+            threadsButton.setToolTipText("Sets the number of parallel rendering threads.");
+
+            threadsButton.addActionListener(e -> setThreadsNumber());
+
+
+            renderingAlgorithmsButton = new MyButton("Rendering Algorithms", MainWindow.getIcon("rendering_algorithm.png"));
+            renderingAlgorithmsButton.setFocusable(false);
+            renderingAlgorithmsButton.setPreferredSize(buttonDimension);
+            renderingAlgorithmsButton.setToolTipText("Sets the rendering algorithms options.");
+
+            renderingAlgorithmsButton.addActionListener(e -> setRenderingAlgorithms());
+
+
+            renderButton = new MyButton("Render Image", MainWindow.getIcon("save_image.png"));
+            renderButton.setFocusable(false);
+            renderButton.setEnabled(false);
+            renderButton.setPreferredSize(buttonDimension);
+            renderButton.setToolTipText("Renders the image and saves it to disk.");
+
+            renderButton.addActionListener(e -> {
+                startGlobalTimer();
+                Location.offset = new PixelOffset();
+                render();
+            });
+
+            polarLargeRenderButton = new MyButton("Large Polar Image", MainWindow.getIcon("polar_projection.png"));
+            polarLargeRenderButton.setFocusable(false);
+            polarLargeRenderButton.setEnabled(false);
+            polarLargeRenderButton.setPreferredSize(buttonDimension);
+            polarLargeRenderButton.setToolTipText("Renders a large polar projection image and saves it to disk.");
+
+            polarLargeRenderButton.addActionListener(e -> polarLargeRender());
+
+            splitImageRenderButton = new MyButton("Split Image Render", MainWindow.getIcon("split_image.png"));
+            splitImageRenderButton.setFocusable(false);
+            splitImageRenderButton.setEnabled(false);
+            splitImageRenderButton.setPreferredSize(buttonDimension);
+            splitImageRenderButton.setToolTipText("Renders a grid of images.");
+
+            splitImageRenderButton.addActionListener(e -> splitImageRender());
+
+            perturbationTheoryButton = new MyButton("Perturbation Theory", MainWindow.getIcon("perturbation.png"));
+            perturbationTheoryButton.setFocusable(false);
+            perturbationTheoryButton.setPreferredSize(buttonDimension);
+            perturbationTheoryButton.setToolTipText("Sets the perturbation theory settings.");
+
+            perturbationTheoryButton.addActionListener(e -> setPerturbationTheory());
+
+            outputDirectoryButton = new MyButton("Output Directory");
+            outputDirectoryButton.setIcon(MainWindow.getIcon("output_directory.png"));
+            outputDirectoryButton.setFocusable(false);
+            outputDirectoryButton.setPreferredSize(buttonDimension);
+            outputDirectoryButton.setToolTipText("Set the output directory.");
+
+
+            outputDirectoryButton.addActionListener(e -> setOutputDirectory());
+
+
+            compileButton = new MyButton("Compile User Code", MainWindow.getIcon("compile.png"));
+            compileButton.setFocusable(false);
+            compileButton.setPreferredSize(buttonDimension);
+            compileButton.setToolTipText("Compiles the java code, containing the user defined functions.");
+
+            compileButton.addActionListener(e -> common.compileCode(true));
+
+            aboutButton = new MyButton("About", MainWindow.getIcon("about.png"));
+            aboutButton.setFocusable(false);
+            aboutButton.setPreferredSize(buttonDimension);
+
+            aboutButton.addActionListener(e -> displayAboutInfo());
+
+            helpButton = new MyButton("Help", MainWindow.getIcon("help.png"));
+            helpButton.setFocusable(false);
+            helpButton.setPreferredSize(buttonDimension);
+
+            helpButton.addActionListener(e -> displayHelp());
+
+
+            totalprogress = new JProgressBar();
+            totalprogress.setPreferredSize(new Dimension(445, 22));
+            if (MainWindow.useCustomLaf) {
+                totalprogress.setFont(new Font("Arial", Font.PLAIN, 11));
+            }
+            totalprogress.setMaximumSize(progress.getPreferredSize());
+            //progress.setMinimumSize(progress.getPreferredSize());
+            totalprogress.setStringPainted(true);
+            totalprogress.setForeground(Constants.progress_filters_color);
+            totalprogress.setValue(0);
+
+            totalprogress.setVisible(false);
+
+            memory_label = new MemoryLabel(220, 20);
+            memory_label.setVisible(false);
+            cpuLabel = new CpuLabel(220, 20);
+            cpuLabel.setVisible(false);
+
+            JPanel stats = new JPanel();
+            stats.setBackground(Constants.bg_color);
+            stats.add(memory_label);
+            stats.add(cpuLabel);
+
+            JPanel p2 = new JPanel();
+            p2.setBackground(Constants.bg_color);
+            p2.add(loadButton);
+            p2.add(outputDirectoryButton);
+
+            JPanel p3 = new JPanel();
+            p3.setBackground(Constants.bg_color);
+            p3.add(compileButton);
+            p3.add(threadsButton);
+
+            JPanel p7 = new JPanel();
+            p7.setBackground(Constants.bg_color);
+            p7.add(renderingAlgorithmsButton);
+            p7.add(perturbationTheoryButton);
+
+            JPanel p6 = new JPanel();
+            p6.setBackground(Constants.bg_color);
+            p6.add(imageSizeButton);
+            p6.add(batchRenderButton);
+
+
+            JPanel p4 = new JPanel();
+            p4.setBackground(Constants.bg_color);
+            p4.add(sequenceRenderButton);
+            p4.add(renderButton);
+
+            JPanel p8 = new JPanel();
+            p8.setBackground(Constants.bg_color);
+            p8.add(polarLargeRenderButton);
+            p8.add(splitImageRenderButton);
+
+            JPanel p5 = new JPanel();
+            p5.setBackground(Constants.bg_color);
+            p5.add(helpButton);
+            p5.add(aboutButton);
+
+            main_panel.add(p10);
+            main_panel.add(p1);
+            main_panel.add(p2);
+            main_panel.add(p3);
+            main_panel.add(p7);
+            main_panel.add(p6);
+            main_panel.add(p4);
+            main_panel.add(p8);
+            main_panel.add(p5);
+            main_panel.add(stats);
+
+            JPanel overallProgressPanel = new JPanel();
+            overallProgressPanel.setBackground(Constants.bg_color);
+            overallProgressPanel.add(totalprogress);
+
+            JPanel singleProgressPanel = new JPanel();
+            singleProgressPanel.setBackground(Constants.bg_color);
+            singleProgressPanel.add(progress);
+
+            RoundedPanel round_panel = LAFManager.createRoundedPanel();
+            round_panel.setBackground(Constants.bg_color);
+            round_panel.setPreferredSize(new Dimension(540, 530));
+            round_panel.setLayout(new GridBagLayout());
+
+            GridBagConstraints con = new GridBagConstraints();
+
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 0;
+            con.gridy = 0;
+
+            round_panel.add(main_panel, con);
+
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 0;
+            con.gridy = 1;
+
+            round_panel.add(singleProgressPanel, con);
+
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 0;
+            con.gridy = 2;
+
+            round_panel.add(overallProgressPanel, con);
+
+            setLayout(new GridBagLayout());
+            con.fill = GridBagConstraints.CENTER;
+            con.gridx = 0;
+            con.gridy = 0;
+            add(round_panel, con);
+
+            repaint();
+        } else {
+            image_width = cliBatchImageWidth;
+            image_height = cliBatchImageHeight;
+            outputDirectory = cliOutputDir;
         }
-        totalprogress.setMaximumSize(progress.getPreferredSize());
-        //progress.setMinimumSize(progress.getPreferredSize());
-        totalprogress.setStringPainted(true);
-        totalprogress.setForeground(Constants.progress_filters_color);
-        totalprogress.setValue(0);
-
-        totalprogress.setVisible(false);
-
-        memory_label = new MemoryLabel(220, 20);
-        memory_label.setVisible(false);
-        cpuLabel = new CpuLabel(220, 20);
-        cpuLabel.setVisible(false);
-
-        JPanel stats = new JPanel();
-        stats.setBackground(Constants.bg_color);
-        stats.add(memory_label);
-        stats.add(cpuLabel);
-
-        JPanel p2 = new JPanel();
-        p2.setBackground(Constants.bg_color);
-        p2.add(loadButton);
-        p2.add(outputDirectoryButton);
-
-        JPanel p3 = new JPanel();
-        p3.setBackground(Constants.bg_color);
-        p3.add(compileButton);
-        p3.add(threadsButton);
-
-        JPanel p7 = new JPanel();
-        p7.setBackground(Constants.bg_color);
-        p7.add(renderingAlgorithmsButton);
-        p7.add(perturbationTheoryButton);
-
-        JPanel p6 = new JPanel();
-        p6.setBackground(Constants.bg_color);
-        p6.add(imageSizeButton);
-        p6.add(batchRenderButton);
-
-
-        JPanel p4 = new JPanel();
-        p4.setBackground(Constants.bg_color);
-        p4.add(sequenceRenderButton);
-        p4.add(renderButton);
-
-        JPanel p8 = new JPanel();
-        p8.setBackground(Constants.bg_color);
-        p8.add(polarLargeRenderButton);
-        p8.add(splitImageRenderButton);
-
-        JPanel p5 = new JPanel();
-        p5.setBackground(Constants.bg_color);
-        p5.add(helpButton);
-        p5.add(aboutButton);
-
-        main_panel.add(p10);
-        main_panel.add(p1);
-        main_panel.add(p2);
-        main_panel.add(p3);
-        main_panel.add(p7);
-        main_panel.add(p6);
-        main_panel.add(p4);
-        main_panel.add(p8);
-        main_panel.add(p5);
-        main_panel.add(stats);
-
-        JPanel overallProgressPanel = new JPanel();
-        overallProgressPanel.setBackground(Constants.bg_color);
-        overallProgressPanel.add(totalprogress);
-
-        JPanel singleProgressPanel = new JPanel();
-        singleProgressPanel.setBackground(Constants.bg_color);
-        singleProgressPanel.add(progress);
-
-        RoundedPanel round_panel = LAFManager.createRoundedPanel();
-        round_panel.setBackground(Constants.bg_color);
-        round_panel.setPreferredSize(new Dimension(540, 530));
-        round_panel.setLayout(new GridBagLayout());
-
-        GridBagConstraints con = new GridBagConstraints();
-
-        con.fill = GridBagConstraints.CENTER;
-        con.gridx = 0;
-        con.gridy = 0;
-
-        round_panel.add(main_panel, con);
-
-        con.fill = GridBagConstraints.CENTER;
-        con.gridx = 0;
-        con.gridy = 1;
-
-        round_panel.add(singleProgressPanel, con);
-
-        con.fill = GridBagConstraints.CENTER;
-        con.gridx = 0;
-        con.gridy = 2;
-
-        round_panel.add(overallProgressPanel, con);
-
-        setLayout(new GridBagLayout());
-        con.fill = GridBagConstraints.CENTER;
-        con.gridx = 0;
-        con.gridy = 0;
-        add(round_panel, con);
-
-        common = new CommonFunctions(ptr);
-
-        repaint();
 
     }
 
@@ -578,9 +597,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             batchRenderButton.setEnabled(opt);
             sequenceRenderButton.setEnabled(opt);
             outputDirectoryButton.setEnabled(opt);
-            if(s.polar_projection) {
-                polarLargeRenderButton.setEnabled(opt);
-            }
+            polarLargeRenderButton.setEnabled(opt);
             splitImageRenderButton.setEnabled(opt);
 
             if(opt) {
@@ -632,7 +649,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                 renderButton.setEnabled(true);
                 sequenceRenderButton.setEnabled(true);
                 overviewButton.setVisible(true);
-                polarLargeRenderButton.setEnabled(s.polar_projection);
+                polarLargeRenderButton.setEnabled(true);
                 splitImageRenderButton.setEnabled(true);
 
                 MainWindow.SaveSettingsPath = file.getParent();
@@ -672,27 +689,30 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         try {
 
-            if(timer == null) {
-                timer = new Timer();
-                timer.schedule(new RefreshMemoryTask(memory_label), MEMORY_DELAY, MEMORY_DELAY);
-            }
+            if (!cliBatchMode) {
+                if (timer == null) {
+                    timer = new Timer();
+                    timer.schedule(new RefreshMemoryTask(memory_label), MEMORY_DELAY, MEMORY_DELAY);
+                }
 
-            if(timer2 == null) {
-                timer2 = new Timer();
-                timer2.schedule(new RefreshCpuTask(cpuLabel), CPU_DELAY, CPU_DELAY);
+                if (timer2 == null) {
+                    timer2 = new Timer();
+                    timer2.schedule(new RefreshCpuTask(cpuLabel), CPU_DELAY, CPU_DELAY);
+                }
             }
 
             TaskRender.setArraysMinimalRenderer(image_width, image_height, s.needsExtraData());
 
             progress.setMaximum(image_width * image_height + 1);
-
             progress.setValue(0);
 
-            progress.setVisible(true);
-            memory_label.setVisible(true);
-            cpuLabel.setVisible(true);
+            if (!cliBatchMode) {
+                progress.setVisible(true);
+                memory_label.setVisible(true);
+                cpuLabel.setVisible(true);
 
-            setOptions(false);
+                setOptions(false);
+            }
 
             if(image == null || image_width != image.getWidth() || image_height != image.getHeight()) {
                 image = new BufferedImage(image_width, image_height, BufferedImage.TYPE_INT_ARGB);
@@ -748,8 +768,9 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         }
 
         try {
+            int taskId = 0;
             for(int i = 0; i < tasks.length; i++) {
-                for(int j = 0; j < tasks[i].length; j++) {
+                for(int j = 0; j < tasks[i].length; j++, taskId++) {
 
                     TaskSplitCoordinates tsc = TaskSplitCoordinates.get(j, i, thread_grouping, n, m, image_width, image_height);
                     if(s.fns.julia) {
@@ -898,7 +919,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                             }
                         }
                     }
-                    tasks[i][j].setTaskId(i * tasks.length + j);
+                    tasks[i][j].setTaskId(taskId);
                     tasks[i][j].setUsesSquareChunks(thread_grouping == 0 || ((thread_grouping == 3 || thread_grouping == 4 || thread_grouping == 5) && m == n));
                 }
             }
@@ -1147,7 +1168,9 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         }
         imageWriteTime = System.currentTimeMillis() - imageWriteTime;
 
-        updatePreview();
+        if (!cliBatchMode) {
+            updatePreview();
+        }
     }
 
     private void updatePreview() {
@@ -2963,6 +2986,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             runsOnLargePolarImageMode = true;
 
             Apfloat originalSize = s.size;
+            boolean oldPolarProjection = s.polar_projection;
+            s.polar_projection = true;
 
             for(int k = 0; k < number_of_polar_images; k++) {
                 render();
@@ -3017,6 +3042,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             runsOnLargePolarImageMode = false;
 
             s.size = originalSize;
+            s.polar_projection = oldPolarProjection;
 
             cleanUp();
             setOptions(true);
@@ -3029,64 +3055,75 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         });
     }
 
-    public void startBatchRender(ArrayList<String> files, DefaultListModel<String> fileNames) {
+    public void startBatchRender(List<String> files) {
 
         Location.offset = new PixelOffset();
 
         TaskRender.single_thread_executor.submit(() -> {
 
 
-            startGlobalTimer();
-            totalprogress.setMaximum(files.size());
-            totalprogress.setValue(0);
-            totalprogress.setString("Files: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
-            totalprogress.setVisible(true);
-            overviewButton.setVisible(true);
-            overviewButton.setEnabled(false);
-            enableStop();
-            setOptions(false);
+            if (!cliBatchMode) {
+                startGlobalTimer();
+                totalprogress.setMaximum(files.size());
+                totalprogress.setValue(0);
+                totalprogress.setString("Files: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+                totalprogress.setVisible(true);
+                overviewButton.setVisible(true);
+                overviewButton.setEnabled(false);
+                enableStop();
+                setOptions(false);
+            }
+
             runsOnBatchingMode = true;
             batchIndex = 1;
+            boolean failed = false;
 
             for(int k = 0; k < files.size(); k++) {
                 try {
                     s.readSettings(ptr, files.get(k), ptr, true, false);
-                    String fname = fileNames.get(k);
                     lastLoadedFile = files.get(k);
 
-                    if(fname.length() > 45) {
-                        fname = fname.substring(0, 45) + "...";
-                    }
-                    settings_label.setText("Loaded: " + fname);
-                    settings_label.setVisible(true);
+                    Path filePath = Paths.get(lastLoadedFile);
+                    String fileName = filePath.getFileName().toString();
 
-                    settingsName = fileNames.get(k).substring(0, fileNames.get(k).lastIndexOf("."));
+                    if (!cliBatchMode) {
+                        String fname = fileName;
+                        if (fname.length() > 45) {
+                            fname = fname.substring(0, 45) + "...";
+                        }
+                        settings_label.setText("Loaded: " + fname);
+                        settings_label.setVisible(true);
+                    }
+
+                    settingsName = fileName.substring(0, fileName.lastIndexOf("."));
 
                     zss = new ZoomSequenceSettings();
 
                     render();
-                }
-                catch(IOException ex) {
 
-                }
-                catch(ClassNotFoundException ex) {
-
-                }
-                catch(Exception ex) {
-
+                    if (cliBatchMode) {
+                        System.out.println("Rendered: " + lastLoadedFile);
+                    }
+                } catch (Exception ex) {
+                    if (cliBatchMode) {
+                        System.out.println("Failed to render: " + lastLoadedFile + " Error: " + ex.getMessage());
+                    }
+                    failed = true;
                 }
 
                 try {
-                    for(Future<?> future : futures) {
+                    for (Future<?> future : futures) {
                         future.get();
                     }
-                } catch (InterruptedException ex) {
-                }
-                catch (ExecutionException ex) {
+                } catch (InterruptedException | ExecutionException ex) {
+                    failed = true;
                 }
                 batchIndex++;
-                totalprogress.setValue(batchIndex - 1);
-                totalprogress.setString("Files: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+
+                if (!cliBatchMode) {
+                    totalprogress.setValue(batchIndex - 1);
+                    totalprogress.setString("Files: " + totalprogress.getValue() + "/" + totalprogress.getMaximum());
+                }
 
                 if(stopped) {
                     break;
@@ -3095,14 +3132,34 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
             runsOnBatchingMode = false;
             cleanUp();
-            setOptions(true);
-            totalprogress.setVisible(false);
-            overviewButton.setEnabled(true);
-            disableStop();
-            stopGlobalTimer();
+
+            if (!cliBatchMode) {
+                setOptions(true);
+                totalprogress.setVisible(false);
+                overviewButton.setEnabled(true);
+                disableStop();
+                stopGlobalTimer();
+            } else {
+                NumericLibrary.deleteLibs();
+                new Timer().schedule(new TimerTask() {
+                    public void run() {
+                        Runtime.getRuntime().halt(-1);
+                    }
+                }, 8000);
+                TaskRender.shutdownThreadPools();
+                System.exit(failed ? 1 : 0);
+            }
         });
 
+    }
 
+    public void cliBatchRender() throws IOException {
+
+        List<String> files = Files.walk(Paths.get(cliBatchDirectory))
+                .filter(Files::isRegularFile)
+                .filter(file -> file.toString().toLowerCase().endsWith(".fzs")).map(f -> f.toAbsolutePath().toString()).sorted().collect(Collectors.toList());
+
+        startBatchRender(files);
     }
 
     public void startSequenceRender() {
@@ -3148,7 +3205,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         }
 
         TaskRender.SAVE_REFERENCE = zss.saveReference;
-        TaskRender.SAVE_REFERENCE_FILE_PATH = path.resolve(settingsName + ".ref").toAbsolutePath().toString();
+        String referenceFileName = settingsName + (TaskRender.COMPRESS_REFERENCE ? ".compressed" : "") + ".ref";
+        TaskRender.SAVE_REFERENCE_FILE_PATH = path.resolve(referenceFileName).toAbsolutePath().toString();
 
         TaskRender.LOAD_REFERENCE_FILE_PATH = zss.loadReferenceFilePath;
         if (TaskRender.LOAD_REFERENCE_FILE_PATH.isEmpty()) {
@@ -3197,7 +3255,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
             enableStop();
             setOptions(false);
             runsOnSequenceMode = true;
-            sequenceIndex = zss.flipSequenceIndexing ? numberOfSequenceSteps : 1;
+            sequenceIndex = 1;
 
             Apfloat[] originalRotCenter = new Apfloat[2];
             originalRotCenter[0] = s.fns.rotation_center[0];
@@ -3245,7 +3303,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     s.max_iterations = originalMaxIterations;
                 }
 
-                if(zss.startAtSequenceIndex == 0 || (!zss.flipSequenceIndexing && sequenceIndex >= zss.startAtSequenceIndex) || (zss.flipSequenceIndexing && sequenceIndex <= zss.startAtSequenceIndex) ) {
+                if(zss.startAtSequenceIndex == 0 || (sequenceIndex >= zss.startAtSequenceIndex)) {
                     render();
 
                     try {
@@ -3264,12 +3322,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                     renderCount++;
                 }
 
-                if(zss.flipSequenceIndexing) {
-                    sequenceIndex--;
-                }
-                else {
-                    sequenceIndex++;
-                }
+                sequenceIndex++;
 
                 if(zss.stop_after_n_steps > 0) {
                     totalprogress.setValue((int)(renderCount / divisor));
@@ -3508,6 +3561,40 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         }
     }
 
+    private static void parseArgs(String[] args) {
+        for(int j = 0; j < args.length; j++) {
+            if (args[j].equals("--cli_batch_dir") && j + 1 < args.length) {
+                MinimalRendererWindow.cliBatchDirectory = args[j + 1];
+                MinimalRendererWindow.cliBatchMode = true;
+                j++;
+            } else if (args[j].equals("--cli_width") && j + 1 < args.length) {
+                try {
+                    MinimalRendererWindow.cliBatchImageWidth = Integer.parseInt(args[j + 1]);
+                } catch (Exception ex) {
+
+                }
+                j++;
+            } else if (args[j].equals("--cli_height") && j + 1 < args.length) {
+                try {
+                    MinimalRendererWindow.cliBatchImageHeight = Integer.parseInt(args[j + 1]);
+                } catch (Exception ex) {
+
+                }
+                j++;
+            } else if (args[j].equals("--cli_threads") && j + 1 < args.length) {
+                try {
+                    MinimalRendererWindow.cliBatchThreads = Integer.parseInt(args[j + 1]);
+                } catch (Exception ex) {
+
+                }
+                j++;
+            } else if (args[j].equals("--cli_output_dir") && j + 1 < args.length) {
+                cliOutputDir = args[j + 1];
+                j++;
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
 
        // SwingUtilities.invokeLater(() -> {
@@ -3515,19 +3602,30 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                 CommonFunctions.exportL4jIni("FZMinimalRenderer", Constants.MRL4j);
             }
 
+            parseArgs(args);
+
             MainWindow.setLaf(args);
 
             MinimalRendererWindow mw = new MinimalRendererWindow();
-            mw.setVisible(true);
 
-            boolean actionOk = mw.getCommonFunctions().copyLib();
+            if (!MinimalRendererWindow.cliBatchMode) {
+                mw.setVisible(true);
+            }
+
+            boolean actionOk = mw.getCommonFunctions().copyLib(MinimalRendererWindow.cliBatchMode);
             mw.getCommonFunctions().exportCodeFilesNoUi();
 
             if(actionOk) {
                 mw.getCommonFunctions().compileCode(false);
             }
 
-            mw.getCommonFunctions().checkForUpdate(false);
+            if (!MinimalRendererWindow.cliBatchMode) {
+                mw.getCommonFunctions().checkForUpdate(false);
+            }
+
+            if (MinimalRendererWindow.cliBatchMode) {
+                mw.cliBatchRender();
+            }
 
         //});
     }

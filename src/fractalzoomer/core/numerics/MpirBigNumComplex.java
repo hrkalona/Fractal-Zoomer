@@ -1917,6 +1917,7 @@ public class MpirBigNumComplex extends GenericComplex {
         return this;
     }
 
+    @Override
     public MpirBigNumComplex divide2() {
         return new MpirBigNumComplex(re.divide2(), im.divide2());
     }

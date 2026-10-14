@@ -162,7 +162,7 @@ public class BatchRenderDialog extends JDialog {
 
             dispose();
 
-            ptra2.startBatchRender(files, m);
+            ptra2.startBatchRender(files);
 
         });
 

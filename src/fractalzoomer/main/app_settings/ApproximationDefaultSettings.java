@@ -6,7 +6,7 @@ public class ApproximationDefaultSettings {
     public static double DipDetectionThreshold = 0x1.0p-10;
     public static double Stage0DipDetectionThreshold2 = 0x1.0p-3; //Imagina: 0x1.0p-6
     public static double DipDetectionThreshold2 = 0x1.0p-3;
-    public static double LAThresholdScale = 0x1.0p-24;
+    public static double LAThresholdScale = 0x1.0p-12; //Imagina: 0x1.0p-24
     public static double LAThresholdCScale = 0x1.0p-24;
     public static double DoubleThresholdLimit = 0x1.0p-768;
 

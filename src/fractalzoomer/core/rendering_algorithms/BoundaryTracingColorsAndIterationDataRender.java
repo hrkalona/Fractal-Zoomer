@@ -52,7 +52,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
     @Override
     protected void render(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION || PERTURBATION_THEORY) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         int pixel_percent = (image_width * image_height) / 100;
 
@@ -293,7 +293,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
@@ -308,7 +308,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
         final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = Constants.EMPTY_ALPHA;
 
-        int pix, y, x, curDir, curPix, startPix, startColor, dir, Dir, nextPix, floodPix, nextColor, floodColor, iteration = 0;
+        int pix, y, x, curDir, curPix, startPix, startColor, dir, Dir, nextPix, floodPix, iteration = 0;
         int[] delPix = {1, image_size, -1, -image_size};
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
@@ -317,7 +317,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
         int skippedColor;
 
-        double start_val, next_val;
+        double start_val, f_val;
         boolean startEscaped;
         PixelExtraData temp_starting_pixel_extra_data = null;
 
@@ -389,7 +389,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                     while (iy - 1 >= FROMy) {   // looking for boundary
                         int startPix_image_size = startPix - image_size;
-                        if (rgbs[startPix_image_size] != startColor || image_iterations[startPix_image_size] != start_val) {
+                        if (!isTheSameFastJulia(startColor, start_val, startPix_image_size, pix)) {
                             break;
                         }
                         curPix = startPix = startPix_image_size;
@@ -412,14 +412,14 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                             nextPix = curPix + delPix[dir];
 
-                            if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {
+                            if (rgbs[nextPix] >>> 24 == culcColor) {
 
-                                image_iterations_fast_julia[nextPix] = next_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
+                                image_iterations_fast_julia[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
                                 escaped_fast_julia[nextPix] = escaped_val = iteration_algorithm.escaped();
-                                color = getFinalColor(next_val, escaped_val);
+                                color = getFinalColor(f_val, escaped_val);
 
                                 if (storeExtraData) {
-                                    pixelData_fast_julia[nextPix].set(0, color, next_val, escaped_val, totalSamples);
+                                    pixelData_fast_julia[nextPix].set(0, color, f_val, escaped_val, totalSamples);
                                 }
 
                                 aa.initialize(color);
@@ -439,13 +439,10 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
                                     }
                                 }
 
-                                nextColor = rgbs[nextPix] = aa.getColor();
-
-                            } else {
-                                next_val = image_iterations_fast_julia[nextPix];
+                                rgbs[nextPix] = aa.getColor();
                             }
 
-                            if (next_val == start_val && nextColor == startColor) {
+                            if (isTheSameFastJulia(startColor, start_val, nextPix, pix)) {
                                 curDir = dir;
                                 curPix = nextPix;
                                 temp_ix = next_ix;
@@ -472,7 +469,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                             nextPix = curPix + delPix[dir];
 
-                            if (image_iterations_fast_julia[nextPix] == start_val && rgbs[nextPix] == startColor) {           // flooding
+                            if (isTheSameFastJulia(startColor, start_val, nextPix, pix)) {           // flooding
                                 curDir = dir;
                                 if (dir == dirUP) {
                                     floodPix = curPix;
@@ -487,14 +484,14 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                                         floodPix++;
 
-                                        if ((floodColor = rgbs[floodPix]) >>> 24 == culcColor) {
+                                        if (rgbs[floodPix] >>> 24 == culcColor) {
                                             rgbs[floodPix] = skippedColor;
                                             image_iterations_fast_julia[floodPix] = start_val;
                                             escaped_fast_julia[floodPix] = startEscaped;
                                             if (storeExtraData) {
                                                 pixelData_fast_julia[floodPix] = new PixelExtraData(temp_starting_pixel_extra_data, skippedColor);
                                             }
-                                        } else if (image_iterations_fast_julia[floodPix] != start_val || floodColor != startColor) {
+                                        } else if (!isTheSameFastJulia(startColor, start_val, floodPix, pix)) {
                                             break;
                                         }
 
@@ -521,12 +518,52 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
         postProcessFastJulia(image_size, aa, location);
     }
 
+    private boolean isTheSame(int sourceColor, double sourceVal, int index, int sourceIndex) {
+        if (pixelData != null) {
+            if (sourceColor != rgbs[index] || sourceVal != image_iterations[index]) {
+                return false;
+            }
+
+            double[] loc_values = pixelData[index].values;
+            double[] source_loc_values = pixelData[sourceIndex].values;
+            for (int i = 0; i < loc_values.length; i++) {
+                if (source_loc_values[i] != loc_values[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return sourceColor == rgbs[index] && sourceVal == image_iterations[index];
+        }
+    }
+
+    private boolean isTheSameFastJulia(int sourceColor, double sourceVal, int index, int sourceIndex) {
+        if (pixelData_fast_julia != null && pixelData_fast_julia[0].values != null) {
+            if (sourceColor != rgbs[index] || sourceVal != image_iterations_fast_julia[index]) {
+                return false;
+            }
+
+            double[] loc_values = pixelData_fast_julia[index].values;
+            double[] source_loc_values = pixelData_fast_julia[sourceIndex].values;
+            for (int i = 0; i < loc_values.length; i++) {
+                if (source_loc_values[i] != loc_values[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return sourceColor == rgbs[index] && sourceVal == image_iterations_fast_julia[index];
+        }
+    }
+
     @Override
     protected void renderAntialiased(int image_width, int image_height, boolean polar) throws StopSuccessiveRefinementException, StopExecutionException {
 
         int aaMethod = (filters_options_vals[MainWindow.ANTIALIASING] % 100) / 10;
         boolean useJitter = aaMethod != 6 && ((filters_options_vals[MainWindow.ANTIALIASING] / 100) & 0x4) == 4;
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_width, image_height, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
         int aaSamplesIndex = (filters_options_vals[MainWindow.ANTIALIASING] % 100) % 10;
         int supersampling_num = getExtraSamples(aaSamplesIndex, aaMethod);
         location.createAntialiasingSteps(aaMethod == 5, useJitter, fs.aaType, supersampling_num, aaMethod == 6);
@@ -539,9 +576,9 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
         final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = Constants.EMPTY_ALPHA;
 
-        int pix, y, x, curDir, curPix, startPix, startColor, dir, Dir, nextPix, floodPix, nextColor, floodColor;
+        int pix, y, x, curDir, curPix, startPix, startColor, dir, Dir, nextPix, floodPix;
         int[] delPix = {1, image_width, -1, -image_width};
-        double start_val, next_val;
+        double start_val, f_val;
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix, iteration = 0;
         int[] intX = {1, 0, -1, 0};
@@ -638,7 +675,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                     while (iy - 1 >= FROMy) {   // looking for boundary
                         int startPix_image_size = startPix - image_width;
-                        if (rgbs[startPix_image_size] != startColor || image_iterations[startPix_image_size] != start_val) {
+                        if (!isTheSame(startColor, start_val, startPix_image_size, pix)) {
                             break;
                         }
                         curPix = startPix = startPix_image_size;
@@ -661,13 +698,13 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                             nextPix = curPix + delPix[dir];
 
-                            if ((nextColor = rgbs[nextPix]) >>> 24 == culcColor) {
-                                image_iterations[nextPix] = next_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
+                            if (rgbs[nextPix] >>> 24 == culcColor) {
+                                image_iterations[nextPix] = f_val = iteration_algorithm.calculate(location2.getComplex(next_ix, next_iy));
                                 escaped[nextPix] = escaped_val = iteration_algorithm.escaped();
-                                color = getFinalColor(next_val, escaped_val);
+                                color = getFinalColor(f_val, escaped_val);
 
                                 if (storeExtraData) {
-                                    pixelData[nextPix].set(0, color, next_val, escaped_val, totalSamples);
+                                    pixelData[nextPix].set(0, color, f_val, escaped_val, totalSamples);
                                 }
 
                                 aa.initialize(color);
@@ -687,16 +724,14 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
                                     }
                                 }
 
-                                nextColor = rgbs[nextPix] = aa.getColor();
+                                rgbs[nextPix] = aa.getColor();
 
                                 rendering_done++;
                                 task_calculated++;
                                 task_completed++;
-                            } else {
-                                next_val = image_iterations[nextPix];
                             }
 
-                            if (next_val == start_val && nextColor == startColor) {
+                            if (isTheSame(startColor, start_val, nextPix, pix)) {
                                 curDir = dir;
                                 curPix = nextPix;
                                 temp_ix = next_ix;
@@ -723,7 +758,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                             nextPix = curPix + delPix[dir];
 
-                            if (image_iterations[nextPix] == start_val && rgbs[nextPix] == startColor) {           // flooding
+                            if (isTheSame(startColor, start_val, nextPix, pix)) {           // flooding
                                 curDir = dir;
                                 if (dir == dirUP) {
                                     floodPix = curPix;
@@ -739,7 +774,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                                         floodPix++;
 
-                                        if ((floodColor = rgbs[floodPix]) >>> 24 == culcColor) {
+                                        if (rgbs[floodPix] >>> 24 == culcColor) {
                                             rendering_done++;
                                             rgbs[floodPix] = skippedColor;
                                             image_iterations[floodPix] = start_val;
@@ -749,7 +784,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
                                             }
                                             task_completed++;
                                             fill_count++;
-                                        } else if (image_iterations[floodPix] != start_val || floodColor != startColor) {
+                                        } else if (!isTheSame(startColor, start_val, floodPix, pix)) {
                                             break;
                                         }
 
@@ -805,7 +840,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
     @Override
     protected void renderFastJulia(int image_size, boolean polar) throws StopExecutionException {
 
-        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (PERTURBATION_THEORY || HIGH_PRECISION_CALCULATION) && fractal.supportsPerturbationTheory());
+        location = Location.getInstanceForRendering(xCenter, yCenter, size, height_ratio, image_size, image_size, circle_period, rotation_center, rotation_vals, fractal, js, polar, (HIGH_PRECISION_CALCULATION && fractal.supportsPerturbationTheoryOrHighPrecision()) || (PERTURBATION_THEORY && fractal.supportsPerturbationTheory()));
 
         initializeFastJulia(location);
 
@@ -861,7 +896,7 @@ public class BoundaryTracingColorsAndIterationDataRender extends TaskRender {
 
                     while (iy - 1 >= FROMy) {   // looking for boundary
                         int startPix_image_size = startPix - image_size;
-                        if (rgbs[startPix_image_size] != startColor || image_iterations[startPix_image_size] != start_val) {
+                        if (rgbs[startPix_image_size] != startColor || image_iterations_fast_julia[startPix_image_size] != start_val) {
                             break;
                         }
                         curPix = startPix = startPix_image_size;

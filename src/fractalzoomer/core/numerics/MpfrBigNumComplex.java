@@ -2133,6 +2133,7 @@ public class MpfrBigNumComplex extends GenericComplex {
         return this;
     }
 
+    @Override
     public MpfrBigNumComplex divide2() {
         return new MpfrBigNumComplex(re.divide2(), im.divide2());
     }

@@ -16,8 +16,8 @@ public class AtomDomain extends GenericStatistic {
     private Norm normImpl;
 
     
-    public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm, int lastXItems, double a, double b) {
-        super(statistic_intensity, false, false, lastXItems);
+    public AtomDomain(boolean showAtomDomains, double statistic_intensity, int normtType, double atomNorm, int lastXItems, double a, double b, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, false, false, lastXItems, applyIntensityDuringColoring);
         this.showAtomDomains = showAtomDomains;
 
         switch (normtType) {
@@ -89,7 +89,7 @@ public class AtomDomain extends GenericStatistic {
             sampleLastX();
         }
 
-        return showAtomDomains ? statistic_intensity * minIteration : statistic_intensity * minNorm;
+        return applyIntensity(showAtomDomains ?  minIteration : minNorm);
         
     }
 

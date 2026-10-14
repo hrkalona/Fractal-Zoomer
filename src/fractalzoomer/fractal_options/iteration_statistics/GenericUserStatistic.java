@@ -19,8 +19,8 @@ public abstract class GenericUserStatistic extends GenericStatistic {
     protected boolean useIterations;
     private PlanePointOption init_val;
 
-    public GenericUserStatistic(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value, int reductionFunction, boolean useIterations, boolean useSmoothing, int lastXItems) {
-        super(statistic_intensity, useSmoothing, useAverage, lastXItems);
+    public GenericUserStatistic(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value, int reductionFunction, boolean useIterations, boolean useSmoothing, int lastXItems, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, useSmoothing, useAverage, lastXItems, applyIntensityDuringColoring);
         val = new Complex();
         val2 = new Complex();
 
@@ -304,7 +304,7 @@ public abstract class GenericUserStatistic extends GenericStatistic {
             int[] sample_vals = sampleLastX();
 
             if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
-                return useIterations ? statisticIteration * statistic_intensity : val.getRe() * statistic_intensity;
+                return applyIntensity(useIterations ? statisticIteration : val.getRe());
             }
 
             if (samples < 1) {
@@ -321,7 +321,7 @@ public abstract class GenericUserStatistic extends GenericStatistic {
         }
         else {
             if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
-                return useIterations ? statisticIteration * statistic_intensity : val.getRe() * statistic_intensity;
+                return applyIntensity(useIterations ? statisticIteration : val.getRe());
             }
 
             if (samples < 1) {
@@ -339,12 +339,12 @@ public abstract class GenericUserStatistic extends GenericStatistic {
 
 
         if(!useSmoothing) {
-            return sumRe * statistic_intensity;
+            return applyIntensity(sumRe);
         }
 
         double smoothing = getSmoothing();
 
-        return method.interpolate(sumRe, sum2Re, smoothing) * statistic_intensity;
+        return applyIntensity(method.interpolate(sumRe, sum2Re, smoothing));
     }
 
 }

@@ -53,8 +53,8 @@ public class NormalMap extends GenericStatistic {
     private int deFadeAlgorithm = 0;
 
 
-    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap, double DEUpperLimit, boolean normalMapDEAAEffect, boolean normalMapOverrideColoring, int deFadeAlgorithm, double normalMapDistanceEstimatorfactor) {
-        super(statistic_intensity, false, false, 0);
+    public NormalMap(double statistic_intensity, double power, double height, double angle, boolean useSecondDerivative, double normalMapDEfactor, boolean isJulia, boolean normalMapUseDE, boolean normalMapInvertDE, int normalMapColoring, boolean useNormalMap, double DEUpperLimit, boolean normalMapDEAAEffect, boolean normalMapOverrideColoring, int deFadeAlgorithm, double normalMapDistanceEstimatorfactor, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, false, false, 0, applyIntensityDuringColoring);
         this.power = power;
         h2 = height;
         v = new Complex(0, angle*2*Math.PI/360).exp();
@@ -665,7 +665,7 @@ public class NormalMap extends GenericStatistic {
             value2 =  0;
         }
 
-        return (value + value2) * statistic_intensity;
+        return applyIntensity(value + value2);
     }
 
     @Override
