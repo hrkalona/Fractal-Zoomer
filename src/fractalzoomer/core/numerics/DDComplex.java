@@ -25,8 +25,8 @@ public class DDComplex extends GenericComplex {
     }
 
     public DDComplex(Complex c) {
-        re = new DoubleDouble(c.getRe());
-        im = new DoubleDouble(c.getIm());
+        re = new DoubleDouble(c.re);
+        im = new DoubleDouble(c.im);
     }
 
     public DDComplex(DoubleDouble re, DoubleDouble im) {

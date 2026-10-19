@@ -83,8 +83,8 @@ public class ATInfo {
         double zim_sqr = 0;
         double zre = 0;
         double zim = 0;
-        double cre = c.getRe();
-        double cim = c.getIm();
+        double cre = c.re;
+        double cim = c.im;
         double temp;
 
         int i;

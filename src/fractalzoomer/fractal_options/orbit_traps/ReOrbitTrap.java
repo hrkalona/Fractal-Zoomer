@@ -26,9 +26,9 @@ public class ReOrbitTrap extends OrbitTrap {
             return;
         }
 
-        double dist = Math.abs(val.getIm() - applyLineFunction(lineType, val.getRe()) - point.getIm());
+        double dist = Math.abs(val.im - applyLineFunction(lineType, val.re) - point.im);
         
-        if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
+        if(dist < trapWidth && Math.abs(val.re - point.re) < trapLength && (checkType == TRAP_CHECK_TYPE_TRAPPED_FIRST || checkType == TRAP_CHECK_TYPE_TRAPPED_LAST ||  checkType == TRAP_CHECK_TYPE_TRAPPED_MIN_DISTANCE && dist < distance)) {
             distance = dist;
             trapId = 0;
             setTrappedData(val, iteration);

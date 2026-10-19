@@ -304,15 +304,15 @@ public abstract class GenericUserStatistic extends GenericStatistic {
             int[] sample_vals = sampleLastX();
 
             if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
-                return applyIntensity(useIterations ? statisticIteration : val.getRe());
+                return applyIntensity(useIterations ? statisticIteration : val.re);
             }
 
             if (samples < 1) {
                 return 0;
             }
 
-            sumRe = val.getRe();
-            sum2Re = val2.getRe();
+            sumRe = val.re;
+            sum2Re = val2.re;
 
             if(useAverage) {
                 sumRe = sumRe / sample_vals[0];
@@ -321,15 +321,15 @@ public abstract class GenericUserStatistic extends GenericStatistic {
         }
         else {
             if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
-                return applyIntensity(useIterations ? statisticIteration : val.getRe());
+                return applyIntensity(useIterations ? statisticIteration : val.re);
             }
 
             if (samples < 1) {
                 return 0;
             }
 
-            sumRe = val.getRe();
-            sum2Re = val2.getRe();
+            sumRe = val.re;
+            sum2Re = val2.re;
 
             if (useAverage) {
                 sumRe = sumRe / samples;

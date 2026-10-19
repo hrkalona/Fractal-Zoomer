@@ -1,10 +1,7 @@
 package fractalzoomer.core.location.delta;
 
 import fractalzoomer.core.location.normal.PolarLocationNormalBigIntNumArbitrary;
-import fractalzoomer.core.numerics.BigIntNum;
-import fractalzoomer.core.numerics.BigIntNumComplex;
-import fractalzoomer.core.numerics.GenericComplex;
-import fractalzoomer.core.numerics.MantExp;
+import fractalzoomer.core.numerics.*;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
 import org.apfloat.Apfloat;
@@ -44,7 +41,7 @@ public class PolarLocationDeltaGenericBigIntNum extends PolarLocationNormalBigIn
 
     @Override
     public MantExp getMaxSizeInImage() {
-        return ddsize.mult(new BigIntNum(Math.exp(mulx * width * 0.5))).getMantExp();
+        return new BigIntNum(MyApfloat.fp.multiply(ddsize, new MyApfloat(Math.exp(mulx * width * 0.5)))).getMantExp();
     }
 
     @Override

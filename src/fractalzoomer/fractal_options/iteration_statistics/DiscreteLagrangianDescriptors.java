@@ -75,8 +75,8 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         if(!Double.isInfinite(d) && !Double.isNaN(d)) {
             double dd = 1 / (d + 1);
 
-            xx = 2 * z.getRe() * dd;
-            yy = 2 * z.getIm() * dd;
+            xx = 2 * z.re * dd;
+            yy = 2 * z.im * dd;
             zz = (d - 1) * dd; //Riemann sphere coordinates
         }
 
@@ -111,8 +111,8 @@ public class DiscreteLagrangianDescriptors extends GenericStatistic {
         if(!Double.isInfinite(d) && !Double.isNaN(d)) {
             double dd = 1 / (d + 1);
 
-            xx = 2 * z.getRe() * dd;
-            yy = 2 * z.getIm() * dd;
+            xx = 2 * z.re * dd;
+            yy = 2 * z.im * dd;
             zz = (d - 1) * dd; //Riemann sphere coordinates
         }
 

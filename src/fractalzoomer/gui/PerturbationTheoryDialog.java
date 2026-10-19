@@ -532,7 +532,7 @@ public class PerturbationTheoryDialog extends JDialog {
 
             fake_period_limit.setText("" + ApproximationDefaultSettings.fakePeriodLimit);
 
-            bla3_valid_radius_scale.setText("" + ApproximationDefaultSettings.BLA3ValidRadiusSCale);
+            bla3_valid_radius_scale.setText("" + ApproximationDefaultSettings.BLA3ValidRadiusScale);
             bla3_starting_level_slid.setValue(ApproximationDefaultSettings.BLA3_STARTING_LEVEL);
 
         });

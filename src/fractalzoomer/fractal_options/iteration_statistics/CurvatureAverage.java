@@ -30,7 +30,7 @@ public class CurvatureAverage extends GenericStatistic {
         Complex a = z.sub(zold);
         Complex b = zold.sub(zold2);
         Complex d = a.divide_mutable(b);
-        double temp = Math.atan(d.getIm() / d.getRe());
+        double temp = Math.atan(d.im / d.re);
         
         if(!Double.isNaN(temp) && !Double.isInfinite(temp)) {
             samples++;
@@ -44,7 +44,7 @@ public class CurvatureAverage extends GenericStatistic {
         Complex a = sam.z_val.sub(sam.zold_val);
         Complex b = sam.zold_val.sub(sam.zold2_val);
         Complex d = a.divide_mutable(b);
-        double temp = Math.atan(d.getIm() / d.getRe());
+        double temp = Math.atan(d.im / d.re);
 
         if(!Double.isNaN(temp) && !Double.isInfinite(temp)) {
             data[0] += Math.abs(temp);

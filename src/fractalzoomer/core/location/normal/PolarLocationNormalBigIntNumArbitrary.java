@@ -4,6 +4,7 @@ import fractalzoomer.core.location.Location;
 import fractalzoomer.core.numerics.BigIntNum;
 import fractalzoomer.core.numerics.BigIntNumComplex;
 import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -16,13 +17,13 @@ public class PolarLocationNormalBigIntNumArbitrary extends Location {
 
     protected BigIntNum ddxcenter;
     protected BigIntNum ddycenter;
-    protected BigIntNum ddsize;
     private double[] antialiasing_x;
 
     private double muly;
     protected double mulx;
     protected BigIntNum ddmulx;
-    private BigIntNum expddstartx;
+    private Apfloat expddstartx;
+    protected Apfloat ddsize;
     private double starty;
     private double[] antialiasing_y_sin;
     private double[] antialiasing_y_cos;
@@ -54,10 +55,9 @@ public class PolarLocationNormalBigIntNumArbitrary extends Location {
         height = offset.getHeight(height);
         int image_size = Math.min(width, height);
 
-        ddsize = new BigIntNum(size);
-
         requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
+        ddsize = size;
         ddxcenter = new BigIntNum(xCenter);
         ddycenter = new BigIntNum(yCenter);
 
@@ -70,7 +70,7 @@ public class PolarLocationNormalBigIntNumArbitrary extends Location {
 
         ddmulx = new BigIntNum(mulx);
 
-        expddstartx = ddsize.mult(new BigIntNum(Math.exp(-mulx * image_size * coefx)));
+        expddstartx = MyApfloat.fp.multiply(size, new MyApfloat(Math.exp(-mulx * image_size * coefx)));
         starty = muly * image_size * (0.5 - coefy);
 
         rotation = new Rotation(new BigIntNumComplex(rotation_vals[0], rotation_vals[1]), new BigIntNumComplex(rotation_center[0], rotation_center[1]));
@@ -133,7 +133,7 @@ public class PolarLocationNormalBigIntNumArbitrary extends Location {
 
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
-            temp_ddr = new BigIntNum(Math.exp((x + res[1]) * mulx)).mult(expddstartx);
+            temp_ddr = new BigIntNum(MyApfloat.fp.multiply(new MyApfloat(Math.exp((x + res[1]) * mulx)), expddstartx));
 
             double f = (y + res[0]) * muly + starty;
             temp_sf = Math.sin(f);
@@ -145,7 +145,7 @@ public class PolarLocationNormalBigIntNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.mult(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = new BigIntNum(Math.exp(x * mulx)).mult(expddstartx);
+                temp_ddr = new BigIntNum(MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx));
             }
 
             if (y == indexY + 1) {
@@ -231,7 +231,7 @@ public class PolarLocationNormalBigIntNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.mult(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = new BigIntNum(Math.exp(x * mulx)).mult(expddstartx);
+                temp_ddr = new BigIntNum(MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx));
             }
         }
 
@@ -259,7 +259,7 @@ public class PolarLocationNormalBigIntNumArbitrary extends Location {
         } else if (x == indexX - 1) {
             temp_ddr = temp_ddr.mult(ddInvemulx);
         } else if (x != indexX) {
-            temp_ddr = new BigIntNum(Math.exp(x * mulx)).mult(expddstartx);
+            temp_ddr = new BigIntNum(MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx));
         }
 
         indexX = x;

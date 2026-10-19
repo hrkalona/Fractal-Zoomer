@@ -48,8 +48,8 @@ public class Checkers extends GenericStatistic {
             return;
         }
 
-        double wx = MathUtils.fract(z.getRe()*PatternScale);
-        double wy = MathUtils.fract(z.getIm()*PatternScale);
+        double wx = MathUtils.fract(z.re * PatternScale);
+        double wy = MathUtils.fract(z.im * PatternScale);
         double a = ((wx<0.5 && wy<0.5) || (wx>0.5 && wy>0.5)) ? 1.0 : 0.0;
         wx=MathUtils.fract(wx*2.0);
         wy=MathUtils.fract(wy*2.0);
@@ -73,8 +73,8 @@ public class Checkers extends GenericStatistic {
     @Override
     protected void addSample(StatisticSample sam, double[] data) {
 
-        double wx = MathUtils.fract(sam.z_val.getRe()*PatternScale);
-        double wy = MathUtils.fract(sam.z_val.getIm()*PatternScale);
+        double wx = MathUtils.fract(sam.z_val.re * PatternScale);
+        double wy = MathUtils.fract(sam.z_val.im * PatternScale);
         double a = ((wx<0.5 && wy<0.5) || (wx>0.5 && wy>0.5)) ? 1.0 : 0.0;
         wx=MathUtils.fract(wx*2.0);
         wy=MathUtils.fract(wy*2.0);

@@ -18,7 +18,7 @@ public class ImFunction extends AbstractOneArgumentFunction {
     @Override
     public Complex evaluate(Complex argument) {
         
-        return new Complex(argument.getIm(), 0);
+        return new Complex(argument.im, 0);
         
     }
     

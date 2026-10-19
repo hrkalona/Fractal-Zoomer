@@ -157,8 +157,8 @@ public class PlaneVisualizer {
                 if(new_x % step == 0 || new_y % step == 0) {
                     Complex new_complex = plane.transform(new Complex(temp_xcenter_size + new_x * temp_size_image_size, temp_ycenter_size - new_y * temp_size_image_size));
 
-                    int x0 = (int)((new_complex.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
-                    int y0 = (int)((-new_complex.getIm() + temp_ycenter_size) / temp_size_image_size + 0.5);
+                    int x0 = (int)((new_complex.re - temp_xcenter_size) / temp_size_image_size + 0.5);
+                    int y0 = (int)((-new_complex.im + temp_ycenter_size) / temp_size_image_size + 0.5);
 
                     if(x0 >= 0 && x0 < image_size && y0 >= 0 && y0 < image_size) {
                         if(color_mode == 1 ) {
@@ -176,8 +176,8 @@ public class PlaneVisualizer {
 
                     Complex new_complex2 = plane.transform(new Complex(temp_xcenter_size + (new_x + 1) * temp_size_image_size, temp_ycenter_size - (new_y + 1) * temp_size_image_size));
 
-                    int x1 = (int)((new_complex2.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
-                    int y1 = (int)((-new_complex2.getIm() + temp_ycenter_size) / temp_size_image_size + 0.5);
+                    int x1 = (int)((new_complex2.re - temp_xcenter_size) / temp_size_image_size + 0.5);
+                    int y1 = (int)((-new_complex2.im + temp_ycenter_size) / temp_size_image_size + 0.5);
 
                     if(x1 >= 0 && x1 < image_size && y1 >= 0 && y1 < image_size) {
                         if(color_mode == 1 ) {

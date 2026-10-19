@@ -24,7 +24,7 @@ public class CosMag extends InColorAlgorithm {
     public double getResult(InColorData data) {
 
         Complex z = data.z;
-        return ((int)(z.norm_squared() * 10)) % 2 == 1 ? -(Math.abs(Math.cos(z.getRe() * z.getIm() * z.getAbsRe() * z.getAbsIm())) * 400 + INCREMENT + max_iterations) : max_iterations + Math.abs(Math.sin(z.getRe() * z.getIm() * z.getAbsRe() * z.getAbsIm())) * 400;
+        return ((int)(z.norm_squared() * 10)) % 2 == 1 ? -(Math.abs(Math.cos(z.re * z.im * z.getAbsRe() * z.getAbsIm())) * 400 + INCREMENT + max_iterations) : max_iterations + Math.abs(Math.sin(z.re * z.im * z.getAbsRe() * z.getAbsIm())) * 400;
        
     }
     

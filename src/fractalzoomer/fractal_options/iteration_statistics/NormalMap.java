@@ -549,7 +549,7 @@ public class NormalMap extends GenericStatistic {
             u = u.divide(u.norm());  // normal vector: (u.re,u.im,1)
         }
 
-        double reflection = u.getRe() * v.getRe() + u.getIm() * v.getIm() + h2;  // dot product with the incoming light
+        double reflection = u.re * v.re + u.im * v.im + h2;  // dot product with the incoming light
         reflection = reflection / (1 + h2);  // rescale so that t does not get bigger than 1
 
         if (reflection < 0.0) reflection = 0.0;

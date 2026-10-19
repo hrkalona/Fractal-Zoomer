@@ -122,11 +122,11 @@ public class PerpendicularCelticMandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
 
         Complex X = getReferenceValue(reference, RefIteration);
-        double Xr = X.getRe();
-        double Xi = X.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
 
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
 
         double xr2 = xr * xr;
         double xi2 = xi * xi;
@@ -142,11 +142,11 @@ public class PerpendicularCelticMandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
 
         Complex X = getReferenceValue(data.Reference, RefIteration);
-        double Xr = X.getRe();
-        double Xi = X.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
 
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
 
         double xr2 = xr * xr;
         double xi2 = xi * xi;
@@ -200,11 +200,11 @@ public class PerpendicularCelticMandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
         Complex X = getReferenceValue(reference, RefIteration);
-        double Xr = X.getRe();
-        double Xi = X.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
 
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
 
         double xr2 = xr * xr;
         double xi2 = xi * xi;

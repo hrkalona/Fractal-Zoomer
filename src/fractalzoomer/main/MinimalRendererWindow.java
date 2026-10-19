@@ -1483,7 +1483,7 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
             writer.println();
             writer.println("[Core]");
-            writer.println("derivative_step " + Derivative.DZ.getRe());
+            writer.println("derivative_step " + Derivative.DZ.re);
             writer.println("aa_jitter_size " + Location.AA_JITTER_SIZE);
             writer.println("aa_number_of_jitter_kernels " + Location.NUMBER_OF_AA_JITTER_KERNELS);
             writer.println("aa_fixed_jitter_size " + Location.FIXED_JITTER_SIZE);
@@ -3099,11 +3099,11 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
                     zss = new ZoomSequenceSettings();
 
-                    render();
-
                     if (cliBatchMode) {
-                        System.out.println("Rendered: " + lastLoadedFile);
+                        System.out.println("Rendering: " + lastLoadedFile);
                     }
+
+                    render();
                 } catch (Exception ex) {
                     if (cliBatchMode) {
                         System.out.println("Failed to render: " + lastLoadedFile + " Error: " + ex.getMessage());

@@ -145,7 +145,7 @@ public class MantExpComplex extends GenericComplex implements Serializable {
     }
 
     private MantExpComplex(Complex c) {
-        setMantexp(new MantExp(c.getRe()), new MantExp(c.getIm()));
+        setMantexp(new MantExp(c.re), new MantExp(c.im));
     }
 
     private MantExpComplex(DDComplex c) {

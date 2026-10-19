@@ -38,8 +38,8 @@ public class SierpinskiGasket extends FractalWithoutConstant {
     @Override
     public void function(Complex[] complex) {
 
-        double temp = complex[0].getIm();
-        double temp2 = complex[0].getRe();
+        double temp = complex[0].im;
+        double temp2 = complex[0].re;
 
         complex[0].times2_mutable();
 

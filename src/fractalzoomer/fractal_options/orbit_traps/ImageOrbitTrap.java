@@ -38,8 +38,8 @@ public class ImageOrbitTrap extends OrbitTrap {
             if (diff.getAbsRe() <= trapWidth * 0.5 && diff.getAbsIm() <= trapLength * 0.5) {
 
                 if (image != null) {
-                    int j = (int) ((1 - (diff.getIm() + trapLength * 0.5) / trapLength) * (image.getHeight() - 1) + 0.5);
-                    int i = (int) (((diff.getRe() + trapWidth * 0.5) / trapWidth) * (image.getWidth() - 1) + 0.5);
+                    int j = (int) ((1 - (diff.im + trapLength * 0.5) / trapLength) * (image.getHeight() - 1) + 0.5);
+                    int i = (int) (((diff.re + trapWidth * 0.5) / trapWidth) * (image.getWidth() - 1) + 0.5);
 
                     color = image.getRGB(i, j);
                 

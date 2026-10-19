@@ -100,7 +100,7 @@ public abstract class FractalWithoutConstant extends Fractal {
 
             temp = rotation.rotateInverse(complex[0]);
 
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+            if (Double.isNaN(temp.re) || Double.isNaN(temp.im) || Double.isInfinite(temp.re) || Double.isInfinite(temp.im)) {
                 break;
             }
 

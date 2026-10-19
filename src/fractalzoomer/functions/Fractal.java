@@ -1571,7 +1571,7 @@ public abstract class Fractal {
 
             temp = rotation.rotateInverse(complex[0]);
 
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+            if (Double.isNaN(temp.re) || Double.isNaN(temp.im) || Double.isInfinite(temp.re) || Double.isInfinite(temp.im)) {
                 break;
             }
 
@@ -5028,8 +5028,8 @@ public abstract class Fractal {
                 array.checkAllocation(index);
             }
 
-            array.re[index] = val.getRe();
-            array.im[index] = val.getIm();
+            array.re[index] = val.re;
+            array.im[index] = val.im;
 
             return val;
         }
@@ -5046,8 +5046,8 @@ public abstract class Fractal {
                 array.checkAllocation(index);
             }
 
-            array.re[index] = val.getRe();
-            array.im[index] = val.getIm();
+            array.re[index] = val.re;
+            array.im[index] = val.im;
             return val;
         }
     }
@@ -5141,8 +5141,8 @@ public abstract class Fractal {
                 array.checkAllocation(index);
             }
 
-            array.re[index] = val.getRe();
-            array.im[index] = val.getIm();
+            array.re[index] = val.re;
+            array.im[index] = val.im;
         }
     }
 

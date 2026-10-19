@@ -99,15 +99,16 @@ public class Derivative {
     }
 }
 
-public final class Complex extends GenericComplex {
+public final class Complex extends GenericComplex implements Serializable {
+    private static final long serialVersionUID = 222259L;
     public static final double HALF_PI = Math.PI * 0.5;
     public static final double TWO_PI = Math.PI * 2;
     public static final double SQRT_PI = Math.sqrt(Math.PI);
     public static final double SQRT_TWO_PI = Math.sqrt(TWO_PI);
     public static final double HALF = 0.5 - 1e-14;
 
-    private double re;
-    private double im;
+    public double re;
+    public double im;
 
     public Complex() {
 
@@ -120,6 +121,13 @@ public final class Complex extends GenericComplex {
 
         this.re = re;
         this.im = im;
+
+    }
+
+    public Complex(String re, String im) {
+
+        this.re = Double.parseDouble(re);
+        this.im = Double.parseDouble(im);
 
     }
 
@@ -1363,6 +1371,7 @@ public final class Complex extends GenericComplex {
     /*
      *  -Real + Imaginary i
      */
+    @Override
     public final Complex negate_re() {
 
         return new Complex(-re, im);
@@ -1372,6 +1381,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z = -Real + Imaginary i
      */
+    @Override
     public final Complex negate_re_mutable() {
 
         re = -re;
@@ -2933,6 +2943,11 @@ public final class Complex extends GenericComplex {
 
     }
 
+    @Override
+    public Complex divide2() {
+        return new Complex(re * 0.5, im * 0.5);
+    }
+
     /*
      * z1 + z2
      */
@@ -3022,6 +3037,7 @@ public final class Complex extends GenericComplex {
     /*
      *  z^3
      */
+    @Override
     public final Complex cubeFast(NormComponents normComponents) {
 
         double temp = (double) normComponents.reSqr;
@@ -3246,17 +3262,16 @@ public final class Complex extends GenericComplex {
 
     @Override
     public Object re() {
-        return getRe();
+        return re;
     }
 
     @Override
     public Object im() {
-        return getIm();
+        return im;
     }
 
     @Override
     public Object Norm() {
         return norm();
     }
-
 }

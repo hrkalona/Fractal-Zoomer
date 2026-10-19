@@ -494,8 +494,8 @@ public class Mandelbrot extends Julia {
         Complex c = complexIn[1];
 
         iterations = 0;
-        double zre = z.getRe(), zim = z.getIm();
-        double cre = c.getRe(), cim = c.getIm();
+        double zre = z.re, zim = z.im;
+        double cre = c.re, cim = c.im;
         double norm_squared, zre_sqr, zim_sqr;
         double temp;
 
@@ -1496,10 +1496,10 @@ public class Mandelbrot extends Julia {
         }
         else {
             Complex X = getReferenceValue(reference, RefIteration);
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
 
             if(s == 0) {
                 return new Complex(2.0 * (r * a - i * b), 2.0 * Complex.sign(r) * Complex.sign(i) * (r * b + i * a)).plus_mutable(DeltaSub0);
@@ -1524,10 +1524,10 @@ public class Mandelbrot extends Julia {
         }
         else {
             Complex X = getReferenceValue(reference, RefIteration);
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
 
             if(s == 0) {
                 return new Complex(2.0 * (r * a - i * b), 2.0 * Complex.sign(r) * Complex.sign(i) * (r * b + i * a));
@@ -1549,10 +1549,10 @@ public class Mandelbrot extends Julia {
         }
         else {
             Complex X = getReferenceValue(reference, RefIteration);
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
 
             return new Complex((2.0 * r + a) * a - (2.0 * i + b) * b, Complex.DiffAbs(r * i, r * b + (i + b) * a) * 2).plus_mutable(DeltaSub0);
         }
@@ -1586,10 +1586,10 @@ public class Mandelbrot extends Julia {
         }
         else {
             Complex X = getReferenceValue(reference, RefIteration);
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             return new Complex((2.0 * r + a) * a - (2.0 * i + b) * b, Complex.DiffAbs(r * i, r * b + (i + b) * a) * 2);
         }
     }
@@ -1858,10 +1858,10 @@ public class Mandelbrot extends Julia {
         }
         else {
             Complex X = getReferenceValue(data.Reference, RefIteration);
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             return new Complex((2.0 * r + a) * a - (2.0 * i + b) * b, Complex.DiffAbs(r * i, r * b + (i + b) * a) * 2);
         }
     }
@@ -2028,8 +2028,8 @@ public class Mandelbrot extends Julia {
 
         double norm_squared = 0;
 
-        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
-        double tempre, tempim, d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double dre = DeltaSubN.re, dim = DeltaSubN.im;
+        double tempre, tempim, d0re = DeltaSub0.re, d0im = DeltaSub0.im;
         double temp, zre = 0, zim = 0;
 
         double[] RefRe = reference.re;
@@ -2160,8 +2160,8 @@ public class Mandelbrot extends Julia {
 
         precalculatePerturbationData(DeltaSub0);
 
-        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
-        double tempre, tempim, d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double dre = DeltaSubN.re, dim = DeltaSubN.im;
+        double tempre, tempim, d0re = DeltaSub0.re, d0im = DeltaSub0.im;
         double temp, zre = 0, zim = 0;
 
         double normSquared = 0;
@@ -2270,8 +2270,8 @@ public class Mandelbrot extends Julia {
                 bla_iterations += l;
 
                 DeltaSubN = b.getValue(dre, dim, d0re, d0im);
-                dre = DeltaSubN.getRe();
-                dim = DeltaSubN.getIm();
+                dre = DeltaSubN.re;
+                dim = DeltaSubN.im;
 
                 zold2.assign(zold);
                 zold.assign(z);
@@ -2347,8 +2347,8 @@ public class Mandelbrot extends Julia {
 
         int ReferencePeriod = getPeriod();
 
-        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
-        double d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double dre = DeltaSubN.re, dim = DeltaSubN.im;
+        double d0re = DeltaSub0.re, d0im = DeltaSub0.im;
         double zre = 0, zim = 0;
         Complex Z;
 
@@ -2424,8 +2424,8 @@ public class Mandelbrot extends Julia {
                 //No Plane influence work
                 //No Pre filters work
                 Z = las.getRefp1();
-                zre = Z.getRe() + dre;
-                zim = Z.getIm() + dim;
+                zre = Z.re + dre;
+                zim = Z.im + dim;
                 z.assign(zre, zim);
                 //No Post filters work
 
@@ -2763,9 +2763,9 @@ public class Mandelbrot extends Julia {
         if(DPEvaluation && iterations < max_iterations) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
             Complex CDeltaSub0 = DeltaSub0.toComplex();
-            double zre = zc.getRe(), zim = zc.getIm();
-            double dre = CDeltaSubN.getRe(), dim = CDeltaSubN.getIm();
-            double d0re = CDeltaSub0.getRe(), d0im = CDeltaSub0.getIm();
+            double zre = zc.re, zim = zc.im;
+            double dre = CDeltaSubN.re, dim = CDeltaSubN.im;
+            double d0re = CDeltaSub0.re, d0im = CDeltaSub0.im;
             Complex Z;
 
             boolean isZero = CDeltaSub0.isZero();
@@ -2827,8 +2827,8 @@ public class Mandelbrot extends Julia {
                     //No Plane influence work
                     //No Pre filters work
                     Z = las.getRefp1();
-                    zre = Z.getRe() + dre;
-                    zim = Z.getIm() + dim;
+                    zre = Z.re + dre;
+                    zim = Z.im + dim;
                     zc.assign(zre, zim);
                     //No Post filters work
 
@@ -2879,9 +2879,9 @@ public class Mandelbrot extends Julia {
         Complex CDeltaSubN = DeltaSubN.toComplex();
         Complex CDeltaSub0 = DeltaSub0.toComplex();
 
-        double zre = z.getRe(), zim = z.getIm();
-        double dre = CDeltaSubN.getRe(), dim = CDeltaSubN.getIm();
-        double d0re = CDeltaSub0.getRe(), d0im = CDeltaSub0.getIm();
+        double zre = z.re, zim = z.im;
+        double dre = CDeltaSubN.re, dim = CDeltaSubN.im;
+        double d0re = CDeltaSub0.re, d0im = CDeltaSub0.im;
         double tempre, tempim, temp;
 
         double[] RefRe = reference.re;
@@ -3015,8 +3015,8 @@ public class Mandelbrot extends Julia {
 
         Complex z = complexIn[0];
         Complex c = complexIn[1];
-        double zre = z.getRe(), zim = z.getIm();
-        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
+        double zre = z.re, zim = z.im;
+        double dre = DeltaSubN.re, dim = DeltaSubN.im;
         double tempre, tempim, temp;
 
         double norm_squared = zre * zre + zim * zim;
@@ -3204,8 +3204,8 @@ public class Mandelbrot extends Julia {
         if(!useFullFloatExp) {
             Complex CDeltaSubN = DeltaSubN.toComplex();
 
-            double zre = zc.getRe(), zim = zc.getIm();
-            double dre = CDeltaSubN.getRe(), dim = CDeltaSubN.getIm();
+            double zre = zc.re, zim = zc.im;
+            double dre = CDeltaSubN.re, dim = CDeltaSubN.im;
             double tempre, tempim, temp;
 
             double[] RefRe = data.Reference.re;
@@ -3370,13 +3370,13 @@ public class Mandelbrot extends Julia {
 
             Complex DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
             Complex DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
-            double dnReScaled = DeltaSubNscaled.getRe();
-            double dnImScaled = DeltaSubNscaled.getIm();
-            double d0ReScaled = DeltaSub0scaled.getRe();
-            double d0ImScaled = DeltaSub0scaled.getIm();
+            double dnReScaled = DeltaSubNscaled.re;
+            double dnImScaled = DeltaSubNscaled.im;
+            double d0ReScaled = DeltaSub0scaled.re;
+            double d0ImScaled = DeltaSub0scaled.im;
             double temp, tempre, tempim;
-            double zre = zc.getRe();
-            double zim = zc.getIm();
+            double zre = zc.re;
+            double zim = zc.im;
 
             double[] RefRe = reference.re;
             double[] RefIm = reference.im;
@@ -3495,10 +3495,10 @@ public class Mandelbrot extends Julia {
                     DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
                     DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
 
-                    dnReScaled = DeltaSubNscaled.getRe();
-                    dnImScaled = DeltaSubNscaled.getIm();
-                    d0ReScaled = DeltaSub0scaled.getRe();
-                    d0ImScaled = DeltaSub0scaled.getIm();
+                    dnReScaled = DeltaSubNscaled.re;
+                    dnImScaled = DeltaSubNscaled.im;
+                    d0ReScaled = DeltaSub0scaled.re;
+                    d0ImScaled = DeltaSub0scaled.im;
 
                     isDeltaSub0NotZero = !DeltaSub0scaled.isZero();
 
@@ -3562,8 +3562,8 @@ public class Mandelbrot extends Julia {
                             DeltaSubN.subExp(exponent);
                             zDeep = z = getReferenceDeepValue(referenceDeep, RefIteration).plus_mutable(DeltaSubN);
                             zc = z.toComplex();
-                            zre = zc.getRe();
-                            zim = zc.getIm();
+                            zre = zc.re;
+                            zim = zc.im;
                         }
                         else {
                             zre = RefRe[RefIteration] + dnReScaled * s;
@@ -3628,10 +3628,10 @@ public class Mandelbrot extends Julia {
                         DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
                         DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
 
-                        dnReScaled = DeltaSubNscaled.getRe();
-                        dnImScaled = DeltaSubNscaled.getIm();
-                        d0ReScaled = DeltaSub0scaled.getRe();
-                        d0ImScaled = DeltaSub0scaled.getIm();
+                        dnReScaled = DeltaSubNscaled.re;
+                        dnImScaled = DeltaSubNscaled.im;
+                        d0ReScaled = DeltaSub0scaled.re;
+                        d0ImScaled = DeltaSub0scaled.im;
 
                         isDeltaSub0NotZero = !DeltaSub0scaled.isZero();
 
@@ -3674,10 +3674,10 @@ public class Mandelbrot extends Julia {
                         DeltaSubNscaled = tempDeltaSubN.divide(S).toComplex();
                         DeltaSub0scaled = tempDeltaSub0.divide(S).toComplex();
 
-                        dnReScaled = DeltaSubNscaled.getRe();
-                        dnImScaled = DeltaSubNscaled.getIm();
-                        d0ReScaled = DeltaSub0scaled.getRe();
-                        d0ImScaled = DeltaSub0scaled.getIm();
+                        dnReScaled = DeltaSubNscaled.re;
+                        dnImScaled = DeltaSubNscaled.im;
+                        d0ReScaled = DeltaSub0scaled.re;
+                        d0ImScaled = DeltaSub0scaled.im;
 
                         isDeltaSub0NotZero = !DeltaSub0scaled.isZero();
                         realigns++;
@@ -3727,8 +3727,8 @@ public class Mandelbrot extends Julia {
 
         precalculatePerturbationData(DeltaSub0);
 
-        double dre = DeltaSubN.getRe(), dim = DeltaSubN.getIm();
-        double tempre, tempim, d0re = DeltaSub0.getRe(), d0im = DeltaSub0.getIm();
+        double dre = DeltaSubN.re, dim = DeltaSubN.im;
+        double tempre, tempim, d0re = DeltaSub0.re, d0im = DeltaSub0.im;
         double temp, zre = 0, zim = 0;
 
         double normSquared = 0;
@@ -3834,8 +3834,8 @@ public class Mandelbrot extends Julia {
                 bla_iterations += l;
 
                 DeltaSubN = step.getValue(dre, dim, d0re, d0im);
-                dre = DeltaSubN.getRe();
-                dim = DeltaSubN.getIm();
+                dre = DeltaSubN.re;
+                dim = DeltaSubN.im;
 
                 zold2.assign(zold);
                 zold.assign(z);

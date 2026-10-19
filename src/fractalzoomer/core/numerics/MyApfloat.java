@@ -286,8 +286,8 @@ public class MyApfloat extends Apfloat {
         super(value.trim(), precision);
     }
 
-    public MyApfloat(String value, int radix) {
-        super(value.trim(), precision, radix);
+    public static Apfloat fromBase2String(String value, long numBits) {
+        return new Apfloat(value.trim(), numBits, 2);
     }
 
     public static Apfloat getPi() {

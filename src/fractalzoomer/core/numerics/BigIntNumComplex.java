@@ -27,8 +27,8 @@ public class BigIntNumComplex extends GenericComplex {
     }
 
     public BigIntNumComplex(Complex c) {
-        re = new BigIntNum(c.getRe());
-        im = new BigIntNum(c.getIm());
+        re = new BigIntNum(c.re);
+        im = new BigIntNum(c.im);
     }
 
     public BigIntNumComplex(BigIntNum re, BigIntNum im) {

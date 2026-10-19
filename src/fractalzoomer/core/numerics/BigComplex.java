@@ -49,8 +49,8 @@ public class BigComplex extends GenericComplex {
 
     public BigComplex(Complex z) {
 
-        re = new MyApfloat(z.getRe());
-        im = new MyApfloat(z.getIm());
+        re = new MyApfloat(z.re);
+        im = new MyApfloat(z.im);
 
     }
 

@@ -14,8 +14,8 @@ public class MobiusFunctionFilter extends FunctionFilter {
 
     @Override
     public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0, Complex pixel) {
-        double re = z.getRe();
-        double im = z.getIm();
+        double re = z.re;
+        double im = z.im;
 
         if(a != 0) {
             double dist = Math.abs(re) - a;

@@ -37,8 +37,8 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     public MpfrBigNumComplex(Complex c) {
-        re = new MpfrBigNum(c.getRe());
-        im = new MpfrBigNum(c.getIm());
+        re = new MpfrBigNum(c.re);
+        im = new MpfrBigNum(c.im);
     }
 
     public MpfrBigNumComplex(MpfrBigNum re, MpfrBigNum im) {
@@ -2756,8 +2756,8 @@ public class MpfrBigNumComplex extends GenericComplex {
     }
 
     public void set(Complex z) {
-        re.set(z.getRe());
-        im.set(z.getIm());
+        re.set(z.re);
+        im.set(z.im);
     }
 
     public void reset() {

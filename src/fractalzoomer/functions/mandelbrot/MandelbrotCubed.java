@@ -641,10 +641,10 @@ public class MandelbrotCubed extends Julia {
             return DeltaSubN.times(X.times(3).times_mutable(DeltaSubN.plus(X)).plus_mutable(DeltaSubN.square())).plus_mutable(DeltaSub0);
         }
         else {
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             double r2 = r*r;
             double i2 = i*i;
             double a2 = a*a;
@@ -723,10 +723,10 @@ public class MandelbrotCubed extends Julia {
             return DeltaSubN.times(X.times(3).times_mutable(DeltaSubN.plus(X)).plus_mutable(DeltaSubN.square()));
         }
         else {
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             double r2 = r*r;
             double i2 = i*i;
             double a2 = a*a;
@@ -802,10 +802,10 @@ public class MandelbrotCubed extends Julia {
             return DeltaSubN.times(X.times(3).times_mutable(DeltaSubN.plus(X)).plus_mutable(DeltaSubN.square()));
         }
         else {
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             double r2 = r*r;
             double i2 = i*i;
             double a2 = a*a;

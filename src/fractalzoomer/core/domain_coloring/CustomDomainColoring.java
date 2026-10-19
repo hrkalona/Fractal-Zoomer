@@ -147,8 +147,8 @@ public class CustomDomainColoring extends DomainColoring {
         double norm = normImpl.computeWithRoot(res);
 
         double arg = res.arg();
-        double re = res.getRe();
-        double im = res.getIm();
+        double re = res.re;
+        double im = res.im;
 
         if(drawColor) {
             switch (colorType) {

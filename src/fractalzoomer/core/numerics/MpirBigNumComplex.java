@@ -37,8 +37,8 @@ public class MpirBigNumComplex extends GenericComplex {
     }
 
     public MpirBigNumComplex(Complex c) {
-        re = new MpirBigNum(c.getRe());
-        im = new MpirBigNum(c.getIm());
+        re = new MpirBigNum(c.re);
+        im = new MpirBigNum(c.im);
     }
 
     public MpirBigNumComplex(MpirBigNum re, MpirBigNum im) {
@@ -2053,8 +2053,8 @@ public class MpirBigNumComplex extends GenericComplex {
     }
 
     public void set(Complex z) {
-        re.set(z.getRe());
-        im.set(z.getIm());
+        re.set(z.re);
+        im.set(z.im);
     }
 
     public void reset() {

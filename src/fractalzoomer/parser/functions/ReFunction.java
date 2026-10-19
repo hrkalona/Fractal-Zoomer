@@ -18,7 +18,7 @@ public class ReFunction extends AbstractOneArgumentFunction {
     @Override
     public Complex evaluate(Complex argument) {
         
-        return new Complex(argument.getRe(), 0);
+        return new Complex(argument.re, 0);
         
     }
     

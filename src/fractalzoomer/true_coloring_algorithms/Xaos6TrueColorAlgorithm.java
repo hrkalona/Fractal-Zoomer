@@ -19,8 +19,8 @@ public class Xaos6TrueColorAlgorithm extends TrueColorAlgorithm {
     public int createColor(TrueColorData data) {
 
         Complex z = data.z;
-        double re = z.getRe();
-        double im = -z.getIm();
+        double re = z.re;
+        double im = -z.im;
 
         int r, g, b;
 

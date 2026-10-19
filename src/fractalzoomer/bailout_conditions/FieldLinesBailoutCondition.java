@@ -42,11 +42,11 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
 
         if(iterations > 1) {
 
-            if(zold.getRe() == 0 || zold.getIm() == 0) {
+            if(zold.re == 0 || zold.im == 0) {
                 return false;
             }
 
-            return z.getRe() / zold.getRe() >= bound && z.getIm() / zold.getIm() >= bound;
+            return z.re / zold.re >= bound && z.im / zold.im >= bound;
         }
         return false;
      }

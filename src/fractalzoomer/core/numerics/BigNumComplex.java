@@ -27,8 +27,8 @@ public class BigNumComplex extends GenericComplex {
     }
 
     public BigNumComplex(Complex c) {
-        re = BigNum.create(c.getRe());
-        im = BigNum.create(c.getIm());
+        re = BigNum.create(c.re);
+        im = BigNum.create(c.im);
     }
 
     public BigNumComplex(BigNum re, BigNum im) {

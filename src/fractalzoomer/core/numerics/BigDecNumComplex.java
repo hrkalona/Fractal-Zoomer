@@ -27,8 +27,8 @@ public class BigDecNumComplex extends GenericComplex {
     }
 
     public BigDecNumComplex(Complex c) {
-        re = new BigDecNum(c.getRe());
-        im = new BigDecNum(c.getIm());
+        re = new BigDecNum(c.re);
+        im = new BigDecNum(c.im);
     }
 
     public BigDecNumComplex(BigDecNum re, BigDecNum im) {

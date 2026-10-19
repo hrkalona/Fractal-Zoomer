@@ -3469,8 +3469,8 @@ public abstract class TaskRender implements Runnable {
                         rgbs[loc2] = (color & 0xFFFFFF) | Constants.QUICKRENDER_CALCULATED_ALPHA_OFFSETED;
 
                         if (domain_image_data_re != null && domain_image_data_im != null) {
-                            domain_image_data_re[loc2] = val.getRe();
-                            domain_image_data_im[loc2] = val.getIm();
+                            domain_image_data_re[loc2] = val.re;
+                            domain_image_data_im[loc2] = val.im;
                         }
 
                         task_calculated++;
@@ -3677,8 +3677,8 @@ public abstract class TaskRender implements Runnable {
                         rgbs[loc] = domain_color.getDomainColor(val);
 
                         if (domain_image_data_re != null && domain_image_data_im != null) {
-                            domain_image_data_re[loc] = val.getRe();
-                            domain_image_data_im[loc] = val.getIm();
+                            domain_image_data_re[loc] = val.re;
+                            domain_image_data_im[loc] = val.im;
                         }
                         task_calculated++;
                     }
@@ -3760,8 +3760,8 @@ public abstract class TaskRender implements Runnable {
                     }
 
                     if (domain_image_data_re != null && domain_image_data_im != null) {
-                        domain_image_data_re[loc] = val.getRe();
-                        domain_image_data_im[loc] = val.getIm();
+                        domain_image_data_re[loc] = val.re;
+                        domain_image_data_im[loc] = val.im;
                     }
 
                     aa.initialize(color);
@@ -6609,13 +6609,13 @@ public abstract class TaskRender implements Runnable {
                 val = a.norm();
                 break;
             case 1:
-                val = a.getRe();
+                val = a.re;
                 break;
             case 2:
-                val = a.getIm();
+                val = a.im;
                 break;
             case 3:
-                val = a.getRe() + a.getIm();
+                val = a.re + a.im;
                 break;
         }
 

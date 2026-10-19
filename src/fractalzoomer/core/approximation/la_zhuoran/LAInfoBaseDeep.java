@@ -202,6 +202,7 @@ public abstract class LAInfoBaseDeep extends GenericLAInfo {
 
         return Result;
     }
+
     @Override
     protected ATInfo CreateAT(GenericLAInfo Next) {
         return CreateAT(Next, new MantExpComplex(ZCoeffExp, ZCoeffRe, ZCoeffIm), new MantExpComplex(CCoeffExp, CCoeffRe, CCoeffIm), LAThresholdExp, LAThresholdMant, LAThresholdCExp, LAThresholdCMant);

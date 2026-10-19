@@ -21,8 +21,8 @@ public class Xaos3TrueColorAlgorithm extends TrueColorAlgorithm {
         Complex z = data.z;
         double h, s, br;
         
-        double re = z.getRe();
-        double im = z.getIm();
+        double re = z.re;
+        double im = z.im;
 
         if (data.escaped) {
             h = 1 - (Math.atan2(re, im)) / (Math.PI);

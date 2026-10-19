@@ -299,7 +299,7 @@ public class Rotation {
     }
 
     public boolean shouldRotate(double xCenter, double yCenter) {
-        return xCenter != center.getRe() || yCenter != center.getIm();
+        return xCenter != center.re || yCenter != center.im;
     }
 
     public boolean shouldRotate(DoubleDouble xCenter, DoubleDouble yCenter) {

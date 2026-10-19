@@ -33,7 +33,7 @@ public class NormBlackGridDomainColoring extends DomainColoring {
         
         int color = applyNormColor(res.norm());
         
-        return applyGrid(color, res.getRe(), res.getIm(), 0, 0);
+        return applyGrid(color, res.re, res.im, 0, 0);
         
     }
 

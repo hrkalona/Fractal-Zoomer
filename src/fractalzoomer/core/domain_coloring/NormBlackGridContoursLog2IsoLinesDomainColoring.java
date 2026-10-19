@@ -53,7 +53,7 @@ public class NormBlackGridContoursLog2IsoLinesDomainColoring extends DomainColor
         
         color = applyNormContours(color, norm);    
 
-        color = applyGrid(color, res.getRe(), res.getIm(), 0, 0);
+        color = applyGrid(color, res.re, res.im, 0, 0);
         
         return applyIsoLines(color, res.arg(), 0, 0);
 

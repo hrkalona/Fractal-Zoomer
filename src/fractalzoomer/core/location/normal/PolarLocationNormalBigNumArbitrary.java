@@ -4,6 +4,7 @@ import fractalzoomer.core.location.Location;
 import fractalzoomer.core.numerics.BigNum;
 import fractalzoomer.core.numerics.BigNumComplex;
 import fractalzoomer.core.numerics.GenericComplex;
+import fractalzoomer.core.numerics.MyApfloat;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.app_settings.JitterSettings;
@@ -16,13 +17,13 @@ public class PolarLocationNormalBigNumArbitrary extends Location {
 
     protected BigNum ddxcenter;
     protected BigNum ddycenter;
-    protected BigNum ddsize;
+    protected Apfloat ddsize;
     private double[] antialiasing_x;
 
     private double muly;
     protected double mulx;
     protected BigNum ddmulx;
-    private BigNum expddstartx;
+    private Apfloat expddstartx;
     private double starty;
     private double[] antialiasing_y_sin;
     private double[] antialiasing_y_cos;
@@ -54,7 +55,7 @@ public class PolarLocationNormalBigNumArbitrary extends Location {
         height = offset.getHeight(height);
         int image_size = Math.min(width, height);
 
-        ddsize = BigNum.create(size);
+        ddsize = size;
 
         requiresVariablePixelSize = fractal.requiresVariablePixelSize();
 
@@ -70,7 +71,7 @@ public class PolarLocationNormalBigNumArbitrary extends Location {
 
         ddmulx = BigNum.create(mulx);
 
-        expddstartx = ddsize.mult(BigNum.create(Math.exp(-mulx * image_size * coefx)));
+        expddstartx = MyApfloat.fp.multiply(ddsize, new MyApfloat(Math.exp(-mulx * image_size * coefx)));
         starty = muly * image_size * (0.5 - coefy);
 
         rotation = new Rotation(new BigNumComplex(rotation_vals[0], rotation_vals[1]), new BigNumComplex(rotation_center[0], rotation_center[1]));
@@ -133,7 +134,7 @@ public class PolarLocationNormalBigNumArbitrary extends Location {
 
         if(js.enableJitter) {
             double[] res = GetPixelOffset(y, x, js.jitterSeed, js.jitterShape, js.jitterScale);
-            temp_ddr = BigNum.create(Math.exp((x + res[1]) * mulx)).mult(expddstartx);
+            temp_ddr = BigNum.create(MyApfloat.fp.multiply(new MyApfloat(Math.exp((x + res[1]) * mulx)), expddstartx));
 
             double f = (y + res[0]) * muly + starty;
             temp_sf = Math.sin(f);
@@ -145,7 +146,7 @@ public class PolarLocationNormalBigNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.mult(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = BigNum.create(Math.exp(x * mulx)).mult(expddstartx);
+                temp_ddr = BigNum.create(MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx));
             }
 
             if (y == indexY + 1) {
@@ -231,7 +232,7 @@ public class PolarLocationNormalBigNumArbitrary extends Location {
             } else if (x == indexX - 1) {
                 temp_ddr = temp_ddr.mult(ddInvemulx);
             } else if (x != indexX) {
-                temp_ddr = BigNum.create(Math.exp(x * mulx)).mult(expddstartx);
+                temp_ddr = BigNum.create(MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx));
             }
         }
 
@@ -259,7 +260,7 @@ public class PolarLocationNormalBigNumArbitrary extends Location {
         } else if (x == indexX - 1) {
             temp_ddr = temp_ddr.mult(ddInvemulx);
         } else if (x != indexX) {
-            temp_ddr = BigNum.create(Math.exp(x * mulx)).mult(expddstartx);
+            temp_ddr = BigNum.create(MyApfloat.fp.multiply(new MyApfloat(Math.exp(x * mulx)), expddstartx));
         }
 
         indexX = x;

@@ -104,7 +104,7 @@ public class Barnsley2 extends Julia {
     @Override
     public void function(Complex[] complex) {
 
-        if(complex[0].getRe() * complex[1].getIm() + complex[1].getRe() * complex[0].getIm() < 0) {
+        if(complex[0].re * complex[1].im + complex[1].re * complex[0].im < 0) {
             (complex[0].sub_mutable(1)).times_mutable(complex[1]);
         }
         else {

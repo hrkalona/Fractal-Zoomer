@@ -522,8 +522,8 @@ public class BruteForceRender extends TaskRender {
                     rgbs[loc] = domain_color.getDomainColor(val);
 
                     if (domain_image_data_re != null && domain_image_data_im != null) {
-                        domain_image_data_re[loc] = val.getRe();
-                        domain_image_data_im[loc] = val.getIm();
+                        domain_image_data_re[loc] = val.re;
+                        domain_image_data_im[loc] = val.im;
                     }
                     task_calculated++;
                 }
@@ -603,8 +603,8 @@ public class BruteForceRender extends TaskRender {
                 }
 
                 if (domain_image_data_re != null && domain_image_data_im != null) {
-                    domain_image_data_re[loc] = val.getRe();
-                    domain_image_data_im[loc] = val.getIm();
+                    domain_image_data_re[loc] = val.re;
+                    domain_image_data_im[loc] = val.im;
                 }
 
                 aa.initialize(color);
