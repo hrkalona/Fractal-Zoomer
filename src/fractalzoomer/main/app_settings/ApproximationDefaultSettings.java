@@ -1,7 +1,7 @@
 package fractalzoomer.main.app_settings;
 
 public class ApproximationDefaultSettings {
-    public static int DETECTION_METHOD = 2;
+    public static int DETECTION_METHOD = 1;
     public static double Stage0DipDetectionThreshold = 0x1.0p-5;//Imagina: 0x1.0p-10;
     public static double DipDetectionThreshold = 0x1.0p-10;
 
