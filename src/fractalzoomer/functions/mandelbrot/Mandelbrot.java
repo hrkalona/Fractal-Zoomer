@@ -525,13 +525,15 @@ public class Mandelbrot extends Julia {
 
                 return res;
             }
-            zold2.assign(zold);
-            zold.assign(z);
+
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             temp = zre * zim;
-            zim = temp + temp + cim;
-            zre = zre_sqr - zim_sqr + cre;
-            z.assign(zre, zim);
+            z.im = zim = temp + temp + cim;
+            z.re = zre = zre_sqr - zim_sqr + cre;
 
             if (statistic != null) {
                 statistic.insert(z, zold, zold2, iterations, c, start, c0);
@@ -2039,16 +2041,14 @@ public class Mandelbrot extends Julia {
         Complex c = complexIn[1];
 
         if (iterations != 0 && RefIteration < MaxRefIteration) {
-            zre = RefRe[RefIteration] + dre;
-            zim = RefIm[RefIteration] + dim;
+            z.re = zre = RefRe[RefIteration] + dre;
+            z.im = zim = RefIm[RefIteration] + dim;
             norm_squared = zre * zre + zim * zim;
-            z.assign(zre, zim);
         } else if (iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            zre = RefRe[RefIteration] + dre;
-            zim = RefIm[RefIteration] + dim;
+            z.re = zre = RefRe[RefIteration] + dre;
+            z.im = zim = RefIm[RefIteration] + dim;
             norm_squared = zre * zre + zim * zim;
-            z.assign(zre, zim);
         }
 
         double RefReVal = RefRe[RefIteration];
@@ -2093,17 +2093,18 @@ public class Mandelbrot extends Julia {
             RefIteration++;
             double_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
             if (max_iterations > 1) {
                 RefReVal = RefRe[RefIteration];
                 RefImVal = RefIm[RefIteration];
-                zre = RefReVal + dre;
-                zim = RefImVal + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefReVal + dre;
+                z.im = zim = RefImVal + dim;
             }
             //No Post filters work
 
@@ -2212,16 +2213,17 @@ public class Mandelbrot extends Julia {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
             //No Post filters work
             if (max_iterations > 1) {
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefRe[RefIteration] + dre;
+                z.im = zim = RefIm[RefIteration] + dim;
             }
 
             if (statistic != null) {
@@ -2273,15 +2275,16 @@ public class Mandelbrot extends Julia {
                 dre = DeltaSubN.re;
                 dim = DeltaSubN.im;
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
                 //No Post filters work
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefRe[RefIteration] + dre;
+                z.im = zim = RefIm[RefIteration] + dim;
 
                 if (statistic != null) {
                     statistic.insert(z, zold, zold2, iterations, c, start, c0, b);
@@ -2359,14 +2362,12 @@ public class Mandelbrot extends Julia {
         double[] RefIm = reference.im;
 
         if (iterations != 0 && RefIteration < MaxRefIteration) {
-            zre = RefRe[RefIteration] + dre;
-            zim = RefIm[RefIteration] + dim;
-            z.assign(zre, zim);
+            z.re = zre = RefRe[RefIteration] + dre;
+            z.im = zim = RefIm[RefIteration] + dim;
         } else if (iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            zre = RefRe[RefIteration] + dre;
-            zim = RefIm[RefIteration] + dim;
-            z.assign(zre, zim);
+            z.re = zre = RefRe[RefIteration] + dre;
+            z.im = zim = RefIm[RefIteration] + dim;
         }
 
         double CDeltaSub0ChebyshevNorm = Math.max(Math.abs(d0re), Math.abs(d0im));
@@ -2418,15 +2419,16 @@ public class Mandelbrot extends Julia {
 
                 RefIteration++;
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
                 Z = las.getRefp1();
-                zre = Z.re + dre;
-                zim = Z.im + dim;
-                z.assign(zre, zim);
+                z.re = zre = Z.re + dre;
+                z.im = zim = Z.im + dim;
                 //No Post filters work
 
                 // rebase
@@ -2508,18 +2510,18 @@ public class Mandelbrot extends Julia {
             RefIteration++;
             perturb_iterations++;
 
-            // rebase
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
             if (max_iterations > 1) {
                 RefReVal = RefRe[RefIteration];
                 RefImVal = RefIm[RefIteration];
-                zre = RefReVal + dre;
-                zim = RefImVal + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefReVal + dre;
+                z.im = zim = RefImVal + dim;
             }
             //No Post filters work
             normSquared = zre * zre + zim * zim;
@@ -2652,8 +2654,10 @@ public class Mandelbrot extends Julia {
                 RefIteration++;
 
                 if(needsComplexZ) {
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
                     zoldDeep = z;
                 }
                 else {
@@ -2732,9 +2736,10 @@ public class Mandelbrot extends Julia {
                 RefIteration++;
                 perturb_iterations++;
 
-                // rebase
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
                 zoldDeep = z;
 
                 //No Plane influence work
@@ -2821,19 +2826,19 @@ public class Mandelbrot extends Julia {
 
                     RefIteration++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
 
                     //No Plane influence work
                     //No Pre filters work
                     Z = las.getRefp1();
-                    zre = Z.re + dre;
-                    zim = Z.im + dim;
-                    zc.assign(zre, zim);
+                    zc.re = zre = Z.re + dre;
+                    zc.im = zim = Z.im + dim;
                     //No Post filters work
 
                     // rebase
-
                     if(Math.max(Math.abs(zre), Math.abs(zim)) < Math.max(Math.abs(dre), Math.abs(dim)) || RefIteration >= end) {
                         dre = zre;
                         dim = zim;
@@ -2890,14 +2895,12 @@ public class Mandelbrot extends Julia {
         boolean isNonZero = !CDeltaSub0.isZero();
 
         if (!usedDeepCode && iterations != 0 && RefIteration < MaxRefIteration) {
-            zre = RefRe[RefIteration] + dre;
-            zim = RefIm[RefIteration] + dim;
-            z.assign(zre, zim);
+            z.re = zre = RefRe[RefIteration] + dre;
+            z.im = zim = RefIm[RefIteration] + dim;
         } else if (!usedDeepCode && iterations != 0 && ReferencePeriod != 0) {
             RefIteration = RefIteration % ReferencePeriod;
-            zre = RefRe[RefIteration] + dre;
-            zim = RefIm[RefIteration] + dim;
-            z.assign(zre, zim);
+            z.re = zre = RefRe[RefIteration] + dre;
+            z.im = zim = RefIm[RefIteration] + dim;
         }
 
         double RefReVal = RefRe[RefIteration];
@@ -2945,17 +2948,18 @@ public class Mandelbrot extends Julia {
             RefIteration++;
             double_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
             if (max_iterations > 1) {
                 RefReVal = RefRe[RefIteration];
                 RefImVal = RefIm[RefIteration];
-                zre = RefReVal + dre;
-                zim = RefImVal + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefReVal + dre;
+                z.im = zim = RefImVal + dim;
             }
             //No Post filters work
 
@@ -3055,15 +3059,16 @@ public class Mandelbrot extends Julia {
             RefIteration++;
             double_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
             if(max_iterations > 1){
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefRe[RefIteration] + dre;
+                z.im = zim = RefIm[RefIteration] + dim;
             }
             //No Post filters work
 
@@ -3167,8 +3172,10 @@ public class Mandelbrot extends Julia {
                 RefIteration++;
                 float_exp_iterations++;
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
@@ -3247,15 +3254,16 @@ public class Mandelbrot extends Julia {
                 RefIteration++;
                 double_iterations++;
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
 
                 //No Plane influence work
                 //No Pre filters work
                 if (max_iterations > 1) {
-                    zre = RefRe[RefIteration] + dre;
-                    zim = RefIm[RefIteration] + dim;
-                    zc.assign(zre, zim);
+                    zc.re = zre = RefRe[RefIteration] + dre;
+                    zc.im = zim = RefIm[RefIteration] + dim;
                 }
                 //No Post filters work
 
@@ -3427,8 +3435,10 @@ public class Mandelbrot extends Julia {
 
                     float_exp_iterations++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
                     zoldDeep = zDeep;
 
                     //No Plane influence work
@@ -3551,8 +3561,10 @@ public class Mandelbrot extends Julia {
 
                     scaled_iterations++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
 
                     //No Plane influence work
                     //No Pre filters work
@@ -3566,9 +3578,8 @@ public class Mandelbrot extends Julia {
                             zim = zc.im;
                         }
                         else {
-                            zre = RefRe[RefIteration] + dnReScaled * s;
-                            zim = RefIm[RefIteration] + dnImScaled * s;
-                            zc.assign(zre, zim);
+                            zc.re = zre = RefRe[RefIteration] + dnReScaled * s;
+                            zc.im = zim = RefIm[RefIteration] + dnImScaled * s;
                             zDeep = new Complex(zc);
                         }
                     }
@@ -3780,16 +3791,17 @@ public class Mandelbrot extends Julia {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
             //No Post filters work
             if (max_iterations > 1) {
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefRe[RefIteration] + dre;
+                z.im = zim = RefIm[RefIteration] + dim;
             }
 
             if (statistic != null) {
@@ -3837,15 +3849,16 @@ public class Mandelbrot extends Julia {
                 dre = DeltaSubN.re;
                 dim = DeltaSubN.im;
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
                 //No Post filters work
-                zre = RefRe[RefIteration] + dre;
-                zim = RefIm[RefIteration] + dim;
-                z.assign(zre, zim);
+                z.re = zre = RefRe[RefIteration] + dre;
+                z.im = zim = RefIm[RefIteration] + dim;
 
                 if (statistic != null) {
                     statistic.insert(z, zold, zold2, iterations, c, start, c0, step, l);

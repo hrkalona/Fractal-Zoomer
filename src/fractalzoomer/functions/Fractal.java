@@ -1972,8 +1972,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -2030,8 +2032,10 @@ public abstract class Fractal {
 
                 DeltaSubN = b.getValue(DeltaSubN, DeltaSub0);
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2125,8 +2129,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -2179,8 +2185,10 @@ public abstract class Fractal {
 
                 DeltaSubN = step.getValue(DeltaSubN, DeltaSub0);
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2312,8 +2320,10 @@ public abstract class Fractal {
                 RefIteration++;
 
                 if(needsComplexZ) {
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
                     zoldDeep = z;
                 }
                 else {
@@ -2392,9 +2402,10 @@ public abstract class Fractal {
                 RefIteration++;
                 perturb_iterations++;
 
-                // rebase
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
                 zoldDeep = z;
 
                 //No Plane influence work
@@ -2468,8 +2479,10 @@ public abstract class Fractal {
 
                     RefIteration++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
 
                     //No Plane influence work
                     //No Pre filters work
@@ -2591,8 +2604,10 @@ public abstract class Fractal {
 
                 RefIteration++;
 
-                zold2.assign(zold);
-                zold.assign(z);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = z.re;
+                zold.im = z.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2663,9 +2678,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            // rebase
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -2760,8 +2776,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(zc);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = zc.re;
+            zold.im = zc.im;
             zoldDeep = z;
 
             //No Plane influence work
@@ -2822,8 +2840,10 @@ public abstract class Fractal {
                 DeltaSubN = b.getValue(DeltaSubN, DeltaSub0);
                 DeltaSubN.Normalize();
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -2925,8 +2945,10 @@ public abstract class Fractal {
             RefIteration++;
             perturb_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(zc);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = zc.re;
+            zold.im = zc.im;
             zoldDeep = z;
 
             //No Plane influence work
@@ -2982,8 +3004,10 @@ public abstract class Fractal {
                 DeltaSubN = step.getValue(DeltaSubN, DeltaSub0);
                 DeltaSubN.Normalize();
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
 
                 //No Plane influence work
                 //No Pre filters work
@@ -3090,8 +3114,10 @@ public abstract class Fractal {
             RefIteration++;
             double_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -3247,8 +3273,10 @@ public abstract class Fractal {
 
                     float_exp_iterations++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
                     zoldDeep = zDeep;
 
                     //No Plane influence work
@@ -3346,8 +3374,10 @@ public abstract class Fractal {
 
                     scaled_iterations++;
 
-                    zold2.assign(zold);
-                    zold.assign(zc);
+                    zold2.re = zold.re;
+                    zold2.im = zold.im;
+                    zold.re = zc.re;
+                    zold.im = zc.im;
 
                     //No Plane influence work
                     //No Pre filters work
@@ -3533,8 +3563,10 @@ public abstract class Fractal {
             RefIteration++;
             double_iterations++;
 
-            zold2.assign(zold);
-            zold.assign(z);
+            zold2.re = zold.re;
+            zold2.im = zold.im;
+            zold.re = z.re;
+            zold.im = z.im;
 
             //No Plane influence work
             //No Pre filters work
@@ -3653,8 +3685,10 @@ public abstract class Fractal {
 
                 float_exp_iterations++;
 
-                zold2.assign(zold);
-                zold.assign(zc);
+                zold2.re = zold.re;
+                zold2.im = zold.im;
+                zold.re = zc.re;
+                zold.im = zc.im;
                 zoldDeep = z;
 
                 if (max_iterations > 1) {
