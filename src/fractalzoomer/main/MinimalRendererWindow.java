@@ -158,10 +158,12 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
     public static boolean cliBatchMode = false;
     public static String cliBatchDirectory = ".";
-    public static int cliBatchImageWidth = 1024;
-    public static int cliBatchImageHeight = 768;
-    public static int cliBatchThreads = 0;
+    public static String cliInputFile = null;
+    public static int cliImageWidth = 1024;
+    public static int cliImageHeight = 768;
+    public static int cliThreads = 0;
     public static String cliOutputDir = ".";
+    public static boolean cliUsePreferences = false;
 
     public MinimalRendererWindow() {
         super();
@@ -191,8 +193,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
         TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA = false;
 
         int procs = Runtime.getRuntime().availableProcessors();
-        if (cliBatchMode && cliBatchThreads > 0) {
-            procs = cliBatchThreads;
+        if (cliBatchMode && cliThreads > 0) {
+            procs = cliThreads;
         }
 
         ArrayList<Integer> factors = CommonFunctions.getAllFactors(procs);
@@ -223,15 +225,21 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
         progress.setVisible(false);
 
+        image_width = 1000;
+        image_height = 1000;
+
+        if (!cliBatchMode || cliUsePreferences) {
+            loadPreferences();
+            System.out.println("Loaded preferences from ini");
+        } else {
+            System.out.println("Using default options");
+        }
+
         if (!cliBatchMode) {
             Locale.setDefault(Locale.US);
 
-            image_width = 1000;
-            image_height = 1000;
             setSize(615, 605);
             setTitle(TITLE);
-
-            loadPreferences();
 
             previewPanel = new JPanel() {
                 @Override
@@ -573,8 +581,8 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
             repaint();
         } else {
-            image_width = cliBatchImageWidth;
-            image_height = cliBatchImageHeight;
+            image_width = cliImageWidth;
+            image_height = cliImageHeight;
             outputDirectory = cliOutputDir;
         }
 
@@ -3155,9 +3163,15 @@ public class MinimalRendererWindow extends JFrame implements Constants {
 
     public void cliBatchRender() throws IOException {
 
-        List<String> files = Files.walk(Paths.get(cliBatchDirectory))
-                .filter(Files::isRegularFile)
-                .filter(file -> file.toString().toLowerCase().endsWith(".fzs")).map(f -> f.toAbsolutePath().toString()).sorted().collect(Collectors.toList());
+        List<String> files;
+        if (cliInputFile != null) {
+            files = new ArrayList<>();
+            files.add(Paths.get(cliInputFile).toAbsolutePath().toString());
+        } else {
+            files = Files.walk(Paths.get(cliBatchDirectory))
+                    .filter(Files::isRegularFile)
+                    .filter(file -> file.toString().toLowerCase().endsWith(".fzs")).map(f -> f.toAbsolutePath().toString()).sorted().collect(Collectors.toList());
+        }
 
         startBatchRender(files);
     }
@@ -3569,27 +3583,39 @@ public class MinimalRendererWindow extends JFrame implements Constants {
                 j++;
             } else if (args[j].equals("--cli_width") && j + 1 < args.length) {
                 try {
-                    MinimalRendererWindow.cliBatchImageWidth = Integer.parseInt(args[j + 1]);
+                    MinimalRendererWindow.cliImageWidth = Integer.parseInt(args[j + 1]);
                 } catch (Exception ex) {
 
                 }
                 j++;
             } else if (args[j].equals("--cli_height") && j + 1 < args.length) {
                 try {
-                    MinimalRendererWindow.cliBatchImageHeight = Integer.parseInt(args[j + 1]);
+                    MinimalRendererWindow.cliImageHeight = Integer.parseInt(args[j + 1]);
                 } catch (Exception ex) {
 
                 }
                 j++;
             } else if (args[j].equals("--cli_threads") && j + 1 < args.length) {
                 try {
-                    MinimalRendererWindow.cliBatchThreads = Integer.parseInt(args[j + 1]);
+                    MinimalRendererWindow.cliThreads = Integer.parseInt(args[j + 1]);
                 } catch (Exception ex) {
 
                 }
                 j++;
             } else if (args[j].equals("--cli_output_dir") && j + 1 < args.length) {
                 cliOutputDir = args[j + 1];
+                j++;
+            } else if (args[j].equals("--cli_use_preferences") && j + 1 < args.length) {
+                try {
+                    int val = Integer.parseInt(args[j + 1]);
+                    MinimalRendererWindow.cliUsePreferences = val != 0;
+                } catch (Exception ex) {
+
+                }
+                j++;
+            } else if (args[j].equals("--cli_input_file") && j + 1 < args.length) {
+                MinimalRendererWindow.cliInputFile = args[j + 1];
+                MinimalRendererWindow.cliBatchMode = true;
                 j++;
             }
         }

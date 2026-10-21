@@ -2007,6 +2007,12 @@ public class Settings implements Constants {
             pps.ts.textureOffset = ((SettingsFractals1095)settings).getTextureOffset();
         }
 
+        if (version < 1096) {
+            pps.sts.applyIntensityDuringColoring = defaults.pps.sts.applyIntensityDuringColoring;
+        } else {
+            pps.sts.applyIntensityDuringColoring = ((SettingsFractals1096)settings).getApplyStatisticIntensityDuringColoring();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -2492,7 +2498,7 @@ public class Settings implements Constants {
                 userCode = userCode.replaceAll("\\b" + Parser.DEFAULT_USER_CODE_CLASS + "\\b", Parser.SAVED_USER_CODE_CLASS);
             }
 
-            SettingsFractals settings = new SettingsFractals1095(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW, TaskRender.SPLIT_INTO_RECTANGLE_AREAS, TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM, TaskRender.AREA_DIMENSION_X, TaskRender.AREA_DIMENSION_Y);
+            SettingsFractals settings = new SettingsFractals1096(this, TaskRender.PERTURBATION_THEORY, TaskRender.GREEDY_ALGORITHM, TaskRender.BRUTE_FORCE_ALG, TaskRender.GREEDY_ALGORITHM_SELECTION, TaskRender.GREEDY_ALGORITHM_CHECK_ITER_DATA, userCode, TaskRender.GUESS_BLOCKS_SELECTION, TaskRender.SUCCESSIVE_REFINEMENT_SQUARE_RECT_SPLIT_ALGORITHM, TaskRender.TWO_PASS_SUCCESSIVE_REFINEMENT, TaskRender.CHUNK_SIZE_PER_ROW, TaskRender.SPLIT_INTO_RECTANGLE_AREAS, TaskRender.RECTANGLE_AREA_SPLIT_ALGORITHM, TaskRender.AREA_DIMENSION_X, TaskRender.AREA_DIMENSION_Y);
             file_temp.writeObject(settings);
             file_temp.flush();
             file_temp.close();
