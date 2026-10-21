@@ -27,8 +27,8 @@ public class BigDecNumComplex extends GenericComplex {
     }
 
     public BigDecNumComplex(Complex c) {
-        re = new BigDecNum(c.getRe());
-        im = new BigDecNum(c.getIm());
+        re = new BigDecNum(c.re);
+        im = new BigDecNum(c.im);
     }
 
     public BigDecNumComplex(BigDecNum re, BigDecNum im) {
@@ -857,6 +857,12 @@ public class BigDecNumComplex extends GenericComplex {
     @Override
     public BigDecNumComplex times4() {
         return new BigDecNumComplex(re.mult(4), im.mult(4));
+    }
+
+    @Override
+    public BigDecNumComplex divide2() {
+        BigDecNum point_five = new BigDecNum(0.5);
+        return new BigDecNumComplex(re.mult(point_five), im.mult(point_five));
     }
 
     @Override

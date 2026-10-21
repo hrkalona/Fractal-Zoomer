@@ -28,8 +28,8 @@ public class Biomorphs extends OutColorAlgorithm {
 
         double result = EscapeTimeAlg.getResult(data);
         Complex z = data.z;
-        double temp = z.getRe();
-        double temp2 = z.getIm();
+        double temp = z.re;
+        double temp2 = z.im;
         return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  result : -(result + INCREMENT);
 
     }

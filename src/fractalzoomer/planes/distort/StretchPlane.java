@@ -157,8 +157,8 @@ public class StretchPlane extends Plane {
     @Override
     public Complex transform_internal(Complex pixel) {
 
-        double x = pixel.getRe();
-        double y = pixel.getIm();
+        double x = pixel.re;
+        double y = pixel.im;
         if(use_center) {
            x -= xcenterd;
            y -= ycenterd;

@@ -339,27 +339,27 @@ public class Nova extends ExtendedConvergentType {
             temp = SimpsonNewtonRootFindingMethod.getDerivativeArgument(z, fz, dfz);
         }
 
-        if (z_exponent.getIm() == 0) {
-            if (z_exponent.getRe() == 2) {
+        if (z_exponent.im == 0) {
+            if (z_exponent.re == 2) {
                 combined_dfz = temp.times2();
-            } else if (z_exponent.getRe() == 3) {
+            } else if (z_exponent.re == 3) {
                 combined_dfz = temp.square().times_mutable(3);
-            } else if (z_exponent.getRe() == 4) {
+            } else if (z_exponent.re == 4) {
                 combined_dfz = temp.cube().times4_mutable();
-            } else if (z_exponent.getRe() == 5) {
+            } else if (z_exponent.re == 5) {
                 combined_dfz = temp.fourth().times_mutable(5);
-            } else if (z_exponent.getRe() == 6) {
+            } else if (z_exponent.re == 6) {
                 combined_dfz = temp.fifth().times_mutable(6);
-            } else if (z_exponent.getRe() == 7) {
+            } else if (z_exponent.re == 7) {
                 combined_dfz = temp.sixth().times_mutable(7);
-            } else if (z_exponent.getRe() == 8) {
+            } else if (z_exponent.re == 8) {
                 combined_dfz = temp.seventh().times_mutable(8);
-            } else if (z_exponent.getRe() == 9) {
+            } else if (z_exponent.re == 9) {
                 combined_dfz = temp.eighth().times_mutable(9);
-            } else if (z_exponent.getRe() == 10) {
+            } else if (z_exponent.re == 10) {
                 combined_dfz = temp.ninth().times_mutable(10);
             } else {
-                combined_dfz = temp.pow(z_exponent.getRe() - 1).times_mutable(z_exponent.getRe());
+                combined_dfz = temp.pow(z_exponent.re - 1).times_mutable(z_exponent.re);
             }
         } else {
             combined_dfz = temp.pow(z_exponent.sub(1)).times_mutable(z_exponent);
@@ -368,27 +368,27 @@ public class Nova extends ExtendedConvergentType {
         if(nova_method == NOVA_HARMONIC_SIMPSON_NEWTON || nova_method == NOVA_NEDZHIBOV || nova_method == NOVA_SIMPSON_NEWTON) {
             Complex temp2 = z.plus(temp).times_mutable(0.5);
 
-            if (z_exponent.getIm() == 0) {
-                if (z_exponent.getRe() == 2) {
+            if (z_exponent.im == 0) {
+                if (z_exponent.re == 2) {
                     combined_dfz2 = temp2.times2_mutable();
-                } else if (z_exponent.getRe() == 3) {
+                } else if (z_exponent.re == 3) {
                     combined_dfz2 = temp2.square_mutable().times_mutable(3);
-                } else if (z_exponent.getRe() == 4) {
+                } else if (z_exponent.re == 4) {
                     combined_dfz2 = temp2.cube_mutable().times4_mutable();
-                } else if (z_exponent.getRe() == 5) {
+                } else if (z_exponent.re == 5) {
                     combined_dfz2 = temp2.fourth_mutable().times_mutable(5);
-                } else if (z_exponent.getRe() == 6) {
+                } else if (z_exponent.re == 6) {
                     combined_dfz2 = temp2.fifth_mutable().times_mutable(6);
-                } else if (z_exponent.getRe() == 7) {
+                } else if (z_exponent.re == 7) {
                     combined_dfz2 = temp2.sixth_mutable().times_mutable(7);
-                } else if (z_exponent.getRe() == 8) {
+                } else if (z_exponent.re == 8) {
                     combined_dfz2 = temp2.seventh_mutable().times_mutable(8);
-                } else if (z_exponent.getRe() == 9) {
+                } else if (z_exponent.re == 9) {
                     combined_dfz2 = temp2.eighth_mutable().times_mutable(9);
-                } else if (z_exponent.getRe() == 10) {
+                } else if (z_exponent.re == 10) {
                     combined_dfz2 = temp2.ninth_mutable().times_mutable(10);
                 } else {
-                    combined_dfz2 = temp2.pow_mutable(z_exponent.getRe() - 1).times_mutable(z_exponent.getRe());
+                    combined_dfz2 = temp2.pow_mutable(z_exponent.re - 1).times_mutable(z_exponent.re);
                 }
             } else {
                 combined_dfz2 = temp2.pow(z_exponent.sub(1)).times_mutable(z_exponent);
@@ -448,27 +448,27 @@ public class Nova extends ExtendedConvergentType {
             temp = NoorGuptaRootFindingMethod.getFunctionAndDerivativeArgument(z, fz, dfz);
         }
 
-        if (z_exponent.getIm() == 0) {
-            if (z_exponent.getRe() == 2) {
+        if (z_exponent.im == 0) {
+            if (z_exponent.re == 2) {
                 ffz = temp.square_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 3) {
+            } else if (z_exponent.re == 3) {
                 ffz = temp.cube_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 4) {
+            } else if (z_exponent.re == 4) {
                 ffz = temp.fourth_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 5) {
+            } else if (z_exponent.re == 5) {
                 ffz = temp.fifth_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 6) {
+            } else if (z_exponent.re == 6) {
                 ffz = temp.sixth_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 7) {
+            } else if (z_exponent.re == 7) {
                 ffz = temp.seventh_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 8) {
+            } else if (z_exponent.re == 8) {
                 ffz = temp.eighth_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 9) {
+            } else if (z_exponent.re == 9) {
                 ffz = temp.ninth_mutable().sub_mutable(1);
-            } else if (z_exponent.getRe() == 10) {
+            } else if (z_exponent.re == 10) {
                 ffz = temp.tenth_mutable().sub_mutable(1);
             } else {
-                ffz = temp.pow_mutable(z_exponent.getRe()).sub_mutable(1);
+                ffz = temp.pow_mutable(z_exponent.re).sub_mutable(1);
             }
         } else {
             ffz = temp.pow(z_exponent).sub_mutable(1);
@@ -485,27 +485,27 @@ public class Nova extends ExtendedConvergentType {
             temp = RafisRafiullahRootFindingMethod.getSecondDerivativeArgument(z, fz, dfz);
         }
 
-        if (z_exponent.getIm() == 0) {
-            if (z_exponent.getRe() == 2) {
+        if (z_exponent.im == 0) {
+            if (z_exponent.re == 2) {
                 combined_ddfz = new Complex(2, 0);
-            } else if (z_exponent.getRe() == 3) {
+            } else if (z_exponent.re == 3) {
                 combined_ddfz = temp.times_mutable(6);
-            } else if (z_exponent.getRe() == 4) {
+            } else if (z_exponent.re == 4) {
                 combined_ddfz = temp.square_mutable().times_mutable(12);
-            } else if (z_exponent.getRe() == 5) {
+            } else if (z_exponent.re == 5) {
                 combined_ddfz = temp.cube_mutable().times_mutable(20);
-            } else if (z_exponent.getRe() == 6) {
+            } else if (z_exponent.re == 6) {
                 combined_ddfz = temp.fourth_mutable().times_mutable(30);
-            } else if (z_exponent.getRe() == 7) {
+            } else if (z_exponent.re == 7) {
                 combined_ddfz = temp.fifth_mutable().times_mutable(42);
-            } else if (z_exponent.getRe() == 8) {
+            } else if (z_exponent.re == 8) {
                 combined_ddfz = temp.sixth_mutable().times_mutable(56);
-            } else if (z_exponent.getRe() == 9) {
+            } else if (z_exponent.re == 9) {
                 combined_ddfz = temp.seventh_mutable().times_mutable(72);
-            } else if (z_exponent.getRe() == 10) {
+            } else if (z_exponent.re == 10) {
                 combined_ddfz = temp.eighth_mutable().times_mutable(90);
             } else {
-                combined_ddfz = temp.pow_mutable(z_exponent.getRe() - 2).times_mutable(z_exponent.getRe()).times_mutable(z_exponent.getRe() - 1);
+                combined_ddfz = temp.pow_mutable(z_exponent.re - 2).times_mutable(z_exponent.re).times_mutable(z_exponent.re - 1);
             }
         } else {
             combined_ddfz = temp.pow(z_exponent.sub(2)).times_mutable(z_exponent).times_mutable(z_exponent.sub(1));
@@ -526,54 +526,54 @@ public class Nova extends ExtendedConvergentType {
         Complex combined_ddfz = null;
         Complex combined_dfz2 = null;
 
-        if (z_exponent.getIm() == 0) {
-            if (z_exponent.getRe() == 2) {
+        if (z_exponent.im == 0) {
+            if (z_exponent.re == 2) {
                 fz = complex[0].square().sub_mutable(1);
-            } else if (z_exponent.getRe() == 3) {
+            } else if (z_exponent.re == 3) {
                 fz = complex[0].cube().sub_mutable(1);
-            } else if (z_exponent.getRe() == 4) {
+            } else if (z_exponent.re == 4) {
                 fz = complex[0].fourth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 5) {
+            } else if (z_exponent.re == 5) {
                 fz = complex[0].fifth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 6) {
+            } else if (z_exponent.re == 6) {
                 fz = complex[0].sixth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 7) {
+            } else if (z_exponent.re == 7) {
                 fz = complex[0].seventh().sub_mutable(1);
-            } else if (z_exponent.getRe() == 8) {
+            } else if (z_exponent.re == 8) {
                 fz = complex[0].eighth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 9) {
+            } else if (z_exponent.re == 9) {
                 fz = complex[0].ninth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 10) {
+            } else if (z_exponent.re == 10) {
                 fz = complex[0].tenth().sub_mutable(1);
             } else {
-                fz = complex[0].pow(z_exponent.getRe()).sub_mutable(1);
+                fz = complex[0].pow(z_exponent.re).sub_mutable(1);
             }
         } else {
             fz = complex[0].pow(z_exponent).sub_mutable(1);
         }
 
         if (!Settings.isOneFunctionsNovaFormula(nova_method) && nova_method != MainWindow.NOVA_STIRLING) {
-            if (z_exponent.getIm() == 0) {
-                if (z_exponent.getRe() == 2) {
+            if (z_exponent.im == 0) {
+                if (z_exponent.re == 2) {
                     dfz = complex[0].times2();
-                } else if (z_exponent.getRe() == 3) {
+                } else if (z_exponent.re == 3) {
                     dfz = complex[0].square().times_mutable(3);
-                } else if (z_exponent.getRe() == 4) {
+                } else if (z_exponent.re == 4) {
                     dfz = complex[0].cube().times4_mutable();
-                } else if (z_exponent.getRe() == 5) {
+                } else if (z_exponent.re == 5) {
                     dfz = complex[0].fourth().times_mutable(5);
-                } else if (z_exponent.getRe() == 6) {
+                } else if (z_exponent.re == 6) {
                     dfz = complex[0].fifth().times_mutable(6);
-                } else if (z_exponent.getRe() == 7) {
+                } else if (z_exponent.re == 7) {
                     dfz = complex[0].sixth().times_mutable(7);
-                } else if (z_exponent.getRe() == 8) {
+                } else if (z_exponent.re == 8) {
                     dfz = complex[0].seventh().times_mutable(8);
-                } else if (z_exponent.getRe() == 9) {
+                } else if (z_exponent.re == 9) {
                     dfz = complex[0].eighth().times_mutable(9);
-                } else if (z_exponent.getRe() == 10) {
+                } else if (z_exponent.re == 10) {
                     dfz = complex[0].ninth().times_mutable(10);
                 } else {
-                    dfz = complex[0].pow(z_exponent.getRe() - 1).times_mutable(z_exponent.getRe());
+                    dfz = complex[0].pow(z_exponent.re - 1).times_mutable(z_exponent.re);
                 }
             } else {
                 dfz = complex[0].pow(z_exponent.sub(1)).times_mutable(z_exponent);
@@ -581,27 +581,27 @@ public class Nova extends ExtendedConvergentType {
         }
 
         if (Settings.isThreeFunctionsNovaFormula(nova_method) || Settings.isFourFunctionsNovaFormula(nova_method)) {
-            if (z_exponent.getIm() == 0) {
-                if (z_exponent.getRe() == 2) {
+            if (z_exponent.im == 0) {
+                if (z_exponent.re == 2) {
                     ddfz = new Complex(2, 0);
-                } else if (z_exponent.getRe() == 3) {
+                } else if (z_exponent.re == 3) {
                     ddfz = complex[0].times(6);
-                } else if (z_exponent.getRe() == 4) {
+                } else if (z_exponent.re == 4) {
                     ddfz = complex[0].square().times_mutable(12);
-                } else if (z_exponent.getRe() == 5) {
+                } else if (z_exponent.re == 5) {
                     ddfz = complex[0].cube().times_mutable(20);
-                } else if (z_exponent.getRe() == 6) {
+                } else if (z_exponent.re == 6) {
                     ddfz = complex[0].fourth().times_mutable(30);
-                } else if (z_exponent.getRe() == 7) {
+                } else if (z_exponent.re == 7) {
                     ddfz = complex[0].fifth().times_mutable(42);
-                } else if (z_exponent.getRe() == 8) {
+                } else if (z_exponent.re == 8) {
                     ddfz = complex[0].sixth().times_mutable(56);
-                } else if (z_exponent.getRe() == 9) {
+                } else if (z_exponent.re == 9) {
                     ddfz = complex[0].seventh().times_mutable(72);
-                } else if (z_exponent.getRe() == 10) {
+                } else if (z_exponent.re == 10) {
                     ddfz = complex[0].eighth().times_mutable(90);
                 } else {
-                    ddfz = complex[0].pow(z_exponent.getRe() - 2).times_mutable(z_exponent.getRe() * (z_exponent.getRe() - 1));
+                    ddfz = complex[0].pow(z_exponent.re - 2).times_mutable(z_exponent.re * (z_exponent.re - 1));
                 }
             } else {
                 ddfz = complex[0].pow(z_exponent.sub(2)).times_mutable(z_exponent.times(z_exponent.sub(1)));
@@ -609,27 +609,27 @@ public class Nova extends ExtendedConvergentType {
         }
 
         if (Settings.isFourFunctionsNovaFormula(nova_method)) {
-            if (z_exponent.getIm() == 0) {
-                if (z_exponent.getRe() == 2) {
+            if (z_exponent.im == 0) {
+                if (z_exponent.re == 2) {
                     dddfz = new Complex();
-                } else if (z_exponent.getRe() == 3) {
+                } else if (z_exponent.re == 3) {
                     dddfz = new Complex(6, 0);
-                } else if (z_exponent.getRe() == 4) {
+                } else if (z_exponent.re == 4) {
                     dddfz = complex[0].times(24);
-                } else if (z_exponent.getRe() == 5) {
+                } else if (z_exponent.re == 5) {
                     dddfz = complex[0].square().times_mutable(60);
-                } else if (z_exponent.getRe() == 6) {
+                } else if (z_exponent.re == 6) {
                     dddfz = complex[0].cube().times_mutable(120);
-                } else if (z_exponent.getRe() == 7) {
+                } else if (z_exponent.re == 7) {
                     dddfz = complex[0].fourth().times_mutable(210);
-                } else if (z_exponent.getRe() == 8) {
+                } else if (z_exponent.re == 8) {
                     dddfz = complex[0].fifth().times_mutable(336);
-                } else if (z_exponent.getRe() == 9) {
+                } else if (z_exponent.re == 9) {
                     dddfz = complex[0].sixth().times_mutable(504);
-                } else if (z_exponent.getRe() == 10) {
+                } else if (z_exponent.re == 10) {
                     dddfz = complex[0].seventh().times_mutable(720);
                 } else {
-                    dddfz = complex[0].pow(z_exponent.getRe() - 3).times_mutable(z_exponent.getRe() * (z_exponent.getRe() - 1) * (z_exponent.getRe() - 2));
+                    dddfz = complex[0].pow(z_exponent.re - 3).times_mutable(z_exponent.re * (z_exponent.re - 1) * (z_exponent.re - 2));
                 }
             } else {
                 dddfz = complex[0].pow(z_exponent.sub(3)).times_mutable(z_exponent.times(z_exponent.sub(1)).times(z_exponent.sub(2)));
@@ -1467,27 +1467,27 @@ public class Nova extends ExtendedConvergentType {
         }
 
         Complex fz;
-        if (z_exponent.getIm() == 0) {
-            if (z_exponent.getRe() == 2) {
+        if (z_exponent.im == 0) {
+            if (z_exponent.re == 2) {
                 fz = z.square().sub_mutable(1);
-            } else if (z_exponent.getRe() == 3) {
+            } else if (z_exponent.re == 3) {
                 fz = z.cube().sub_mutable(1);
-            } else if (z_exponent.getRe() == 4) {
+            } else if (z_exponent.re == 4) {
                 fz = z.fourth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 5) {
+            } else if (z_exponent.re == 5) {
                 fz = z.fifth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 6) {
+            } else if (z_exponent.re == 6) {
                 fz = z.sixth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 7) {
+            } else if (z_exponent.re == 7) {
                 fz = z.seventh().sub_mutable(1);
-            } else if (z_exponent.getRe() == 8) {
+            } else if (z_exponent.re == 8) {
                 fz = z.eighth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 9) {
+            } else if (z_exponent.re == 9) {
                 fz = z.ninth().sub_mutable(1);
-            } else if (z_exponent.getRe() == 10) {
+            } else if (z_exponent.re == 10) {
                 fz = z.tenth().sub_mutable(1);
             } else {
-                fz = z.pow(z_exponent.getRe()).sub_mutable(1);
+                fz = z.pow(z_exponent.re).sub_mutable(1);
             }
         } else {
             fz = z.pow(z_exponent).sub_mutable(1);
@@ -1539,8 +1539,8 @@ public class Nova extends ExtendedConvergentType {
 
     @Override
     public double getPower() {
-        if(z_exponent.getRe() != 0 && z_exponent.getIm() == 0) {
-            return z_exponent.getRe();
+        if(z_exponent.re != 0 && z_exponent.im == 0) {
+            return z_exponent.re;
         }
         return 0;
     }

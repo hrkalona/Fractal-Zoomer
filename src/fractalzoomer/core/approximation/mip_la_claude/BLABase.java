@@ -8,14 +8,14 @@ public abstract class BLABase extends BLA {
 
     protected BLABase(double r2, Complex A) {
         super(r2);
-        this.Ax = A.getRe();
-        this.Ay = A.getIm();
+        this.Ax = A.re;
+        this.Ay = A.im;
     }
 
     @Override
     public Complex getValue(Complex DeltaSubN) {
-        double zx = DeltaSubN.getRe();
-        double zy = DeltaSubN.getIm();
+        double zx = DeltaSubN.re;
+        double zy = DeltaSubN.im;
         return new Complex(Ax * zx - Ay * zy, Ax * zy + Ay * zx);
     }
 

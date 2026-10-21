@@ -18,8 +18,8 @@ public class PowFunction extends AbstractTwoArgumentFunction {
     @Override
     public Complex evaluate(Complex argument, Complex argument2) {
 
-        double re = argument2.getRe();
-        double im = argument2.getIm();
+        double re = argument2.re;
+        double im = argument2.im;
 
         if(im == 0) {
             if(re == 2) {

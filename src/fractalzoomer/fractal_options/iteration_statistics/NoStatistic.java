@@ -3,7 +3,7 @@ package fractalzoomer.fractal_options.iteration_statistics;
 public class NoStatistic extends GenericStatistic {
 
     public NoStatistic() {
-        super(0, false, false, 0);
+        super(0, false, false, 0, false);
 
     }
 

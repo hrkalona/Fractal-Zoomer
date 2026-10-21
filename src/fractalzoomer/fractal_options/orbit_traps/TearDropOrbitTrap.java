@@ -20,17 +20,17 @@ public class TearDropOrbitTrap extends OrbitTrap {
     private double getDistance(Complex val) {
         Complex p = val.absre();
 
-        double r1 = point.getRe(), r2 = point.getIm();
+        double r1 = point.re, r2 = point.im;
 
         double h = trapLength;
 
         double b = (r1-r2)/ h;
         double a = Math.sqrt(1.0-b*b);
-        double k = p.getRe() * -b + p.getIm() * a;
+        double k = p.re * -b + p.im * a;
         if( k < 0.0 ) return p.norm() - r1;
         if( k > a*h ) return p.distance(new Complex(0.0, h)) - r2;
 
-        return p.getRe() * a + p.getIm() * b - r1;
+        return p.re * a + p.im * b - r1;
     }
 
     @Override

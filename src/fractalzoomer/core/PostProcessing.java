@@ -198,29 +198,21 @@ public class PostProcessing {
             int wr = 0, wg = 0, wb = 0;
 
             if (ls.specularReflectionMethod > 0) {
-                double lreflx = nx * NdotL * 2 - lx;
-                double lrefly = ny * NdotL * 2 - ly;
+                double lreflxN = nx * NdotL * 2 - lx;
+                double lreflyN = ny * NdotL * 2 - ly;
+                double lreflzN = lreflz;
 
-                double refx = 0.5 * (1 - Math.atan2(lreflx, lreflz) / Math.PI);
+                double nlenRefl = Math.sqrt(lreflxN * lreflxN + lreflyN * lreflyN + lreflzN * lreflzN);
 
-                if (refx > 1) {
-                    refx--;
-                } else if (refx < 0) {
-                    refx++;
-                }
+                lreflxN = lreflxN / nlenRefl;
+                lreflyN = lreflyN / nlenRefl;
+                lreflzN = lreflzN / nlenRefl;
 
-                double refy;
+                double u = 0.5 * (1 - Math.atan2(lreflxN, lreflzN) / Math.PI);
+                double v = 0.5 + Math.asin(lreflyN) / Math.PI;
 
-                if (lrefly >= 1) {
-                    refy = 1;
-                } else if (lrefly <= -1) {
-                    refy = 0;
-                } else {
-                    refy = 0.5 + Math.asin(lrefly) / Math.PI;
-                }
-
-                int indexx = (int) (refx * (window_image.getWidth() - 1) + 0.5);
-                int indexy = (int) (refy * (window_image.getHeight() - 1) + 0.5);
+                int indexx = (int) (u * (window_image.getWidth() - 1) + 0.5);
+                int indexy = (int) (v * (window_image.getHeight() - 1) + 0.5);
 
                 int window_color = window_image.getRGB(indexx, indexy);
 
@@ -2234,6 +2226,41 @@ public class PostProcessing {
         boolean banded = tr.getBanded();
         int[] output = new int[colors.length];
 
+        double reciprocalEscaped = 0;
+        double minEscaped = minIterationsEscaped;
+        double reciprocalNotEscaped = 0;
+        double minNotEscaped = minIterationsNotEscaped;
+        switch (mapping) {
+            case 1:
+                reciprocalEscaped = 1.0 / (maxIterationEscaped - minEscaped);
+                reciprocalNotEscaped = 1.0 / (maxIterationNotEscaped - minNotEscaped);
+                break;
+            case 2:
+                minEscaped = Math.sqrt(minEscaped);
+                minNotEscaped = Math.sqrt(minNotEscaped);
+                reciprocalEscaped = 1.0 / (Math.sqrt(maxIterationEscaped) - minEscaped);
+                reciprocalNotEscaped = 1.0 / (Math.sqrt(maxIterationNotEscaped) - minNotEscaped);
+                break;
+            case 3:
+                minEscaped = Math.cbrt(minEscaped);
+                minNotEscaped = Math.cbrt(minNotEscaped);
+                reciprocalEscaped = 1.0 / (Math.cbrt(maxIterationEscaped) - minEscaped);
+                reciprocalNotEscaped = 1.0 / (Math.cbrt(maxIterationNotEscaped) - minNotEscaped);
+                break;
+            case 4:
+                minEscaped = Math.sqrt(Math.sqrt(minEscaped));
+                minNotEscaped = Math.sqrt(Math.sqrt(minNotEscaped));
+                reciprocalEscaped = 1.0 / (Math.sqrt(Math.sqrt(maxIterationEscaped)) - minEscaped);
+                reciprocalNotEscaped = 1.0 / (Math.sqrt(Math.sqrt(maxIterationNotEscaped)) - minNotEscaped);
+                break;
+            case 5:
+                minEscaped = Math.log(minEscaped);
+                minNotEscaped = Math.log(minNotEscaped);
+                reciprocalEscaped = 1.0 / (Math.log(maxIterationEscaped) - minEscaped);
+                reciprocalNotEscaped = 1.0 / (Math.log(maxIterationNotEscaped) - minNotEscaped);
+                break;
+        }
+
         for(int j = 0; j < output.length; j++) {
             double val;
             boolean esc;
@@ -2259,19 +2286,19 @@ public class PostProcessing {
                 tempVal = capValue(tempVal, upperFenceEscaped, lowerFenceEscaped, banded);
                 switch (mapping) {
                     case 1:
-                        val = (tempVal - minIterationsEscaped) / (maxIterationEscaped - minIterationsEscaped);
+                        val = (tempVal - minEscaped) * reciprocalEscaped;
                         break;
                     case 2:
-                        val = (Math.sqrt(tempVal) - Math.sqrt(minIterationsEscaped)) / (Math.sqrt(maxIterationEscaped) - Math.sqrt(minIterationsEscaped));
+                        val = (Math.sqrt(tempVal) - minEscaped) * reciprocalEscaped;
                         break;
                     case 3:
-                        val = (Math.cbrt(tempVal) - Math.cbrt(minIterationsEscaped)) / (Math.cbrt(maxIterationEscaped) - Math.cbrt(minIterationsEscaped));
+                        val = (Math.cbrt(tempVal) - minEscaped) * reciprocalEscaped;
                         break;
                     case 4:
-                        val = (Math.sqrt(Math.sqrt(tempVal)) - Math.sqrt(Math.sqrt(minIterationsEscaped))) / (Math.sqrt(Math.sqrt(maxIterationEscaped)) - Math.sqrt(Math.sqrt(minIterationsEscaped)));
+                        val = (Math.sqrt(Math.sqrt(tempVal)) - minEscaped) * reciprocalEscaped;
                         break;
                     case 5:
-                        val = (Math.log(tempVal) - Math.log(minIterationsEscaped)) / (Math.log(maxIterationEscaped) - Math.log(minIterationsEscaped));
+                        val = (Math.log(tempVal) - minEscaped) * reciprocalEscaped;
                         break;
                 }
 
@@ -2279,19 +2306,19 @@ public class PostProcessing {
                 tempVal = capValue(tempVal, upperFenceNotEscaped, lowerFenceNotEscaped, banded);
                 switch (mapping) {
                     case 1:
-                        val = (tempVal - minIterationsNotEscaped) / (maxIterationNotEscaped - minIterationsNotEscaped);
+                        val = (tempVal - minNotEscaped) * reciprocalNotEscaped;
                         break;
                     case 2:
-                        val = (Math.sqrt(tempVal) - Math.sqrt(minIterationsNotEscaped)) / (Math.sqrt(maxIterationNotEscaped) - Math.sqrt(minIterationsNotEscaped));
+                        val = (Math.sqrt(tempVal) - minNotEscaped) * reciprocalNotEscaped;
                         break;
                     case 3:
-                        val = (Math.cbrt(tempVal) - Math.cbrt(minIterationsNotEscaped)) / (Math.cbrt(maxIterationNotEscaped) - Math.cbrt(minIterationsNotEscaped));
+                        val = (Math.cbrt(tempVal) - minNotEscaped) * reciprocalNotEscaped;
                         break;
                     case 4:
-                        val = (Math.sqrt(Math.sqrt(tempVal)) - Math.sqrt(Math.sqrt(minIterationsNotEscaped))) / (Math.sqrt(Math.sqrt(maxIterationNotEscaped)) - Math.sqrt(Math.sqrt(minIterationsNotEscaped)));
+                        val = (Math.sqrt(Math.sqrt(tempVal)) - minNotEscaped) * reciprocalNotEscaped;
                         break;
                     case 5:
-                        val = (Math.log(tempVal) - Math.log(minIterationsNotEscaped)) / (Math.log(maxIterationNotEscaped) - Math.log(minIterationsNotEscaped));
+                        val = (Math.log(tempVal) - minNotEscaped) * reciprocalNotEscaped;
                         break;
                 }
             }

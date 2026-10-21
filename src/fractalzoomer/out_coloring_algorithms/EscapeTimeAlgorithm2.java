@@ -26,7 +26,7 @@ public class EscapeTimeAlgorithm2 extends OutColorAlgorithm {
         Complex z = data.z;
         Complex temp = z.sub(z.sin());
         
-        return EscapeTimeAlg.getResult(data) +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8;
+        return EscapeTimeAlg.getResult(data) +  Math.abs(Math.atan(temp.im / temp.re)) * 8;
                 
     }
     

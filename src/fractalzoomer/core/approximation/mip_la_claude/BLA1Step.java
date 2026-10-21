@@ -13,10 +13,10 @@ public class BLA1Step extends BLABase {
 
         //double zxn = Ax * zx - Ay * zy + Bx * cx - By * cy;
         //double zyn = Ax * zy + Ay * zx + Bx * cy + By * cx;
-        double zx = DeltaSubN.getRe();
-        double zy = DeltaSubN.getIm();
-        double cx = DeltaSub0.getRe();
-        double cy = DeltaSub0.getIm();
+        double zx = DeltaSubN.re;
+        double zy = DeltaSubN.im;
+        double cx = DeltaSub0.re;
+        double cy = DeltaSub0.im;
         return new Complex(Ax * zx - Ay * zy + cx, Ax * zy + Ay * zx + cy);
         //return  Complex.AtXpBtY(A, DeltaSubN, B, DeltaSub0);
     }
@@ -28,8 +28,8 @@ public class BLA1Step extends BLABase {
 
     @Override
     public Complex getValue(Complex DeltaSubN, double cx) {
-        double zx = DeltaSubN.getRe();
-        double zy = DeltaSubN.getIm();
+        double zx = DeltaSubN.re;
+        double zy = DeltaSubN.im;
         return new Complex(Ax * zx - Ay * zy + cx, Ax * zy + Ay * zx);
     }
 

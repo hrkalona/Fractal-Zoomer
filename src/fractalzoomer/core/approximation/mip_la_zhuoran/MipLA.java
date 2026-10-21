@@ -506,7 +506,7 @@ public class MipLA {
         for (int level = zeros; level >= firstLevel; --level) {
             if (norm_dz <= (tempStep = LAData[level][ix]).ValidRadius
                     && norm_dc <= tempStep.ValidRadiusC
-                    && iterations + tempStep.getL() <= max_iterations) {
+                    && ((long)iterations) + tempStep.getL() <= max_iterations) {
                 return tempStep;
             }
             ix = ix << 1;
@@ -526,7 +526,7 @@ public class MipLA {
         for (int level = firstLevel; level < L; ++level) {
             int ixm = (ix << level) + 1;
             if (i == ixm && norm_dz <= (tempStep = LAData[level][ix]).ValidRadius && norm_dc <= tempStep.ValidRadiusC) {
-                if(iterations + tempStep.getL() <= max_iterations) {
+                if(((long)iterations) + tempStep.getL() <= max_iterations) {
                     step = tempStep;
                 }
             } else {
@@ -572,7 +572,7 @@ public class MipLA {
             tempStep = LADataDeep[level][ix];
             if (norm_dz.compareToBothPositiveReduced(tempStep.ValidRadiusExp, tempStep.ValidRadius) <= 0
                     && norm_dc.compareToBothPositiveReduced(tempStep.ValidRadiusCExp, tempStep.ValidRadiusC) <= 0
-                    && iterations + tempStep.getL() <= max_iterations) {
+                    && ((long)iterations) + tempStep.getL() <= max_iterations) {
                 return tempStep;
             }
             ix = ix << 1;
@@ -594,7 +594,7 @@ public class MipLA {
             if (i == ixm) {
                 tempStep = LADataDeep[level][ix];
                 if(norm_dz.compareToBothPositiveReduced(tempStep.ValidRadiusExp, tempStep.ValidRadius) <= 0 && norm_dc.compareToBothPositiveReduced(tempStep.ValidRadiusCExp, tempStep.ValidRadiusC) <= 0
-                        && iterations + tempStep.getL() <= max_iterations) {
+                        && ((long)iterations) + tempStep.getL() <= max_iterations) {
                     step = tempStep;
                 }
             } else {

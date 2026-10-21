@@ -25,8 +25,8 @@ public class DDComplex extends GenericComplex {
     }
 
     public DDComplex(Complex c) {
-        re = new DoubleDouble(c.getRe());
-        im = new DoubleDouble(c.getIm());
+        re = new DoubleDouble(c.re);
+        im = new DoubleDouble(c.im);
     }
 
     public DDComplex(DoubleDouble re, DoubleDouble im) {
@@ -1529,6 +1529,13 @@ public class DDComplex extends GenericComplex {
         DoubleDouble four = new DoubleDouble(4);
         return new DDComplex(re.multiply(four), im.multiply(four));
     }
+
+    @Override
+    public DDComplex divide2() {
+        DoubleDouble point_five = new DoubleDouble(0.5);
+        return new DDComplex(re.multiply(point_five), im.multiply(point_five));
+    }
+
 
     @Override
     public MantExpComplex toMantExpComplex() { return MantExpComplex.create(this.toComplex());}

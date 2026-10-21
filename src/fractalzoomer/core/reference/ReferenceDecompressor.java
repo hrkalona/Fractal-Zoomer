@@ -117,8 +117,8 @@ public class ReferenceDecompressor {
 
         DoubleReference ref = new DoubleReference(cref.length, cref.lengthOverride, cref.type);
 
-        ref.re[0] = z.getRe();
-        ref.im[0] = z.getIm();
+        ref.re[0] = z.re;
+        ref.im[0] = z.im;
 
         int compressed_index = 0;
 
@@ -133,8 +133,8 @@ public class ReferenceDecompressor {
                 z = f.function(z, c);
             }
 
-            ref.re[i] = z.getRe();
-            ref.im[i] = z.getIm();
+            ref.re[i] = z.re;
+            ref.im[i] = z.im;
         }
 
         return ref;
@@ -177,8 +177,8 @@ public class ReferenceDecompressor {
                 z = function.apply(new Complex(reference.re[i], reference.im[i]));
             }
 
-            output.re[i] = z.getRe();
-            output.im[i] = z.getIm();
+            output.re[i] = z.re;
+            output.im[i] = z.im;
         }
 
         return output;
@@ -225,8 +225,8 @@ public class ReferenceDecompressor {
                 exprz = function.apply(z);
             }
 
-            output.re[i] = exprz.getRe();
-            output.im[i] = exprz.getIm();
+            output.re[i] = exprz.re;
+            output.im[i] = exprz.im;
         }
 
         return output;
@@ -352,8 +352,8 @@ public class ReferenceDecompressor {
             i--;
             dzdc.times_mutable(new Complex(ref.re[i], ref.im[i]).times2_mutable());
             Complex temp = diff.times(dzdc.conjugate().times_mutable(ScalingFactor / dzdc.norm_squared()));
-            ref.re[i] += temp.getRe();
-            ref.im[i] += temp.getIm();
+            ref.re[i] += temp.re;
+            ref.im[i] += temp.im;
         }
     }
 
@@ -427,8 +427,8 @@ public class ReferenceDecompressor {
                     break;
                 }
             }
-            ref.re[i] = z.getRe();
-            ref.im[i] = z.getIm();
+            ref.re[i] = z.re;
+            ref.im[i] = z.im;
 
             z = f.function(z, c);
         }
@@ -460,8 +460,8 @@ public class ReferenceDecompressor {
                 j = 0;
             }
 
-            ref.re[i] = z.getRe();
-            ref.im[i] = z.getIm();
+            ref.re[i] = z.re;
+            ref.im[i] = z.im;
 
             dz = f.perturbationFunction(dz, ref, j);
         }

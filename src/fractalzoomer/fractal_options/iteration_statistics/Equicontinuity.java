@@ -20,8 +20,8 @@ public class Equicontinuity extends GenericStatistic {
     private double delta;
     private boolean isFractalWithoutConstant;
 
-    public Equicontinuity(double statistic_intensity, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double denominatorFactor, boolean invertFactor, double delta) {
-        super(statistic_intensity, useSmoothing, useAverage, 0);
+    public Equicontinuity(double statistic_intensity, boolean useSmoothing, boolean useAverage, boolean rootFindingMode, double denominatorFactor, boolean invertFactor, double delta, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, useSmoothing, useAverage, 0, applyIntensityDuringColoring);
         sum = 0;
         sum2 = 0;
 
@@ -85,7 +85,7 @@ public class Equicontinuity extends GenericStatistic {
     @Override
     protected double getValue() {
 
-        return getValueInternal() * statistic_intensity;
+        return applyIntensity(getValueInternal());
 
     }
 

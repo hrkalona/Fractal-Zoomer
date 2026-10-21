@@ -24,7 +24,7 @@ public class ReDivideIm extends InColorAlgorithm {
     public double getResult(InColorData data) {
 
         Complex z = data.z;
-        return max_iterations + Math.abs(z.getRe() / z.getIm()) * 8;
+        return max_iterations + Math.abs(z.re / z.im) * 8;
 
     }
     

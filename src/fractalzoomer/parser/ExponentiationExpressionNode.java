@@ -46,8 +46,8 @@ public class ExponentiationExpressionNode implements ExpressionNode
   {
       Complex zexponent = exponent.getValue();
       
-      double re = zexponent.getRe();
-      double im = zexponent.getIm();
+      double re = zexponent.re;
+      double im = zexponent.im;
       
       if(im == 0) {
           if(re == 2) {

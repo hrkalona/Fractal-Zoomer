@@ -162,10 +162,10 @@ public class Mandelbar extends Julia {
 
         Complex X = getReferenceValue(reference, RefIteration);
 
-        double r = X.getRe();
-        double i = X.getIm();
-        double a = DeltaSubN.getRe();
-        double b = DeltaSubN.getIm();
+        double r = X.re;
+        double i = X.im;
+        double a = DeltaSubN.re;
+        double b = DeltaSubN.im;
 
         double Dnr = 2 * (r*a - b*i) + a*a - b*b;
         double Dni = - (r*b + a * i + a * b) * 2;
@@ -195,10 +195,10 @@ public class Mandelbar extends Julia {
 
         Complex X = getReferenceValue(reference, RefIteration);
 
-        double r = X.getRe();
-        double i = X.getIm();
-        double a = DeltaSubN.getRe();
-        double b = DeltaSubN.getIm();
+        double r = X.re;
+        double i = X.im;
+        double a = DeltaSubN.re;
+        double b = DeltaSubN.im;
 
         double Dnr = 2 * (r*a - b*i) + a*a - b*b;
         double Dni = - (r*b + a * i + a * b) * 2;
@@ -226,10 +226,10 @@ public class Mandelbar extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
         Complex X = getReferenceValue(data.Reference, RefIteration);
 
-        double r = X.getRe();
-        double i = X.getIm();
-        double a = DeltaSubN.getRe();
-        double b = DeltaSubN.getIm();
+        double r = X.re;
+        double i = X.im;
+        double a = DeltaSubN.re;
+        double b = DeltaSubN.im;
 
         double Dnr = 2 * (r*a - b*i) + a*a - b*b;
         double Dni = - (r*b + a * i + a * b) * 2;

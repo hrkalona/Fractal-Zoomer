@@ -3,6 +3,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.abbasbandy.AbbasbandyRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.abbasbandy2.Abbasbandy2RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.abbasbandy3.Abbasbandy3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.broyden.BroydenRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.changbum_chun1.ChangBumChun1RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.changbum_chun2.ChangBumChun2RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.changbum_chun3.ChangBumChun3RootFindingMethod;
@@ -86,7 +87,7 @@ public class TestRootFindingMethodUniquenes {
         //return z.fifth().times_mutable(336).plus_mutable(z.times(360));
     }
 
-    public static Complex getNextIterationForMethod(Complex z, int method, Complex zold, Complex zold2)
+    public static Complex getNextIterationForMethod(Complex z, int method, Complex zold, Complex zold2, Complex B)
     {
 
         Complex fz = getFz(z);
@@ -266,8 +267,11 @@ public class TestRootFindingMethodUniquenes {
                 df_combined = getDFz(y);
                 ffz = getFz(y);
                 return NoorGuptaRootFindingMethod.noorGuptaMethod(z, fz, dfz, ffz, df_combined, new Complex(1, 0));
-
-
+            case 48: // Broyden
+                Complex newZ = BroydenRootFindingMethod.broydenMethod(z, fz, B, new Complex(1, 0));
+                Complex newFZ = getFz(newZ);
+                B.assign(BroydenRootFindingMethod.advanceJacobianApproximation(B, newZ, z, newFZ, fz));
+                return newZ;
         }
 
 
@@ -279,7 +283,7 @@ public class TestRootFindingMethodUniquenes {
         Complex[] vals = new Complex[100000];
         Random rand = new Random(123);
 
-        int[] methods = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47};
+        int[] methods = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48};
 
         for(int i = 0; i < vals.length; i++) {
             double signRe = rand.nextDouble() >= 0.5 ? -1 : 1;
@@ -290,7 +294,13 @@ public class TestRootFindingMethodUniquenes {
         Complex[][] resultsPerMethod = new Complex[methods.length][vals.length];
         for(int j = 0; j < methods.length; j++) {
             for (int i = 0; i < vals.length; i++) {
-                resultsPerMethod[j][i] = getNextIterationForMethod(new Complex(vals[i]), j, new Complex(1e-10, 0), new Complex());
+                Complex c = new Complex(vals[i]);
+                Complex cpeturb = c.plus(new Complex(1e-3, 1e-3));
+                Complex B = null;
+                if (j == 48) {
+                    B = BroydenRootFindingMethod.getInitialJacobianApproximation(c, cpeturb, getFz(c), getFz(cpeturb));
+                }
+                resultsPerMethod[j][i] = getNextIterationForMethod(c, j, new Complex(1e-10, 0), new Complex(), B);
             }
         }
 
@@ -355,6 +365,12 @@ public class TestRootFindingMethodUniquenes {
                     Complex z_1 = new Complex(1e-10, 0);
                     Complex z_2 = new Complex();
 
+                    Complex cpeturb = c.plus(new Complex(1e-3, 1e-3));
+                    Complex B = null;
+                    if (j == 48) {
+                        B = BroydenRootFindingMethod.getInitialJacobianApproximation(c, cpeturb, getFz(c), getFz(cpeturb));
+                    }
+
                     int iteration = 0;
                     for(iteration = 0; iteration < 1000; iteration++) {
 
@@ -363,7 +379,7 @@ public class TestRootFindingMethodUniquenes {
                             break;
                         }
                         zold.assign(c);
-                        c = getNextIterationForMethod(c, j, z_1, z_2);
+                        c = getNextIterationForMethod(c, j, z_1, z_2, B);
 
                     }
 

@@ -21,8 +21,8 @@ public class FiniteCheckBailoutCondition extends BailoutCondition {
     @Override
     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared, Complex pixel) {
 
-        double re = z.getRe();
-        double im = z.getIm();
+        double re = z.re;
+        double im = z.im;
         double limit = 1e140;
         if(Double.isNaN(re)) {
             z.setRe(limit);

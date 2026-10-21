@@ -22,7 +22,7 @@ public class EscapeTimePlusIm extends OutColorAlgorithm {
     @Override
     public double getResult(OutColorData data) {
         
-        return Math.abs(EscapeTimeAlg.getResult(data) + data.z.getIm());
+        return Math.abs(EscapeTimeAlg.getResult(data) + data.z.im);
 
     }
     

@@ -695,7 +695,7 @@ public class BigIntNum {
 
     }
 
-    public Apfloat toApfloat() { return new MyApfloat(bits(), 2).toRadix(10);}
+    public Apfloat toApfloat() { return MyApfloat.fromBase2String(bits(), getPrecision()).toRadix(10);}
 
     public int signum() {
         return digits.signum();

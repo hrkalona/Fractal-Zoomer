@@ -391,7 +391,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             }
         }
 
-        double result2 = resultExpr.getValue().getRe();
+        double result2 = resultExpr.getValue().re;
 
         if(TaskRender.USE_DIRECT_COLOR) {
             return result2;

@@ -24,7 +24,7 @@ public class BinaryDecomposition extends OutColorAlgorithm {
     public double getResult(OutColorData data) {
 
         double val = EscapeTimeAlg.getResult(data);
-        return data.z.getIm() < 0 ? -(val + INCREMENT) : val;
+        return data.z.im < 0 ? -(val + INCREMENT) : val;
 
     }
 

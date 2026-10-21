@@ -27,8 +27,8 @@ public class BigIntNumComplex extends GenericComplex {
     }
 
     public BigIntNumComplex(Complex c) {
-        re = new BigIntNum(c.getRe());
-        im = new BigIntNum(c.getIm());
+        re = new BigIntNum(c.re);
+        im = new BigIntNum(c.im);
     }
 
     public BigIntNumComplex(BigIntNum re, BigIntNum im) {
@@ -884,6 +884,11 @@ public class BigIntNumComplex extends GenericComplex {
     @Override
     public BigIntNumComplex times4() {
         return new BigIntNumComplex(re.mult4(), im.mult4());
+    }
+
+    @Override
+    public BigIntNumComplex divide2() {
+        return new BigIntNumComplex(re.divide2(), im.divide2());
     }
 
     @Override

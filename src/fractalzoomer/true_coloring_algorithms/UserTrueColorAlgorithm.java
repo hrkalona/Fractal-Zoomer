@@ -346,11 +346,11 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
 
         double c1 = 0, c2 = 0, c3 = 0;
 
-        c1 = expr1.getValue().getRe();
+        c1 = expr1.getValue().re;
 
         if (space != ColorSpaceConverter.DIRECT && space != ColorSpaceConverter.PALETTE && space != ColorSpaceConverter.GRADIENT) {
-            c2 = expr2.getValue().getRe();
-            c3 = expr3.getValue().getRe();
+            c2 = expr2.getValue().re;
+            c3 = expr3.getValue().re;
         }
 
         return getColor(c1, c2, c3, space, data.escaped);

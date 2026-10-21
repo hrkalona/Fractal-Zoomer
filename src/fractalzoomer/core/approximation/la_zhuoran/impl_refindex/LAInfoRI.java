@@ -62,11 +62,11 @@ public class LAInfoRI extends LAInfoBase {
 
         RefIndex = deep.RefIndex;
 
-        ZCoeffRe = ZCoeff.getRe();
-        ZCoeffIm = ZCoeff.getIm();
+        ZCoeffRe = ZCoeff.re;
+        ZCoeffIm = ZCoeff.im;
 
-        CCoeffRe = CCoeff.getRe();
-        CCoeffIm = CCoeff.getIm();
+        CCoeffRe = CCoeff.re;
+        CCoeffIm = CCoeff.im;
 
         LAThreshold = new MantExp(deep.LAThresholdExp, deep.LAThresholdMant).toDouble();
         LAThresholdC = new MantExp(deep.LAThresholdCExp, deep.LAThresholdCMant).toDouble();
@@ -95,11 +95,11 @@ public class LAInfoRI extends LAInfoBase {
         Complex outZCoeff = z2.times(ZCoeff);
         Complex outCCoeff = z2.times(CCoeff).plus_mutable(1);
 
-        out.ZCoeffRe = outZCoeff.getRe();
-        out.ZCoeffIm = outZCoeff.getIm();
+        out.ZCoeffRe = outZCoeff.re;
+        out.ZCoeffIm = outZCoeff.im;
 
-        out.CCoeffRe = outCCoeff.getRe();
-        out.CCoeffIm = outCCoeff.getIm();
+        out.CCoeffRe = outCCoeff.re;
+        out.CCoeffIm = outCCoeff.im;
 
         if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
                 || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)
@@ -157,11 +157,11 @@ public class LAInfoRI extends LAInfoBase {
 
         out.RefIndex = RefIndex;
 
-        out.ZCoeffRe = outZCoeff.getRe();
-        out.ZCoeffIm = outZCoeff.getIm();
+        out.ZCoeffRe = outZCoeff.re;
+        out.ZCoeffIm = outZCoeff.im;
 
-        out.CCoeffRe = outCCoeff.getRe();
-        out.CCoeffIm = outCCoeff.getIm();
+        out.CCoeffRe = outCCoeff.re;
+        out.CCoeffIm = outCCoeff.im;
 
         if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
         || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)
@@ -196,8 +196,8 @@ public class LAInfoRI extends LAInfoBase {
     @Override
     protected LAstep Prepare(Fractal f, double dre, double dim)  {
         Complex ref = f.getReferenceValue(Fractal.reference, RefIndex);
-        double newdre = 2 * ref.getRe() + dre;
-        double newdim = 2 * ref.getIm() + dim;
+        double newdre = 2 * ref.re + dre;
+        double newdim = 2 * ref.im + dim;
 
         double temp = newdre * dre - newdim * dim;
         newdim = newdre * dim + newdim * dre;

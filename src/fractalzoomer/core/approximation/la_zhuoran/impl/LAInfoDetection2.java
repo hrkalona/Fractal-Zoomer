@@ -30,11 +30,6 @@ public class LAInfoDetection2 extends LAInfo {
     }
 
     @Override
-    protected boolean Stage0DetectDip(Complex z) {
-        return z.chebyshevNorm() < MinMag * Stage0DipDetectionThreshold2;
-    }
-
-    @Override
     protected boolean Step(LAInfo out1, int zRefIndex, ReferenceDecompressor referenceDecompressor, boolean checkDip) throws InvalidCalculationException {
 
         LAInfoDetection2 out = (LAInfoDetection2)out1;
@@ -56,11 +51,11 @@ public class LAInfoDetection2 extends LAInfo {
         Complex outZCoeff = z2.times(ZCoeff);
         Complex outCCoeff = z2.times(CCoeff).plus_mutable(1);
 
-        out.ZCoeffRe = outZCoeff.getRe();
-        out.ZCoeffIm = outZCoeff.getIm();
+        out.ZCoeffRe = outZCoeff.re;
+        out.ZCoeffIm = outZCoeff.im;
 
-        out.CCoeffRe = outCCoeff.getRe();
-        out.CCoeffIm = outCCoeff.getIm();
+        out.CCoeffRe = outCCoeff.re;
+        out.CCoeffIm = outCCoeff.im;
 
         if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
                 || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)
@@ -125,11 +120,11 @@ public class LAInfoDetection2 extends LAInfo {
         out.RefRe = RefRe;
         out.RefIm = RefIm;
 
-        out.ZCoeffRe = outZCoeff.getRe();
-        out.ZCoeffIm = outZCoeff.getIm();
+        out.ZCoeffRe = outZCoeff.re;
+        out.ZCoeffIm = outZCoeff.im;
 
-        out.CCoeffRe = outCCoeff.getRe();
-        out.CCoeffIm = outCCoeff.getIm();
+        out.CCoeffRe = outCCoeff.re;
+        out.CCoeffIm = outCCoeff.im;
 
         if(!Double.isFinite(out.ZCoeffRe) || !Double.isFinite(out.ZCoeffIm)
         || !Double.isFinite(out.CCoeffRe) || !Double.isFinite(out.CCoeffIm)

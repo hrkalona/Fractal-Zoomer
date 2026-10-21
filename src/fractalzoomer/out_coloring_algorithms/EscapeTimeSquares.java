@@ -21,8 +21,8 @@ public class EscapeTimeSquares extends OutColorAlgorithm {
     public double getResult(OutColorData data) {
 
         Complex c = data.c0;
-        double x = c.getRe();
-        double y = c.getIm();
+        double x = c.re;
+        double y = c.im;
         return EscapeTimeAlg.getResult(data) + Math.abs(Math.cos(x * factor)) * Math.abs(Math.sin(y * factor)) * 20;
 
     }

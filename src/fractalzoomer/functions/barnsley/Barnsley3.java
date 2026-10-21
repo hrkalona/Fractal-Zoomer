@@ -104,13 +104,13 @@ public class Barnsley3 extends Julia {
     @Override
     public void function(Complex[] complex) {
 
-        double temp = complex[0].getRe();
+        double temp = complex[0].re;
 
         if(temp > 0) {
             complex[0].square_mutable().sub_mutable(1);
         }
         else {
-            complex[0].square_mutable().plus_mutable(new Complex(complex[1].getRe() * temp, complex[1].getIm() * temp)).sub_mutable(1);
+            complex[0].square_mutable().plus_mutable(new Complex(complex[1].re * temp, complex[1].im * temp)).sub_mutable(1);
         }
 
     }
