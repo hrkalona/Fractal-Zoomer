@@ -16,8 +16,8 @@ public final class Complex extends GenericComplex implements Serializable {
     public static final double SQRT_TWO_PI = Math.sqrt(TWO_PI);
     public static final double HALF = 0.5 - 1e-14;
 
-    private double re;
-    private double im;
+    public double re;
+    public double im;
 
     public Complex() {
 
@@ -2852,6 +2852,11 @@ public final class Complex extends GenericComplex implements Serializable {
 
     }
 
+    @Override
+    public Complex divide2() {
+        return new Complex(re * 0.5, im * 0.5);
+    }
+
     /*
      * z1 + z2
      */
@@ -3166,12 +3171,12 @@ public final class Complex extends GenericComplex implements Serializable {
 
     @Override
     public Object re() {
-        return getRe();
+        return re;
     }
 
     @Override
     public Object im() {
-        return getIm();
+        return im;
     }
 
     @Override

@@ -45,7 +45,7 @@ public class BlackGridIsoContoursDomainColoring extends DomainColoring {
         
         color = applyArgContours(color, arg);    
 
-        return applyGrid(color, res.getRe(), res.getIm(), 0, 0);
+        return applyGrid(color, res.re, res.im, 0, 0);
 
     }
     

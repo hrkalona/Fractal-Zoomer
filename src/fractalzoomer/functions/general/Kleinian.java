@@ -68,8 +68,8 @@ public class Kleinian extends FractalWithoutConstant {
     @Override
     public void function(Complex[] complex) {
 
-        double re = complex[0].getRe();
-        double im = complex[0].getIm();
+        double re = complex[0].re;
+        double im = complex[0].im;
 
         re = ((re + 2 * N - 1 + v * im / u) % 2.0) - 1 - v * im / u;
 
@@ -115,7 +115,7 @@ public class Kleinian extends FractalWithoutConstant {
                 trap.check(complex[0], iterations);
             }
 
-            if (complex[0].getIm() < 0.0 || complex[0].getIm() > u) {
+            if (complex[0].im < 0.0 || complex[0].im > u) {
                 escaped = true;
 
                 finalizeStatistic(true, complex[0]);

@@ -18,7 +18,7 @@ public class CombinedStatisticWithNormalMap extends GenericStatistic {
     private GenericStatistic gs;
 
     public CombinedStatisticWithNormalMap(GenericStatistic gs, NormalMap nm) {
-        super(0, false, false, 0);
+        super(0, false, false, 0, nm.shouldApplyIntensityDuringColoring());
         this.gs = gs;
         this.nm = nm;
     }

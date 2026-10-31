@@ -104,8 +104,8 @@ public class SzegediButterfly1 extends Julia {
     @Override
     public void function(Complex[] complex) {
 
-        double temp = complex[0].getIm();
-        double temp2 = complex[0].getRe();
+        double temp = complex[0].im;
+        double temp2 = complex[0].re;
 
         complex[0] = new Complex(temp * temp - Math.sqrt(complex[0].getAbsRe()), temp2 * temp2 - Math.sqrt(complex[0].getAbsIm())).plus_mutable(complex[1]);
 

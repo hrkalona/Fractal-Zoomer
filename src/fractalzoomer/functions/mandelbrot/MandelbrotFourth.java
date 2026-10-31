@@ -605,10 +605,10 @@ public class MandelbrotFourth extends Julia {
             return DeltaSubN.plus(X.times4()).times_mutable(DeltaSubN).plus_mutable(X.square().times_mutable(6)).times_mutable(DeltaSubN).plus_mutable(X.cube().times4_mutable()).times_mutable(DeltaSubN).plus_mutable(DeltaSub0);
         }
         else {
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             double r2 = r*r;
             double i2 = i*i;
             double a2 = a*a;
@@ -694,10 +694,10 @@ public class MandelbrotFourth extends Julia {
             return DeltaSubN.plus(X.times4()).times_mutable(DeltaSubN).plus_mutable(X.square().times_mutable(6)).times_mutable(DeltaSubN).plus_mutable(X.cube().times4_mutable()).times_mutable(DeltaSubN);
         }
         else {
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             double r2 = r*r;
             double i2 = i*i;
             double a2 = a*a;
@@ -780,10 +780,10 @@ public class MandelbrotFourth extends Julia {
             return DeltaSubN.plus(X.times4()).times_mutable(DeltaSubN).plus_mutable(X.square().times_mutable(6)).times_mutable(DeltaSubN).plus_mutable(X.cube().times4_mutable()).times_mutable(DeltaSubN);
         }
         else {
-            double r = X.getRe();
-            double i = X.getIm();
-            double a = DeltaSubN.getRe();
-            double b = DeltaSubN.getIm();
+            double r = X.re;
+            double i = X.im;
+            double a = DeltaSubN.re;
+            double b = DeltaSubN.im;
             double r2 = r*r;
             double i2 = i*i;
             double a2 = a*a;

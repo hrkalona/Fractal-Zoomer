@@ -20,11 +20,11 @@ public class Xaos8TrueColorAlgorithm extends TrueColorAlgorithm {
 
         Complex z = data.z;
         Complex c = data.c;
-        double re = z.getRe();
-        double im = z.getIm();
+        double re = z.re;
+        double im = z.im;
 
-        double cre = c.getRe();
-        double cim = c.getIm();
+        double cre = c.re;
+        double cim = c.im;
 
         int r, g, b;
 

@@ -25,7 +25,7 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
     public double getResult(InColorData data) {
 
         Complex z = data.z;
-        double re = z.getRe();
+        double re = z.re;
         
         return max_iterations + z.norm_squared() * Math.abs(Math.cos(re * re)) * 400;
              

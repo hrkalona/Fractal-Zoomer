@@ -39,7 +39,7 @@ public class ColorDecompositionMagneticPendulum extends ColorDecomposition {
     @Override
     public double getResult3D(OutColorData data, double result) {
   
-        return data.c0.getRe();
+        return data.c0.re;
 
     }
     

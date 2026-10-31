@@ -26,7 +26,7 @@ public class EscapeTimeGaussianInteger2 extends OutColorAlgorithm {
         Complex z = data.z;
         Complex temp = z.sub(z.gaussian_integer());
         
-        return EscapeTimeAlg.getResult(data) +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 5;
+        return EscapeTimeAlg.getResult(data) +  Math.abs(Math.atan(temp.im / temp.re)) * 5;
  
     }
     

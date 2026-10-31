@@ -124,8 +124,8 @@ public abstract class DomainColoring {
 
     protected Complex round(Complex res) {
 
-        double Re = res.getRe();
-        double Im = res.getIm();
+        double Re = res.re;
+        double Im = res.im;
 
         double temp = Math.floor(1e10 * Re + (Re > 0 ? 0.5 : -0.5)) / 1e10;
         double temp2 = Math.floor(1e10 * Im + (Im > 0 ? 0.5 : -0.5)) / 1e10;

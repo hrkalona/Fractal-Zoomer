@@ -34,11 +34,6 @@ public class LAInfoDeepDetection2RI extends LAInfoDeepRI {
     }
 
     @Override
-    protected boolean Stage0DetectDip(MantExpComplex z) {
-        return z.chebyshevNorm().compareToBothPositive(new MantExp(MinMagExp, MinMagMant).multiply(Stage0DipDetectionThreshold2)) < 0;
-    }
-
-    @Override
     protected boolean Step(LAInfoDeepRI out1, int zRefIndex, ReferenceDecompressor referenceDecompressor, boolean checkDip) {
         LAInfoDeepDetection2RI out = (LAInfoDeepDetection2RI)out1;
 

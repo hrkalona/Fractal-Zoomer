@@ -162,17 +162,17 @@ public class MandelbarCubed extends Julia {
 
         Complex X = getReferenceValue(reference, RefIteration);
 
-        double Xr = X.getRe();
-        double Xi = X.getIm();
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
         double xr2 = xr * xr;
         double xi2 = xi * xi;
         double Xr2 = Xr * Xr;
         double Xi2 = Xi * Xi;
 
-        double cr = DeltaSub0.getRe();
-        double ci = DeltaSub0.getIm();
+        double cr = DeltaSub0.re;
+        double ci = DeltaSub0.im;
 
         double temp = 2 * Xi * xi + xi2;
         double temp2 = 6 * Xr * xr;
@@ -228,10 +228,10 @@ public class MandelbarCubed extends Julia {
 
         Complex X = getReferenceValue(reference, RefIteration);
 
-        double Xr = X.getRe();
-        double Xi = X.getIm();
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
         double xr2 = xr * xr;
         double xi2 = xi * xi;
         double Xr2 = Xr * Xr;
@@ -284,10 +284,10 @@ public class MandelbarCubed extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
         Complex X = getReferenceValue(data.Reference, RefIteration);
 
-        double Xr = X.getRe();
-        double Xi = X.getIm();
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
         double xr2 = xr * xr;
         double xi2 = xi * xi;
         double Xr2 = Xr * Xr;

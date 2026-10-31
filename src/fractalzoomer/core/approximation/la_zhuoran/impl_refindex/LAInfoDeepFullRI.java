@@ -72,11 +72,6 @@ public class LAInfoDeepFullRI extends LAInfoDeepRI {
     }
 
     @Override
-    protected boolean Stage0DetectDip(MantExpComplex z) {
-        return z.chebyshevNorm().divide(new MantExpComplexFull(ZCoeffExp, ZCoeffExpIm, ZCoeffRe, ZCoeffIm).chebyshevNorm()).multiply_mutable(LAThresholdScale).compareToBothPositive(new MantExp(LAThresholdExp, LAThresholdMant).multiply(Stage0DipDetectionThreshold)) < 0;
-    }
-
-    @Override
     public GenericComplex getRef(Fractal f) {
         return f.getReferenceDeepValue(Fractal.referenceDeep, RefIndex);
     }

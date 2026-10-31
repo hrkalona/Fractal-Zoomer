@@ -23,8 +23,8 @@ public class ColorDecompositionRootFindingMethod extends ColorDecomposition {
     public double getResult(OutColorData data) {
 
         Complex z = data.z;
-        double temp = Math.floor(1000 * z.getRe() + 0.5) / 1000;
-        double temp2 = Math.floor(1000 * z.getIm() + 0.5) / 1000;
+        double temp = Math.floor(1000 * z.re + 0.5) / 1000;
+        double temp2 = Math.floor(1000 * z.im + 0.5) / 1000;
         
         return Math.abs((long)(((Math.atan2(temp2, temp) / (pi2)  + 0.75) * pi59)  + (temp * temp + temp2 * temp2) * 2.5));
 

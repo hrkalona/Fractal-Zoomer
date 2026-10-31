@@ -16,7 +16,12 @@ public class HighPrecisionHelpDialog {
         scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         String overview = "<font size='5' face='arial' color='blue'><center><b><u>High Precision</u></b></center></font><br><br>"
-                + "<font  face='arial'>This option works only for fractals that support Perturbation Theory. " +
+                + "<font  face='arial'>This option works only for fractals that support Perturbation Theory.<br>" +
+                "Additionally the following fractal functions do support high precision.<br>"+
+                "<ul>" +
+                "<li>Mandelbrot (6-10) powers and their burning ship variants</li>" +
+                "<li>Spider</li>" +
+                "</ul>" +
                 "When using this option, then all the image is going to be calculated using the selected BigNum implementation " +
                 "for all pixels. This option is only available for debugging reasons, and should never be used for normal calculations " +
                 "as the image rendering will be dramatically slower. MPFR/MPIR libraries might also face memory issues, because a lot of code paths are unoptimized for memory allocation.<br><br>" +

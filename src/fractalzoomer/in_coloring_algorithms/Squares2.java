@@ -22,8 +22,8 @@ public class Squares2 extends InColorAlgorithm {
     public double getResult(InColorData data) {
 
         Complex z = data.z;
-        double x = z.getRe() * 16;
-        double y = z.getIm() * 16;
+        double x = z.re * 16;
+        double y = z.im * 16;
         
         double dx = Math.abs(x - Math.floor(x));
         double dy = Math.abs(y - Math.floor(y));

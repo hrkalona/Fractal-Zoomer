@@ -133,11 +133,18 @@ public class StatisticsColoringDialog extends JDialog {
         statistics.setBackground(MainWindow.bg_color);
         statistics.setSelected(sts.statistic);
 
-        JTextField intensity = new JTextField(10);
+        JTextField intensity = new JTextField(5);
         intensity.setText("" + sts.statistic_intensity);
         panel2.add(statistics);
         panel2.add(new JLabel(" Intensity: "));
         panel2.add(intensity);
+
+        JCheckBox intensityDuringColoring = new JCheckBox("Coloring Intensity");
+        intensityDuringColoring.setFocusable(false);
+        intensityDuringColoring.setBackground(MainWindow.bg_color);
+        intensityDuringColoring.setSelected(sts.applyIntensityDuringColoring);
+        intensityDuringColoring.setToolTipText("Applies the intensity during coloring.");
+        panel2.add(intensityDuringColoring);
         
         final JCheckBox include_escaped_opt = new JCheckBox("Include Escaped");
         include_escaped_opt.setFocusable(false);
@@ -1790,6 +1797,7 @@ public class StatisticsColoringDialog extends JDialog {
             sts.useAverage = average.isSelected();
             sts.statistic_escape_type = escape_type.getSelectedIndex();
             sts.showAtomDomains = showAtomDomain.isSelected();
+            sts.applyIntensityDuringColoring = intensityDuringColoring.isSelected();
 
             dispose();
 

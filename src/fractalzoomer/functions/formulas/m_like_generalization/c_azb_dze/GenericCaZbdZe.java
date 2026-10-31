@@ -50,7 +50,7 @@ public class GenericCaZbdZe extends Julia {
         }
         else {
             Complex temp = (new Complex((-delta * epsilon) / (alpha * beta), 0)).pow(1 / (beta - epsilon));
-            init_val = new InitialValue(temp.getRe(), temp.getIm());
+            init_val = new InitialValue(temp.re, temp.im);
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
@@ -81,7 +81,7 @@ public class GenericCaZbdZe extends Julia {
 
         pertur_val = new DefaultPerturbation();
         Complex temp = (new Complex((-delta * epsilon) / (alpha * beta), 0)).pow(1 / (beta - epsilon));
-        init_val = new InitialValue(temp.getRe(), temp.getIm());
+        init_val = new InitialValue(temp.re, temp.im);
     }
 
     //orbit
@@ -111,7 +111,7 @@ public class GenericCaZbdZe extends Julia {
         }
         else {
             Complex temp = (new Complex((-delta * epsilon) / (alpha * beta), 0)).pow(1 / (beta - epsilon));
-            init_val = new InitialValue(temp.getRe(), temp.getIm());
+            init_val = new InitialValue(temp.re, temp.im);
         }
 
     }
@@ -127,7 +127,7 @@ public class GenericCaZbdZe extends Julia {
 
         pertur_val = new DefaultPerturbation();
         Complex temp = (new Complex((-delta * epsilon) / (alpha * beta), 0)).pow(1 / (beta - epsilon));
-        init_val = new InitialValue(temp.getRe(), temp.getIm());
+        init_val = new InitialValue(temp.re, temp.im);
         
     }
 

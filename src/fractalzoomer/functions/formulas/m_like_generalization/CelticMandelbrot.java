@@ -121,11 +121,11 @@ public class CelticMandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
 
         Complex X = getReferenceValue(reference, RefIteration);
-        double Xr = X.getRe();
-        double Xi = X.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
 
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
 
         double xrn = Complex.DiffAbs(Xr * Xr - Xi * Xi, (2 * Xr + xr) * xr - (2 * Xi + xi) * xi);
         double xin = 2 * (Xr * xi + xr * (Xi + xi));
@@ -138,11 +138,11 @@ public class CelticMandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, ReferenceData data, int RefIteration) {
 
         Complex X = getReferenceValue(data.Reference, RefIteration);
-        double Xr = X.getRe();
-        double Xi = X.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
 
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
 
         double xrn = Complex.DiffAbs(Xr * Xr - Xi * Xi, (2 * Xr + xr) * xr - (2 * Xi + xi) * xi);
         double xin = 2 * (Xr * xi + xr * (Xi + xi));
@@ -187,11 +187,11 @@ public class CelticMandelbrot extends Julia {
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
         Complex X = getReferenceValue(reference, RefIteration);
-        double Xr = X.getRe();
-        double Xi = X.getIm();
+        double Xr = X.re;
+        double Xi = X.im;
 
-        double xr = DeltaSubN.getRe();
-        double xi = DeltaSubN.getIm();
+        double xr = DeltaSubN.re;
+        double xi = DeltaSubN.im;
 
         double xrn = Complex.DiffAbs(Xr * Xr - Xi * Xi, (2 * Xr + xr) * xr - (2 * Xi + xi) * xi);
         double xin = 2 * (Xr * xi + xr * (Xi + xi));

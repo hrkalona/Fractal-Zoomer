@@ -116,7 +116,7 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
             }
         }
         
-        double result = expr.getValue().getRe();
+        double result = expr.getValue().re;
         
         if (TaskRender.USE_DIRECT_COLOR) {
             return result;

@@ -13,8 +13,8 @@ public class CurvatureAverage extends GenericStatistic {
     private double sum;
     private double sum2;
     
-    public CurvatureAverage(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems) {
-        super(statistic_intensity, useSmoothing, useAverage, lastXItems);
+    public CurvatureAverage(double statistic_intensity, boolean useSmoothing, boolean useAverage, int lastXItems, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, useSmoothing, useAverage, lastXItems, applyIntensityDuringColoring);
         sum = 0;
         sum2 = 0;
     }
@@ -30,7 +30,7 @@ public class CurvatureAverage extends GenericStatistic {
         Complex a = z.sub(zold);
         Complex b = zold.sub(zold2);
         Complex d = a.divide_mutable(b);
-        double temp = Math.atan(d.getIm() / d.getRe());
+        double temp = Math.atan(d.im / d.re);
         
         if(!Double.isNaN(temp) && !Double.isInfinite(temp)) {
             samples++;
@@ -44,7 +44,7 @@ public class CurvatureAverage extends GenericStatistic {
         Complex a = sam.z_val.sub(sam.zold_val);
         Complex b = sam.zold_val.sub(sam.zold2_val);
         Complex d = a.divide_mutable(b);
-        double temp = Math.atan(d.getIm() / d.getRe());
+        double temp = Math.atan(d.im / d.re);
 
         if(!Double.isNaN(temp) && !Double.isInfinite(temp)) {
             data[0] += Math.abs(temp);
@@ -101,7 +101,7 @@ public class CurvatureAverage extends GenericStatistic {
         }
 
         if(!useSmoothing) {
-            return sum * statistic_intensity;
+            return applyIntensity(sum);
         }
 
         double smoothing;
@@ -116,7 +116,7 @@ public class CurvatureAverage extends GenericStatistic {
             smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
         }
 
-        return method.interpolate(sum, sum2, smoothing) * statistic_intensity;
+        return applyIntensity(method.interpolate(sum, sum2, smoothing));
     }
     
     @Override

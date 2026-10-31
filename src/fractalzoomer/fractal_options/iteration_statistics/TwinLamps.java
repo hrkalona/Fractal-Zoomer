@@ -13,8 +13,8 @@ public class TwinLamps extends GenericStatistic {
     private Complex point;
     private int twlFunction;
 
-    public TwinLamps(double statistic_intensity, int twlFunction, double[] twlPoint, boolean useSmoothing, int lastXItems) {
-        super(statistic_intensity, useSmoothing, false, lastXItems);
+    public TwinLamps(double statistic_intensity, int twlFunction, double[] twlPoint, boolean useSmoothing, int lastXItems, boolean applyIntensityDuringColoring) {
+        super(statistic_intensity, useSmoothing, false, lastXItems, applyIntensityDuringColoring);
         point = new Complex(twlPoint[0], twlPoint[1]);
         this.twlFunction = twlFunction;
     }
@@ -107,7 +107,7 @@ public class TwinLamps extends GenericStatistic {
         }
 
         if(!useSmoothing) {
-            return statistic_intensity * sum / (1 + max - min);
+            return applyIntensity(sum / (1 + max - min));
         }
 
         if(twlFunction == 1) {
@@ -126,7 +126,7 @@ public class TwinLamps extends GenericStatistic {
             smoothing = usePower ? OutColorAlgorithm.fractionalPartEscapingWithPower(z_val, log_bailout, log_power, normSmoothingImpl) : OutColorAlgorithm.fractionalPartEscaping2(z_val, zold_val, log_bailout, normSmoothingImpl);
         }
 
-        return method.interpolate(sum / (1 + max - min), sum2 / (1 + max - min), smoothing) * statistic_intensity;
+        return applyIntensity(method.interpolate(sum / (1 + max - min), sum2 / (1 + max - min), smoothing));
 
     }
 
