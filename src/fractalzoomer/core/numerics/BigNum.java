@@ -28,8 +28,6 @@ public abstract class BigNum {
     public static void reinitialize(double digits) {
         BigNum30.reinitialize(digits);
         BigNum60.reinitialize(digits);
-        BigNum32.reinitialize(digits);
-        BigNum64.reinitialize(digits);
 
         automaticBignumLib = BigNum30.fracDigits >= 62 ? 0 : 1;
     }
@@ -37,8 +35,6 @@ public abstract class BigNum {
     public static void reinitializeTest(double digits) {
         BigNum30.reinitializeTest(digits);
         BigNum60.reinitializeTest(digits);
-        BigNum32.reinitializeTest(digits);
-        BigNum64.reinitializeTest(digits);
     }
 
     private static final String ZEROS = "0000000000000000000000000000000000000000000000000000000000000000";
@@ -68,14 +64,8 @@ public abstract class BigNum {
         if(impl == 0) {
             return BigNum30.use_threads;
         }
-        else if(impl == 1) {
-            return BigNum60.use_threads;
-        }
-        else if (impl == 2){
-            return BigNum32.use_threads;
-        }
         else {
-            return BigNum64.use_threads;
+            return BigNum60.use_threads;
         }
     }
 
@@ -85,30 +75,17 @@ public abstract class BigNum {
         if(impl == 0) {
             return new BigNum30();
         }
-        else if(impl == 1) {
+        else {
             return new BigNum60();
         }
-        else if(impl == 2) {
-            return new BigNum32();
-        }
-        else {
-            return new BigNum64();
-        }
-
     }
 
     public static BigNum copy(BigNum other) {
         if(other instanceof BigNum30) {
             return new BigNum30((BigNum30) other);
         }
-        else if(other instanceof BigNum60) {
-            return new BigNum60((BigNum60) other);
-        }
-        else if (other instanceof BigNum32){
-            return new BigNum32((BigNum32) other);
-        }
         else {
-            return new BigNum64((BigNum64) other);
+            return new BigNum60((BigNum60) other);
         }
     }
 
@@ -117,14 +94,8 @@ public abstract class BigNum {
         if(impl == 0) {
             return new BigNum30(val);
         }
-        else if(impl == 1) {
-            return new BigNum60(val);
-        }
-        else if(impl == 2) {
-            return new BigNum32(val);
-        }
         else {
-            return new BigNum64(val);
+            return new BigNum60(val);
         }
     }
 
@@ -133,14 +104,8 @@ public abstract class BigNum {
         if(impl == 0) {
             return new BigNum30(val);
         }
-        else if(impl == 1) {
-            return new BigNum60(val);
-        }
-        else if(impl == 2) {
-            return new BigNum32(val);
-        }
         else {
-            return new BigNum64(val);
+            return new BigNum60(val);
         }
     }
 
@@ -149,14 +114,8 @@ public abstract class BigNum {
         if(impl == 0) {
             return new BigNum30(val);
         }
-        else if(impl == 1) {
-            return new BigNum60(val);
-        }
-        else if(impl == 2) {
-            return new BigNum32(val);
-        }
         else {
-            return new BigNum64(val);
+            return new BigNum60(val);
         }
     }
 
@@ -165,14 +124,8 @@ public abstract class BigNum {
         if(impl == 0) {
             return new BigNum30(val);
         }
-        else if(impl == 1) {
-            return new BigNum60(val);
-        }
-        else if(impl == 2) {
-            return new BigNum32(val);
-        }
         else {
-            return new BigNum64(val);
+            return new BigNum60(val);
         }
     }
 
@@ -183,16 +136,9 @@ public abstract class BigNum {
         if(impl == 0) {
             return BigNum30.getPrecision();
         }
-        else if(impl == 1) {
+        else {
             return BigNum60.getPrecision();
         }
-        else if(impl == 2) {
-            return BigNum32.getPrecision();
-        }
-        else {
-            return BigNum64.getPrecision();
-        }
-
     }
 
     public static String getName() {
@@ -201,14 +147,8 @@ public abstract class BigNum {
         if(impl == 0) {
             return BigNum30.getName();
         }
-        else if(impl == 1) {
-            return BigNum60.getName();
-        }
-        else if(impl == 2) {
-            return BigNum32.getName();
-        }
         else {
-            return BigNum64.getName();
+            return BigNum60.getName();
         }
     }
 
@@ -216,14 +156,8 @@ public abstract class BigNum {
         if(a instanceof BigNum30) {
             return BigNum30.max((BigNum30) a, (BigNum30) b);
         }
-        else if(a instanceof BigNum60) {
-            return BigNum60.max((BigNum60) a, (BigNum60) b);
-        }
-        else if(a instanceof BigNum32) {
-            return BigNum32.max((BigNum32) a, (BigNum32) b);
-        }
         else {
-            return BigNum64.max((BigNum64) a, (BigNum64) b);
+            return BigNum60.max((BigNum60) a, (BigNum60) b);
         }
     }
 
@@ -252,10 +186,8 @@ public abstract class BigNum {
     public abstract BigNum add(BigNum a);
     public abstract BigNum add(int a);
 
-    public abstract BigNum squareFullGolden();
     public abstract long getScale();
 
-    public abstract double doubleValueOld();
     public abstract double doubleValue();
 
     public abstract MantExp getMantExp();
