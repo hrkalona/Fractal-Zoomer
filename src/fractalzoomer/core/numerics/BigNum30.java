@@ -104,7 +104,7 @@ public class BigNum30 extends BigNum {
     }
 
     protected BigNum30(BigNum30 other) {
-        digits = Arrays.copyOf(other.digits, other.digits.length);
+        digits = Arrays.copyOf(other.digits, fracDigitsp1);
         sign = other.sign;
         isOne = other.isOne;
         scale = 0;
@@ -167,7 +167,7 @@ public class BigNum30 extends BigNum {
 
                 int k;
                 int i = index;
-                for (k = 53; k > 0 && i < digits.length; i++) {
+                for (k = 53; k > 0 && i < fracDigitsp1; i++) {
                     int r;
 
                     if (k > SHIFT) {
@@ -201,7 +201,7 @@ public class BigNum30 extends BigNum {
         }
 
         boolean isZero = true;
-        for(int i = 0; i < digits.length; i++) {
+        for(int i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -265,7 +265,7 @@ public class BigNum30 extends BigNum {
 
         int k;
         int i = index;
-        for (k = 53; k > 0 && i < digits.length; i++) {
+        for (k = 53; k > 0 && i < fracDigitsp1; i++) {
             int r;
 
             if (k > SHIFT) {
@@ -309,7 +309,7 @@ public class BigNum30 extends BigNum {
         }
 
         boolean isZero = true;
-        for(i = 0; i < digits.length; i++) {
+        for(i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -370,7 +370,7 @@ public class BigNum30 extends BigNum {
             int index2 = (i / SHIFT) + 1;
             int index = j / base_digits + offset;
 
-            if(index2 >= digits.length || index >= data.length) {
+            if(index2 >= fracDigitsp1 || index >= data.length) {
                 break;
             }
 
@@ -381,7 +381,7 @@ public class BigNum30 extends BigNum {
         }
 
         boolean isZero = true;
-        for(int i = 0; i < digits.length; i++) {
+        for(int i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -407,14 +407,14 @@ public class BigNum30 extends BigNum {
 
         int i;
         int digit = 0;
-        for(i = 0; i < digits.length; i++) {
+        for(i = 0; i < fracDigitsp1; i++) {
             digit = digits[i];
             if(digit != 0) {
                 break;
             }
         }
 
-        if(i == digits.length) {
+        if(i == fracDigitsp1) {
             return Long.MIN_VALUE;
         }
 
@@ -543,7 +543,7 @@ public class BigNum30 extends BigNum {
         if(sign == -1) {
             value = "-";
         }
-        for (int i = 0; i < digits.length; i++) {
+        for (int i = 0; i < fracDigitsp1; i++) {
 
             if (i == 0) {
                 boolean zero = true;
@@ -595,7 +595,7 @@ public class BigNum30 extends BigNum {
             }
 
             if(signA < 0) {
-                for (int i = 0; i < digits.length; i++) {
+                for (int i = 0; i < fracDigitsp1; i++) {
                     digit = digits[i];
                     otherDigit = otherDigits[i];
                     if (digit < otherDigit) {
@@ -606,7 +606,7 @@ public class BigNum30 extends BigNum {
                 }
             }
             else {
-                for (int i = 0; i < digits.length; i++) {
+                for (int i = 0; i < fracDigitsp1; i++) {
                     digit = digits[i];
                     otherDigit = otherDigits[i];
                     if (digit < otherDigit) {
@@ -637,7 +637,7 @@ public class BigNum30 extends BigNum {
 
         int digit, otherDigit;
 
-        for (int i = 0; i < digits.length; i++) {
+        for (int i = 0; i < fracDigitsp1; i++) {
             digit = digits[i];
             otherDigit = otherDigits[i];
             if (digit < otherDigit) {
@@ -659,14 +659,14 @@ public class BigNum30 extends BigNum {
         int i;
         int digit = 0;
         if(offset == -1) {
-            for (i = 0; i < digits.length; i++) {
+            for (i = 0; i < fracDigitsp1; i++) {
                 digit = digits[i];
                 if (digit != 0) {
                     break;
                 }
             }
 
-            if (i == digits.length) {
+            if (i == fracDigitsp1) {
                 return 0;
             }
 
@@ -707,7 +707,7 @@ public class BigNum30 extends BigNum {
         i++;
 
         int k;
-        for(k = bitOffset ; k < 52 && i < digits.length; k+=SHIFT, i++) {
+        for(k = bitOffset ; k < 52 && i < fracDigitsp1; k+=SHIFT, i++) {
             long val = digits[i];
             int temp = 52 - k;
 
@@ -720,7 +720,7 @@ public class BigNum30 extends BigNum {
                 mantissa |= val >>> temp2;
                 mantissa &= 0xFFFFFFFFFFFFFL;
 
-                if(temp2 == 0 && i + 1 < digits.length) {
+                if(temp2 == 0 && i + 1 < fracDigitsp1) {
                     long val2 = digits[i + 1];
                     mantissa += (val2 >>> (SHIFTM1)) & 0x1;
                 }
@@ -772,12 +772,12 @@ public class BigNum30 extends BigNum {
             else if(sign == 0) {
                 result.sign = otherSign;
                 result.isOne = a.isOne;
-                System.arraycopy(otherDigits, 0, resDigits, 0, otherDigits.length);
+                System.arraycopy(otherDigits, 0, resDigits, 0, fracDigitsp1);
             }
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -867,7 +867,7 @@ public class BigNum30 extends BigNum {
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -960,12 +960,12 @@ public class BigNum30 extends BigNum {
             else if(sign == 0) {
                 result.sign = -otherSign;
                 result.isOne = a.isOne;
-                System.arraycopy(otherDigits, 0, resDigits, 0, otherDigits.length);
+                System.arraycopy(otherDigits, 0, resDigits, 0, fracDigitsp1);
             }
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -1056,7 +1056,7 @@ public class BigNum30 extends BigNum {
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -1797,7 +1797,7 @@ public class BigNum30 extends BigNum {
                 result.sign = sign * bsign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * bsign;
             }
             return result;
@@ -1850,11 +1850,11 @@ public class BigNum30 extends BigNum {
                 result.sign = sign * b.sign;
             }
             else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
+                System.arraycopy(bdigits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             return result;
@@ -2048,11 +2048,11 @@ public class BigNum30 extends BigNum {
                 result.sign = sign * b.sign;
             }
             else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
+                System.arraycopy(bdigits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             return result;
@@ -2543,14 +2543,14 @@ public class BigNum30 extends BigNum {
         int i;
         int digit = 0;
         if(offset == -1) {
-            for (i = 0; i < digits.length; i++) {
+            for (i = 0; i < fracDigitsp1; i++) {
                 digit = digits[i];
                 if (digit != 0) {
                     break;
                 }
             }
 
-            if (i == digits.length) {
+            if (i == fracDigitsp1) {
                 return new MantExp();
             }
 
@@ -2588,7 +2588,7 @@ public class BigNum30 extends BigNum {
         i++;
 
         int k;
-        for(k = bitOffset ; k < 52 && i < digits.length; k+=SHIFT, i++) {
+        for(k = bitOffset ; k < 52 && i < fracDigitsp1; k+=SHIFT, i++) {
             long val = digits[i];
             temp = 52 - k;
 
@@ -2601,7 +2601,7 @@ public class BigNum30 extends BigNum {
                 mantissa |= val >>> temp2;
                 mantissa &= 0xFFFFFFFFFFFFFL;
 
-                if(temp2 == 0 && i + 1 < digits.length) {
+                if(temp2 == 0 && i + 1 < fracDigitsp1) {
                     long val2 = digits[i + 1];
                     mantissa += (val2 >>> (SHIFTM1)) & 0x1; //Rounding
                 }
@@ -2631,17 +2631,6 @@ public class BigNum30 extends BigNum {
 
     }
 
-    public static boolean isFractionalPartZero(int[] digits) {
-
-        for(int i = 1; i < digits.length; i++) {
-            if(digits[i] != 0) {
-                return  false;
-            }
-        }
-
-        return true;
-    }
-
     public static BigNum30 max(BigNum30 a, BigNum30 b) {
         return a.compare(b) > 0 ? a : b;
     }
@@ -2659,11 +2648,11 @@ public class BigNum30 extends BigNum {
         }
 
         int[] digits = result.digits;
-        int total = digits.length + times;
+        int total = fracDigitsp1 + times;
         int isNonZero = 0;
 
         for(int i = times, location = 0; i < total; i++, location++) {
-            if(i < digits.length) {
+            if(i < fracDigitsp1) {
                 if(location == 0) {
                     int value = digits[i - 1];
                     int finalValue = digits[i];
@@ -2676,7 +2665,7 @@ public class BigNum30 extends BigNum {
             }
             else {
                 int im1 = i - 1;
-                if(location == 0 && im1 < digits.length) {
+                if(location == 0 && im1 < fracDigitsp1) {
                     int value = digits[im1];
                     int finalValue = (value & 0x1) << SHIFT;
                     digits[location] = finalValue;
@@ -2711,7 +2700,7 @@ public class BigNum30 extends BigNum {
         int total = -times;
         int isNonZero = 0;
 
-        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+        for(int i = fracDigits - times, location = fracDigits; i >= total; i--, location--) {
             if(i >= 0) {
                 int value = digits[i] >>> internalShift;
 
@@ -2777,11 +2766,11 @@ public class BigNum30 extends BigNum {
         int internalShift = (int)(power % SHIFT);
 
         int[] digits = result.digits;
-        int total = digits.length + times;
+        int total = fracDigitsp1 + times;
         int isNonZero = 0;
 
         for(int i = times, location = 0; i < total; i++, location++) {
-            if(i < digits.length) {
+            if(i < fracDigitsp1) {
 
                 int value = digits[i] << internalShift;
 
@@ -2791,7 +2780,7 @@ public class BigNum30 extends BigNum {
                 }
 
                 int ip1 = i + 1;
-                if(ip1 < digits.length) {
+                if(ip1 < fracDigitsp1) {
                     value |= digits[ip1] >>> (SHIFT - internalShift);
                 }
                 if(location == 0) {
@@ -2804,7 +2793,7 @@ public class BigNum30 extends BigNum {
             }
             else {
                 int im1 = i - 1;
-                if(location == 0 && im1 < digits.length && internalShift == 0) {
+                if(location == 0 && im1 < fracDigitsp1 && internalShift == 0) {
                     int value = (digits[im1] & 0x1) << SHIFT;
                     digits[location] = (int)(value & MASKD0);
                 }
@@ -2834,7 +2823,7 @@ public class BigNum30 extends BigNum {
         int total = -times;
         int isNonZero = 0;
         
-        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+        for(int i = fracDigits - times, location = fracDigits; i >= total; i--, location--) {
             if(i >= 0) {
                 int value = digits[i];
 
@@ -2915,7 +2904,7 @@ public class BigNum30 extends BigNum {
             int i;
 
             int[] digits = a.digits;
-            for(i = 2; i < digits.length; i++) {
+            for(i = 2; i < fracDigitsp1; i++) {
                 if(digits[i] != 0) {
                     break;
                 }
@@ -2945,7 +2934,7 @@ public class BigNum30 extends BigNum {
         BigNum30 newX = x.mult(oneHalf.sub(aHalf.mult(x.squareFull()))); // x = (3/2 - (a/2)*x^2)*x
 
         BigNum30 epsilon = new BigNum30(1);
-        epsilon.digits[epsilon.digits.length - 1] = 0x3;
+        epsilon.digits[fracDigits] = 0x3;
         epsilon.digits[0] = 0;
 
         int iter = 0;
