@@ -23,7 +23,6 @@ public class BigNum30 extends BigNum {
     private static int fracDigitsm1;
     private static int fracDigitsp1;
     private static int fracDigitsHalf;
-    private static boolean useToDouble2;
     private static boolean useKaratsuba;
     private static int initialLength;
     private static boolean evenFracDigits;
@@ -105,7 +104,7 @@ public class BigNum30 extends BigNum {
     }
 
     protected BigNum30(BigNum30 other) {
-        digits = Arrays.copyOf(other.digits, other.digits.length);
+        digits = Arrays.copyOf(other.digits, fracDigitsp1);
         sign = other.sign;
         isOne = other.isOne;
         scale = 0;
@@ -168,7 +167,7 @@ public class BigNum30 extends BigNum {
 
                 int k;
                 int i = index;
-                for (k = 53; k > 0 && i < digits.length; i++) {
+                for (k = 53; k > 0 && i < fracDigitsp1; i++) {
                     int r;
 
                     if (k > SHIFT) {
@@ -202,7 +201,7 @@ public class BigNum30 extends BigNum {
         }
 
         boolean isZero = true;
-        for(int i = 0; i < digits.length; i++) {
+        for(int i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -266,7 +265,7 @@ public class BigNum30 extends BigNum {
 
         int k;
         int i = index;
-        for (k = 53; k > 0 && i < digits.length; i++) {
+        for (k = 53; k > 0 && i < fracDigitsp1; i++) {
             int r;
 
             if (k > SHIFT) {
@@ -310,7 +309,7 @@ public class BigNum30 extends BigNum {
         }
 
         boolean isZero = true;
-        for(i = 0; i < digits.length; i++) {
+        for(i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -371,7 +370,7 @@ public class BigNum30 extends BigNum {
             int index2 = (i / SHIFT) + 1;
             int index = j / base_digits + offset;
 
-            if(index2 >= digits.length || index >= data.length) {
+            if(index2 >= fracDigitsp1 || index >= data.length) {
                 break;
             }
 
@@ -382,7 +381,7 @@ public class BigNum30 extends BigNum {
         }
 
         boolean isZero = true;
-        for(int i = 0; i < digits.length; i++) {
+        for(int i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -408,14 +407,14 @@ public class BigNum30 extends BigNum {
 
         int i;
         int digit = 0;
-        for(i = 0; i < digits.length; i++) {
+        for(i = 0; i < fracDigitsp1; i++) {
             digit = digits[i];
             if(digit != 0) {
                 break;
             }
         }
 
-        if(i == digits.length) {
+        if(i == fracDigitsp1) {
             return Long.MIN_VALUE;
         }
 
@@ -533,7 +532,7 @@ public class BigNum30 extends BigNum {
             ret.append(i==1 ? "." : " ");
             ret.append(toHexString(digits[i]));
         }
-        return doubleValueOld() + " " + ret.toString();
+        return doubleValue() + " " + ret.toString();
     }
 
 
@@ -544,7 +543,7 @@ public class BigNum30 extends BigNum {
         if(sign == -1) {
             value = "-";
         }
-        for (int i = 0; i < digits.length; i++) {
+        for (int i = 0; i < fracDigitsp1; i++) {
 
             if (i == 0) {
                 boolean zero = true;
@@ -596,7 +595,7 @@ public class BigNum30 extends BigNum {
             }
 
             if(signA < 0) {
-                for (int i = 0; i < digits.length; i++) {
+                for (int i = 0; i < fracDigitsp1; i++) {
                     digit = digits[i];
                     otherDigit = otherDigits[i];
                     if (digit < otherDigit) {
@@ -607,7 +606,7 @@ public class BigNum30 extends BigNum {
                 }
             }
             else {
-                for (int i = 0; i < digits.length; i++) {
+                for (int i = 0; i < fracDigitsp1; i++) {
                     digit = digits[i];
                     otherDigit = otherDigits[i];
                     if (digit < otherDigit) {
@@ -638,7 +637,7 @@ public class BigNum30 extends BigNum {
 
         int digit, otherDigit;
 
-        for (int i = 0; i < digits.length; i++) {
+        for (int i = 0; i < fracDigitsp1; i++) {
             digit = digits[i];
             otherDigit = otherDigits[i];
             if (digit < otherDigit) {
@@ -660,14 +659,14 @@ public class BigNum30 extends BigNum {
         int i;
         int digit = 0;
         if(offset == -1) {
-            for (i = 0; i < digits.length; i++) {
+            for (i = 0; i < fracDigitsp1; i++) {
                 digit = digits[i];
                 if (digit != 0) {
                     break;
                 }
             }
 
-            if (i == digits.length) {
+            if (i == fracDigitsp1) {
                 return 0;
             }
 
@@ -708,7 +707,7 @@ public class BigNum30 extends BigNum {
         i++;
 
         int k;
-        for(k = bitOffset ; k < 52 && i < digits.length; k+=SHIFT, i++) {
+        for(k = bitOffset ; k < 52 && i < fracDigitsp1; k+=SHIFT, i++) {
             long val = digits[i];
             int temp = 52 - k;
 
@@ -721,7 +720,7 @@ public class BigNum30 extends BigNum {
                 mantissa |= val >>> temp2;
                 mantissa &= 0xFFFFFFFFFFFFFL;
 
-                if(temp2 == 0 && i + 1 < digits.length) {
+                if(temp2 == 0 && i + 1 < fracDigitsp1) {
                     long val2 = digits[i + 1];
                     mantissa += (val2 >>> (SHIFTM1)) & 0x1;
                 }
@@ -753,47 +752,6 @@ public class BigNum30 extends BigNum {
     }
 
     @Override
-    public double doubleValueOld() {
-
-        if (sign == 0) {
-            return 0;
-        }
-
-        if(isOne) {
-            return sign;
-        }
-
-        if(useToDouble2) {
-            return doubleValue();
-        }
-
-        double ret = 0;
-
-
-        /*if(digits[0]>=0) {
-            for(int i=fracDigits; i>=0; i--) {
-                ret *= TWO_TO_SHIFT;
-                ret += digits[i];
-            }
-        } else {
-            ret--;
-            for(int i=fracDigits; i>0; i--) {
-                ret += digits[i] - MASK;
-                ret *= TWO_TO_SHIFT;
-            }
-            ret += digits[0]+1;
-        }*/
-
-        for(int i=fracDigits; i>=0; i--) {
-            ret *= TWO_TO_SHIFT;
-            ret += digits[i];
-        }
-
-        ret *= sign;
-        return ret;
-    }
-
-    @Override
     public BigNum30 add(BigNum aa) {
         BigNum30 a = (BigNum30) aa;
 
@@ -814,12 +772,12 @@ public class BigNum30 extends BigNum {
             else if(sign == 0) {
                 result.sign = otherSign;
                 result.isOne = a.isOne;
-                System.arraycopy(otherDigits, 0, resDigits, 0, otherDigits.length);
+                System.arraycopy(otherDigits, 0, resDigits, 0, fracDigitsp1);
             }
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -909,7 +867,7 @@ public class BigNum30 extends BigNum {
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -1002,12 +960,12 @@ public class BigNum30 extends BigNum {
             else if(sign == 0) {
                 result.sign = -otherSign;
                 result.isOne = a.isOne;
-                System.arraycopy(otherDigits, 0, resDigits, 0, otherDigits.length);
+                System.arraycopy(otherDigits, 0, resDigits, 0, fracDigitsp1);
             }
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -1098,7 +1056,7 @@ public class BigNum30 extends BigNum {
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -1300,122 +1258,6 @@ public class BigNum30 extends BigNum {
 
         return  result;
     }
-    @Deprecated
-    @Override
-    public BigNum30 squareFullGolden() {
-
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0) {
-            return result;
-        }
-
-        int[] resDigits = result.digits;
-
-        if(isOne) {
-            resDigits[0] = 1;
-            result.isOne = true;
-            result.sign = 1;
-            return result;
-        }
-
-        long old_sum;
-
-        long sum = 0;
-
-        int length = initialLength;
-
-        int j;
-        int k;
-        long carry = 0;
-        long bj;
-        long ak;
-
-        for (j = 1, k = fracDigits; j <= length; j++, k--) {
-            bj = digits[j];
-            ak = digits[k];
-
-            sum += bj * ak;
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-        }
-
-        carry <<= 1;
-
-        if(j == k) {
-            bj = digits[j];
-            sum <<= 1;
-            sum += bj * bj;
-        }
-        else  {
-            bj = digits[j];
-            ak = digits[k];
-            sum += bj * ak;
-            sum <<= 1;
-        }
-
-        carry += sum >>> SHIFT;
-        sum &= MASK;
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
-
-
-        for(int i = fracDigits; i > 0; i--) {
-
-            sum = 0;
-
-            length = (i >> 1) - 1;
-
-            carry = 0;
-            for(j = 0, k = i; j <= length; j++, k--) {
-                bj = digits[j];
-                ak = digits[k];
-                sum += bj * ak;
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-            }
-
-
-
-            if(j == k) {
-                bj = digits[j];
-                sum <<= 1;
-                carry <<= 1;
-                sum += bj * bj;
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-            }
-            else  {
-                bj = digits[j];
-                ak = digits[k];
-                sum += bj * ak;
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-                sum <<= 1;
-                carry <<= 1;
-            }
-
-            sum += old_sum;
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-
-            resDigits[i] = (int) (sum);
-            old_sum = carry;
-        }
-
-        sum = old_sum;
-
-        bj = digits[0];
-        sum += bj * bj;
-
-        resDigits[0] = (int) (sum & MASKD0);
-        result.sign = 1;
-
-        return  result;
-    }
-
 
     @Override
     public BigNum30 squareFull() {
@@ -1606,174 +1448,6 @@ public class BigNum30 extends BigNum {
 
             resDigits[0] = (int) (sum & MASKD0);
         }
-        result.sign = 1;
-
-        return  result;
-    }
-
-    @Deprecated
-    public BigNum30 squareKaratsubaOLD() {
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0) {
-            return result;
-        }
-
-        int[] resDigits = result.digits;
-
-        if(isOne) {
-            resDigits[0] = 1;
-            result.isOne = true;
-            result.sign = 1;
-            return result;
-        }
-
-        long[] partials = new long[fracDigitsp1];
-        long[] partialSums = new long[fracDigitsp1];
-        long[] partialCarries = new long[fracDigitsp1];
-
-        long PartialSum = 0;
-        long PartialCarry = 0;
-        for(int i = 0; i < fracDigitsp1; i++) {
-            long temp = digits[i];
-            long p = temp * temp;
-
-            partials[i] = p;
-            PartialSum += p;
-
-            PartialCarry += PartialSum >>> SHIFT;
-            PartialSum &= MASK;
-
-            partialSums[i] = PartialSum;
-            partialCarries[i] = PartialCarry;
-        }
-
-        long old_sum;
-
-        //for(int i = MAX_FRAC_DIGITS; i > 0; i--) {
-        //long sum += (int)(old_sum >>> SHIFT30);
-
-        //long sum = (old_sum >>> SHIFT31);
-
-        long p0 = partials[0];
-        long sum = p0;
-
-        int length = initialLength;
-
-        long aj;
-        long ak;
-
-        int j;
-        int k;
-        long carry = 0;
-        long temp;
-        for (j = 1, k = fracDigits; j <= length; j++, k--) {
-            aj = digits[j];
-            ak = digits[k];
-
-
-            temp = aj + ak;
-
-            sum += temp * temp;
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            //System.out.println("a" + j + " * " + "a " + k);
-        }
-
-        //System.out.println("OUT");
-        //System.out.println("a" + j + " * " + "a " + k);
-        //int diff = k - j;
-        //int branchlessCheck = (diff >> 31) - (-diff >> 31);
-
-        if(j == k) {
-            sum += (partials[k] << 1);
-        }
-        else  {
-            aj = digits[j];
-            ak = digits[k];
-            temp = ak + aj;
-            sum += temp * temp;
-        }
-
-        carry += sum >>> SHIFT;
-        sum &= MASK;
-
-        sum -= PartialSum;
-        carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum &= MASK;
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
-
-
-        for(int i = fracDigits; i > 0; i--) {
-
-            sum = old_sum;
-
-            length = (i >> 1) - 1;
-
-            carry = 0;
-            for(j = 0, k = i; j <= length; j++, k--) {
-                aj = digits[j];
-                ak = digits[k];
-
-                temp = aj + ak;
-
-                sum += temp * temp;
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-                //System.out.println("a" + j + " * " + "a " + k);
-            }
-
-            //System.out.println("OUT");
-            //System.out.println("a" + j + " * " + "a " + k);
-
-            //System.out.println("NEXT");
-
-            //diff = k - j;
-            //branchlessCheck = (diff >> 31) - (-diff >> 31);
-
-            if(j == k) {
-                sum += (partials[k] << 1);
-            }
-            else  {
-                aj = digits[j];
-                ak = digits[k];
-                temp = ak + aj;
-                sum += temp * temp;
-            }
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            sum -= PartialSum;
-            carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-            sum &= MASK;
-
-            if(i > 1) {
-//                long partialI = partials[i];
-//                PartialSum -= partialI & MASK;
-//                PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-//                //PartialCarry -= (PartialSum & MASK31)>>> SHIFT;
-//                //PartialCarry -= partialI >>> SHIFT;
-//                PartialSum &= MASK;
-                int im1 = i - 1;
-                PartialSum = partialSums[im1];
-                PartialCarry = partialCarries[im1];
-            }
-
-            resDigits[i] = (int) (sum);
-            //System.out.println(result.digits[i] );
-            old_sum = carry;
-            //System.out.println("NEXT");
-        }
-
-        sum = old_sum;
-
-        sum += p0;
-
-        resDigits[0] = (int) (sum & MASKD0);
         result.sign = 1;
 
         return  result;
@@ -2078,508 +1752,6 @@ public class BigNum30 extends BigNum {
         return  result;
     }
 
-    /* This function has better performance than the normal one after about 3333 digits */
-    public BigNum30 squareFullBackwards() {
-
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0) {
-            return result;
-        }
-
-        int[] resDigits = result.digits;
-
-        if(isOne) {
-            resDigits[0] = 1;
-            result.isOne = true;
-            result.sign = 1;
-            return result;
-        }
-
-        long old_sum;
-
-        long sum = 0;
-
-        int length = initialLength;
-
-        int j;
-        int k;
-        long carry = 0;
-
-        long bj;
-        long ak;
-
-        int newLength = (length >>> 1) << 1;
-        boolean isOdd = (length & 1) == 1;
-
-        for (j = 1, k = fracDigits; j <= newLength;) {
-            bj = digits[j];
-            ak = digits[k];
-
-            sum += bj * ak;
-
-            j++; k--;
-
-            bj = digits[j];
-            ak = digits[k];
-
-            sum += bj * ak;
-
-            j++; k--;
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-        }
-
-        if(isOdd) {
-            bj = digits[j];
-            ak = digits[k];
-
-            sum += bj * ak;
-
-            j++; k--;
-            //carry += sum >>> SHIFT;
-            //sum &= MASK;
-        }
-
-        carry <<= 1;
-
-        if(j == k) {
-            bj = digits[j];
-            sum <<= 1;
-            sum += bj * bj;
-        }
-        else  {
-            bj = digits[j];
-            ak = digits[k];
-            sum += bj * ak;
-            sum <<= 1;
-        }
-
-        carry += sum >>> SHIFT;
-        sum &= MASK;
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
-
-        length = fracDigitsHalf;
-        int length2 = evenFracDigits ? length : length + 1;
-
-        for(int i = fracDigits; i > 0; i-=2, length--, length2--) {
-
-            sum = 0;
-            long sum2 = 0;
-            carry = 0;
-            long carry2 = 0;
-
-            k = length2;
-            long prevDigit = digits[k];
-            long startDigit = prevDigit;
-
-            int range = length - ((length >>> 1) << 1);
-            isOdd = (length & 1) == 1;
-
-            for(j = length - 1; j >= range;) {
-                bj = digits[j];
-
-                sum2 += prevDigit * bj;
-
-                k++;
-
-                prevDigit = digits[k]; //ak
-
-                sum += prevDigit * bj;
-
-                j--;
-
-                bj = digits[j];
-
-                sum2 += prevDigit * bj;
-
-                k++;
-
-                prevDigit = digits[k]; //ak
-
-                sum += prevDigit * bj;
-
-                j--;
-
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-                carry2 += sum2 >>> SHIFT;
-                sum2 &= MASK;
-            }
-
-            if(isOdd) {
-                bj = digits[j];
-
-                sum2 += prevDigit * bj;
-
-                k++;
-
-                prevDigit = digits[k]; //ak
-
-                sum += prevDigit * bj;
-
-//                carry1 += temp_sum1 >>> SHIFT;
-//                temp_sum1 &= MASK;
-//                carry2 += temp_sum2 >>> SHIFT;
-//                temp_sum2 &= MASK;
-            }
-
-            if(evenFracDigits) {
-                sum <<= 1;
-                sum += startDigit * startDigit;
-
-                sum2 <<= 1;
-            }
-            else {
-                bj = digits[length];
-
-                sum += startDigit * bj;
-                //carry1 += temp_sum1 >>> SHIFT;
-                //temp_sum1 &= MASK;
-
-                sum2 <<= 1;
-                sum2 += bj * bj;
-
-                sum <<= 1;
-            }
-
-            carry <<= 1;
-            carry2 <<= 1;
-
-            sum += old_sum;
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            sum2 += carry;
-
-
-            if(i > 1) {
-                carry2 += sum2 >>> SHIFT;
-                sum2 &= MASK;
-                old_sum = carry2;
-            }
-
-            resDigits[i] = (int) (sum);
-            resDigits[i - 1] = (int) (sum2);
-
-        }
-
-        if(evenFracDigits) {
-            bj = digits[0];
-            sum = bj * bj + old_sum;
-
-            resDigits[0] = (int) (sum & MASKD0);
-        }
-        result.sign = 1;
-
-        return  result;
-    }
-
-    /* This function has better performance than the normal one after about 3333 digits */
-    public BigNum30 squareKaratsubaBackwards() {
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0) {
-            return result;
-        }
-
-        int[] resDigits = result.digits;
-
-        if(isOne) {
-            resDigits[0] = 1;
-            result.isOne = true;
-            result.sign = 1;
-            return result;
-        }
-
-        long[] partials = new long[fracDigitsp1];
-
-        long PartialSum = 0;
-        long PartialCarry = 0;
-
-        int newLength = (fracDigitsp1 >>> 1) << 1;
-        boolean isOdd = (fracDigitsp1 & 1) == 1;
-        int i;
-        long temp, p;
-
-        for(i = 0; i < newLength;) {
-            temp = digits[i];
-            p = temp * temp;
-
-            partials[i] = p;
-            PartialSum += p;
-            i++;
-
-            temp = digits[i];
-            p = temp * temp;
-
-            partials[i] = p;
-            PartialSum += p;
-            i++;
-
-            PartialCarry += PartialSum >>> SHIFT;
-            PartialSum &= MASK;
-        }
-
-        if(isOdd) {
-            temp = digits[i];
-            p = temp * temp;
-
-            partials[i] = p;
-            PartialSum += p;
-
-            PartialCarry += PartialSum >>> SHIFT;
-            PartialSum &= MASK;
-        }
-
-        long old_sum;
-
-        //for(int i = MAX_FRAC_DIGITS; i > 0; i--) {
-        //long sum += (int)(old_sum >>> SHIFT30);
-
-        //long sum = (old_sum >>> SHIFT31);
-
-        long p0 = partials[0];
-        long sum = p0;
-
-        int length = initialLength;
-
-        long aj;
-        long ak;
-
-        int j;
-        int k;
-        long carry = sum >>> SHIFT;
-        sum &= MASK;
-
-        newLength = (length >>> 1) << 1;
-        isOdd = (length & 1) == 1;
-
-        for (j = 1, k = fracDigits; j <= newLength; ) {
-            aj = digits[j];
-            ak = digits[k];
-
-
-            temp = aj + ak;
-
-            sum += temp * temp;
-
-            j++; k--;
-
-            aj = digits[j];
-            ak = digits[k];
-
-
-            temp = aj + ak;
-
-            sum += temp * temp;
-
-            j++; k--;
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            //System.out.println("a" + j + " * " + "a " + k);
-        }
-
-        if(isOdd) {
-            aj = digits[j];
-            ak = digits[k];
-
-            temp = aj + ak;
-
-            sum += temp * temp;
-
-            j++; k--;
-
-            //carry += sum >>> SHIFT;
-            //sum &= MASK;
-        }
-
-        //System.out.println("OUT");
-        //System.out.println("a" + j + " * " + "a " + k);
-        //int diff = k - j;
-        //int branchlessCheck = (diff >> 31) - (-diff >> 31);
-
-        if(j == k) {
-            sum += (partials[k] << 1);
-        }
-        else  {
-            aj = digits[j];
-            ak = digits[k];
-            temp = ak + aj;
-            sum += temp * temp;
-        }
-
-        carry += sum >>> SHIFT;
-        sum &= MASK;
-
-        sum -= PartialSum;
-        carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum &= MASK;
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
-
-        length = fracDigitsHalf;
-        int length2 = evenFracDigits ? length : length + 1;
-
-        for(i = fracDigits; i > 0; i-=2, length--, length2--) {
-
-            carry = old_sum >>> SHIFT;
-            old_sum &= MASK;
-            sum = old_sum;
-            long sum2 = 0;
-            long carry2 = 0;
-
-            k = length2;
-            long prevDigit = digits[k];
-            long firstDigit = prevDigit;
-
-            int range = length - ((length >>> 1) << 1);
-            isOdd = (length & 1) == 1;
-
-            for(j = length - 1; j >= range;) {
-                aj = digits[j];
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                temp = prevDigit + aj;
-                sum2 += temp * temp;
-
-                k++;
-
-                prevDigit = digits[k]; // ak
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                temp = prevDigit + aj;
-                sum += temp * temp;
-
-                j--;
-
-                aj = digits[j];
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                temp = prevDigit + aj;
-                sum2 += temp * temp;
-
-                k++;
-
-                prevDigit = digits[k]; // ak
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                temp = prevDigit + aj;
-                sum += temp * temp;
-
-                j--;
-
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-                carry2 += sum2 >>> SHIFT;
-                sum2 &= MASK;
-            }
-
-            if(isOdd) {
-                aj = digits[j];
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                temp = prevDigit + aj;
-                sum2 += temp * temp;
-
-                k++;
-
-                prevDigit = digits[k]; // ak
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                temp = prevDigit + aj;
-                sum += temp * temp;
-
-//                carry1 += sum1 >>> SHIFT;
-//                sum1 &= MASK;
-//                carry2 += sum2 >>> SHIFT;
-//                sum2 &= MASK;
-            }
-
-            if(evenFracDigits) {
-                sum += (partials[length] << 1);
-            }
-            else {
-                aj = digits[length];
-
-                temp = firstDigit + aj;
-
-                sum += temp * temp;
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                sum2 += (partials[length] << 1);
-//                carry2 += sum2 >>> SHIFT;
-//                sum2 &= MASK;
-            }
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            sum -= PartialSum;
-            carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-            sum &= MASK;
-
-            long partialI = partials[i];
-
-            PartialSum -= partialI & MASK;
-            PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-            PartialSum &= MASK;
-
-            sum2 += carry;
-            carry2 += sum2 >>> SHIFT;
-            sum2 &= MASK;
-
-
-            sum2 -= PartialSum;
-
-            resDigits[i] = (int) (sum);
-
-            if(i > 1) {
-
-                int im1 = i - 1;
-                carry2 -= ((sum2 & MASK31) >>> SHIFT) + PartialCarry;
-                sum2 &= MASK;
-
-                partialI = partials[im1];
-
-                PartialSum -= partialI & MASK;
-                PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-                PartialSum &= MASK;
-
-                old_sum = carry2;
-
-                resDigits[im1] = (int) (sum2);
-            }
-            else {
-                sum2 &= MASK;
-                resDigits[0] = (int) (sum2);
-            }
-        }
-
-        if(evenFracDigits) {
-            sum = p0 + old_sum;
-
-            resDigits[0] = (int) (sum & MASKD0);
-        }
-
-        result.sign = 1;
-
-        return  result;
-    }
-
     @Override
     public BigNum30 mult(BigNum bb) {
        BigNum30 b = (BigNum30) bb;
@@ -2625,7 +1797,7 @@ public class BigNum30 extends BigNum {
                 result.sign = sign * bsign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * bsign;
             }
             return result;
@@ -2659,105 +1831,6 @@ public class BigNum30 extends BigNum {
         return result;
     }
 
-    @Deprecated
-    public BigNum30 multFullGolden(BigNum30 b) {
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0 || b.sign == 0) {
-            return result;
-        }
-
-        int[] bdigits = b.digits;
-
-        int[] resDigits = result.digits;
-
-        if(isOne || b.isOne) {
-            if (isOne && b.isOne) {
-                resDigits[0] = 1;
-                result.isOne = true;
-                result.sign = sign * b.sign;
-            }
-            else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
-                result.sign = sign * b.sign;
-            }
-            else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
-                result.sign = sign * b.sign;
-            }
-            return result;
-        }
-
-        long old_sum;
-
-        //for(int i = MAX_FRAC_DIGITS; i > 0; i--) {
-
-        //long sum = (old_sum >>> SHIFT31);
-        //
-        long sum = 0;
-        long carry = 0;
-        long bj;
-        long ak;
-        for (int j = 1, k = fracDigits; j <= fracDigits; j++, k--) {
-            bj = bdigits[j];
-            ak = digits[k];
-
-            sum += bj * ak;
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-        }
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
-
-        //System.out.println();
-        //}
-
-        int isNonZero = 0;
-        for(int i = fracDigits; i > 0; i--) {
-
-            sum = old_sum; //carry from prev
-            carry = 0;
-            for(int j = 0, k = i; j <= i; j++, k--) {
-                bj = bdigits[j];
-                ak = digits[k];
-
-                sum += bj * ak;
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-
-               //System.out.println("b" + j + " * " + "a " + k);
-            }
-
-            int di = (int) (sum);
-            resDigits[i] = di;
-            isNonZero |= di;
-            //System.out.println(result.digits[i] );
-            old_sum = carry;
-            //System.out.println("NEXT");
-        }
-
-        sum = old_sum;
-
-        bj = bdigits[0];
-        ak = digits[0];
-
-        sum += bj * ak;
-
-        int d0 = (int) (sum & MASKD0);
-        resDigits[0] = d0;
-
-        result.isOne = d0 == 1 && isNonZero == 0;
-
-        result.sign = sign * b.sign;
-
-        return result;
-
-    }
-
-    /* A backwards function might have better performance after 3333 digits */
-    //Todo: test it
     public BigNum30 multFull(BigNum30 b) {
 
         BigNum30 result = new BigNum30();
@@ -2777,11 +1850,11 @@ public class BigNum30 extends BigNum {
                 result.sign = sign * b.sign;
             }
             else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
+                System.arraycopy(bdigits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             return result;
@@ -2957,715 +2030,6 @@ public class BigNum30 extends BigNum {
 
     }
 
-    public BigNum30 multFullBackwards(BigNum30 b) {
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0 || b.sign == 0) {
-            return result;
-        }
-
-        int[] bdigits = b.digits;
-
-        int[] resDigits = result.digits;
-
-        if(isOne || b.isOne) {
-            if (isOne && b.isOne) {
-                resDigits[0] = 1;
-                result.isOne = true;
-                result.sign = sign * b.sign;
-            }
-            else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
-                result.sign = sign * b.sign;
-            }
-            else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
-                result.sign = sign * b.sign;
-            }
-            return result;
-        }
-
-        long old_sum;
-
-        //for(int i = MAX_FRAC_DIGITS; i > 0; i--) {
-
-        //long sum = (old_sum >>> SHIFT31);
-        //
-        long sum = 0;
-        long carry = 0;
-        long bj;
-        long ak;
-
-        int newLength = fracDigitsHalf << 1;
-
-        int j, k;
-
-        for (j = 1, k = fracDigits; j <= newLength;) {
-            bj = bdigits[j];
-            ak = digits[k];
-
-            sum += bj * ak;
-
-            j++;k--;
-
-            bj = bdigits[j];
-            ak = digits[k];
-
-            sum += bj * ak;
-
-            j++;k--;
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-        }
-
-        if(!evenFracDigits) {
-            bj = bdigits[j];
-            ak = digits[k];
-            sum += bj * ak;
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-        }
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish
-
-        //System.out.println();
-        //}
-
-        long a0 = digits[0];
-
-        int isNonZero = 0;
-        for(int i = fracDigits; i > 0; i-=2) {
-            int im1 = i - 1;
-            carry = old_sum >>> SHIFT;
-            old_sum &= MASK;
-            sum = 0;
-            long sum2 = 0;
-            long carry2 = 0;
-
-            k = 0;
-
-            long prevDigit = bdigits[i];
-
-            int range = i - ((i >>> 1) << 1);
-            boolean isOdd = (i & 1) == 1;
-
-            for(j = i; j > range;) {
-                ak = digits[k];
-                sum += prevDigit * ak;
-
-                //System.out.println("b" + j + " * " + "a " + k);
-                j--;
-
-                prevDigit = bdigits[j];
-                sum2 += prevDigit * ak;
-                //System.out.println("b" + j + " * " + "a " + k);
-                k++;
-
-                ak = digits[k];
-                sum += prevDigit * ak;
-
-                //System.out.println("b" + j + " * " + "a " + k);
-                j--;
-
-                prevDigit = bdigits[j];
-                sum2 += prevDigit * ak;
-                //System.out.println("b" + j + " * " + "a " + k);
-                k++;
-
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-
-                carry2 += sum2 >>> SHIFT;
-                sum2 &= MASK;
-            }
-
-            if(isOdd) {
-                ak = digits[k];
-                sum += prevDigit * ak;
-
-                //System.out.println("b" + j + " * " + "a " + k);
-                j--;
-
-                prevDigit = bdigits[j];
-                sum2 += prevDigit * ak;
-                //System.out.println("b" + j + " * " + "a " + k);
-                k++;
-
-//                carry1 += temp_sum1 >>> SHIFT;
-//                temp_sum1 &= MASK;
-//
-//                carry2 += temp_sum2 >>> SHIFT;
-//                temp_sum2 &= MASK;
-            }
-
-
-            //System.out.println("b" + j + " * " + "a " + k);
-            ak = digits[k];
-            sum += prevDigit * ak + old_sum;
-            //carry1 += temp_sum1 >>> SHIFT;
-            //temp_sum1 &= MASK;
-
-            //System.out.println("b" + i + " * " + "a " + startIndex);
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            //System.out.println("NEXT");
-
-            int di = (int) (sum);
-            isNonZero |= di;
-            resDigits[i] = di;
-
-
-            if(i > 1) {
-                sum2 += carry;
-
-                carry2 += sum2 >>> SHIFT;
-                sum2 &= MASK;
-                old_sum = carry2;
-
-                di = (int) (sum2);
-                isNonZero |= di;
-                resDigits[im1] = di;
-            }
-            else {
-                sum2 += carry;
-                int d0 = (int) (sum2 & MASKD0);
-                resDigits[0] = d0;
-                result.isOne = d0 == 1 && isNonZero == 0;
-            }
-
-        }
-
-        if(evenFracDigits) {
-            bj = bdigits[0];
-
-            sum = bj * a0 + old_sum;
-
-            int d0 = (int) (sum & MASKD0);
-            resDigits[0] = d0;
-
-            result.isOne = d0 == 1 && isNonZero == 0;
-        }
-
-        result.sign = sign * b.sign;
-
-        return result;
-
-    }
-
-    @Deprecated
-    public BigNum30 multKaratsubaGolden(BigNum30 b) {
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0 || b.sign == 0) {
-            return result;
-        }
-
-        int[] bdigits = b.digits;
-        int[] resDigits = result.digits;
-
-        if(isOne || b.isOne) {
-            if (isOne && b.isOne) {
-                resDigits[0] = 1;
-                result.isOne = true;
-                result.sign = sign * b.sign;
-            }
-            else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
-                result.sign = sign * b.sign;
-            }
-            else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
-                result.sign = sign * b.sign;
-            }
-            return result;
-        }
-
-        long[] partials = new long[fracDigitsp1];
-        long[] partialSums = new long[fracDigitsp1];
-        long[] partialCarries = new long[fracDigitsp1];
-
-        long PartialSum = 0;
-        long PartialCarry = 0;
-        for (int i = 0; i < fracDigitsp1; i++) {
-            long p = ((long) digits[i]) * ((long) bdigits[i]);
-            partials[i] = p;
-            PartialSum += p;
-
-            PartialCarry += PartialSum >>> SHIFT;
-            PartialSum &= MASK;
-
-            partialSums[i] = PartialSum;
-            partialCarries[i] = PartialCarry;
-        }
-
-
-        long old_sum;
-
-        long p0 = partials[0];
-
-        long sum = p0;
-
-        int length = initialLength;
-
-        int j;
-        int k;
-        long carry = 0;
-        long bj, bk, aj, ak;
-        for (j = 1, k = fracDigits; j <= length; j++, k--) {
-            bj = bdigits[j];
-            bk = bdigits[k];
-            aj = digits[j];
-            ak = digits[k];
-
-            sum += (bk + bj) * (ak + aj);
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            //System.out.println("partials " + k + " partials " + j);
-
-        }
-
-        //System.out.println("partials " + k + " partials " + j);
-
-        //System.out.println("Next");
-
-        //int diff = k - j;
-        //int branchlessCheck = (diff >> 31) - (-diff >> 31);
-
-
-        //System.out.println("partials " + k + " partials " + j);
-
-        //System.out.println("NEXT");
-
-        //System.out.println("OUT");
-        //System.out.println("b" + j + " * " + "a " + k);
-
-        if(j == k) {
-            sum += (partials[k] << 1);
-        }
-        else  {
-            bj = bdigits[j];
-            bk = bdigits[k];
-            aj = digits[j];
-            ak = digits[k];
-            sum += (bk + bj) * (ak + aj);
-        }
-
-        carry += sum >>> SHIFT;
-        sum &= MASK;
-
-        sum -= PartialSum;
-        carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum &= MASK;
-
-        //sum += (1 - branchlessCheck) * partials[k] + branchlessCheck * ((bk + bj) * (ak + aj) - partials[k] - partials[j]);
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish, adds bias because 10000 is always shifted upwards
-
-
-        int isNonZero = 0;
-        for(int i = fracDigits; i > 0; i--) {
-
-            length = (i >> 1) - 1;
-
-            sum = old_sum; //carry from prev
-
-            carry = 0;
-            for(j = 0, k = i; j <= length; j++, k--) {
-                bj = bdigits[j];
-                bk = bdigits[k];
-                aj =  digits[j];
-                ak = digits[k];
-
-                sum += (bk + bj) * (ak + aj);
-
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-                //System.out.println("partials " + k + " partials " + j);
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-            }
-
-            if(j == k) {
-                sum += (partials[k] << 1);
-            }
-            else  {
-                bj = bdigits[j];
-                bk = bdigits[k];
-                aj = digits[j];
-                ak = digits[k];
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-                sum += (bk + bj) * (ak + aj);
-            }
-
-            //System.out.println("NEXT");
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            sum -= PartialSum;
-            carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-            sum &= MASK;
-
-            if(i > 1) {
-                int im1 = i - 1;
-                PartialSum = partialSums[im1];
-                PartialCarry = partialCarries[im1];
-
-                //long partialI = partials[i];
-
-                //PartialSum -= partialI & MASK;
-                //PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-                //PartialSum &= MASK;
-            }
-
-
-            //System.out.println("partials " + k + " partials " + j);
-            //System.out.println("NEXT");
-
-
-            int di = (int) (sum);
-            isNonZero |= di;
-            resDigits[i] = di;
-            //System.out.println(result.digits[i] );
-            old_sum = carry;
-            //System.out.println("NEXT");
-        }
-
-        sum = old_sum;
-
-        sum += p0;
-
-        int d0 = (int) (sum & MASKD0);
-        resDigits[0] = d0;
-
-        result.sign = sign * b.sign;
-
-        result.isOne = d0 == 1 && isNonZero == 0;
-
-        return result;
-
-    }
-
-    public BigNum30 multKaratsubaBackwards(BigNum30 b) {
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0 || b.sign == 0) {
-            return result;
-        }
-
-        int[] bdigits = b.digits;
-        int[] resDigits = result.digits;
-
-        if(isOne || b.isOne) {
-            if (isOne && b.isOne) {
-                resDigits[0] = 1;
-                result.isOne = true;
-                result.sign = sign * b.sign;
-            }
-            else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
-                result.sign = sign * b.sign;
-            }
-            else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
-                result.sign = sign * b.sign;
-            }
-            return result;
-        }
-
-        long[] partials = new long[fracDigitsp1];
-
-        long PartialSum = 0;
-        long PartialCarry = 0;
-
-        int newLength = (fracDigitsp1 >>> 1) << 1;
-        boolean isOdd = (fracDigitsp1 & 1) == 1;
-        long p;
-        int i;
-        for(i = 0; i < newLength;) {
-            p = ((long)digits[i]) * ((long)bdigits[i]);
-            partials[i] = p;
-            PartialSum += p;
-
-            i++;
-
-            p = ((long)digits[i]) * ((long)bdigits[i]);
-            partials[i] = p;
-            PartialSum += p;
-
-            i++;
-
-            PartialCarry += PartialSum >>> SHIFT;
-            PartialSum &= MASK;
-        }
-
-        if(isOdd) {
-            p = ((long)digits[i]) * ((long)bdigits[i]);
-            partials[i] = p;
-            PartialSum += p;
-            PartialCarry += PartialSum >>> SHIFT;
-            PartialSum &= MASK;
-        }
-
-        long old_sum;
-
-        long p0 = partials[0];
-
-        long sum = p0;
-
-        int length = initialLength;
-
-        int j;
-        int k;
-        //        long carry = sum >>> SHIFT;
-        //        sum &= MASK;
-        long carry = 0;
-
-        long bj, bk, aj, ak;
-
-        newLength = (length >>> 1) << 1;
-        isOdd = (length & 1) == 1;
-
-        for (j = 1, k = fracDigits; j <= newLength;) {
-            bj = bdigits[j];
-            bk = bdigits[k];
-            aj = digits[j];
-            ak = digits[k];
-
-            sum += (bk + bj) * (ak + aj);
-
-            j++; k--;
-
-            bj = bdigits[j];
-            bk = bdigits[k];
-            aj = digits[j];
-            ak = digits[k];
-
-            sum += (bk + bj) * (ak + aj);
-
-            j++; k--;
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            //System.out.println("partials " + k + " partials " + j);
-
-        }
-
-        if(isOdd) {
-            bj = bdigits[j];
-            bk = bdigits[k];
-            aj = digits[j];
-            ak = digits[k];
-
-            sum += (bk + bj) * (ak + aj);
-
-            j++; k--;
-
-            //carry += sum >>> SHIFT;
-            //sum &= MASK;
-        }
-
-        if(j == k) {
-            sum += (partials[k] << 1);
-        }
-        else  {
-            bj = bdigits[j];
-            bk = bdigits[k];
-            aj = digits[j];
-            ak = digits[k];
-            sum += (bk + bj) * (ak + aj);
-        }
-
-        carry += sum >>> SHIFT;
-        sum &= MASK;
-
-        sum -= PartialSum;
-        carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-        sum &= MASK;
-
-        old_sum = carry + (sum >>> (SHIFTM1)); // Roundish, adds bias because 10000 is always shifted upwards
-
-
-        int isNonZero = 0;
-
-        length = fracDigitsHalf;
-        int length2 = evenFracDigits ? length : length + 1;
-
-        for(i = fracDigits; i > 0; i-=2, length--, length2--) {
-
-            //carry = old_sum >>> SHIFT;
-            //old_sum &= MASK;
-            carry = 0;
-            sum = old_sum;
-            long sum2 = 0;
-            long carry2 = 0;
-
-            k = length2;
-            long prevDigit = digits[k];
-            long prevDigit2 = bdigits[k];
-            long startDigit = prevDigit;
-            long startDigit2 = prevDigit2;
-
-            int range = length - ((length >>> 1) << 1);
-            isOdd = (length & 1) == 1;
-
-            for(j = length - 1; j >= range;) {
-                aj = digits[j];
-                bj = bdigits[j];
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                sum2 += (prevDigit2 + bj) * (prevDigit + aj);
-
-                k++;
-
-                prevDigit = digits[k]; //ak
-                prevDigit2 = bdigits[k]; //bk
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                sum += (prevDigit2 + bj) * (prevDigit + aj);
-                j--;
-
-                aj = digits[j];
-                bj = bdigits[j];
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                sum2 += (prevDigit2 + bj) * (prevDigit + aj);
-
-                k++;
-
-                prevDigit = digits[k]; //ak
-                prevDigit2 = bdigits[k]; //bk
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                sum += (prevDigit2 + bj) * (prevDigit + aj);
-                j--;
-
-                carry += sum >>> SHIFT;
-                sum &= MASK;
-                carry2 += sum2 >>> SHIFT;
-                sum2 &= MASK;
-
-            }
-
-            if(isOdd) {
-                aj = digits[j];
-                bj = bdigits[j];
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                sum2 += (prevDigit2 + bj) * (prevDigit + aj);
-
-                k++;
-
-                prevDigit = digits[k]; //ak
-                prevDigit2 = bdigits[k]; //bk
-
-                //System.out.println("b " + j + " b " + k + " a " + j + " a " + k);
-
-                sum += (prevDigit2 + bj) * (prevDigit + aj);
-
-//                carry1 += sum1 >>> SHIFT;
-//                sum1 &= MASK;
-//                carry2 += sum2 >>> SHIFT;
-//                sum2 &= MASK;
-            }
-
-            if(evenFracDigits) {
-                sum += (partials[length] << 1);
-            }
-            else {
-                aj = digits[length];
-                bj = bdigits[length];
-
-                sum += (startDigit2 + bj) * (startDigit + aj);
-
-                //System.out.println("b " + length + " b " + length2 + " a " + length + " a " + length2);
-
-                sum2 += (partials[length] << 1);
-//                carry2 += sum2 >>> SHIFT;
-//                sum2 &= MASK;
-            }
-
-            //System.out.println("NEXT");
-
-            carry += sum >>> SHIFT;
-            sum &= MASK;
-
-            sum -= PartialSum;
-            carry -= ((sum & MASK31) >>> SHIFT) + PartialCarry;
-            sum &= MASK;
-
-            long partialI = partials[i];
-
-            PartialSum -= partialI & MASK;
-            PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-            PartialSum &= MASK;
-
-            sum2 += carry;
-            carry2 += sum2 >>> SHIFT;
-            sum2 &= MASK;
-
-
-            sum2 -= PartialSum;
-
-            int di = (int) (sum);
-            isNonZero |= di;
-            resDigits[i] = di;
-
-            if(i > 1) {
-
-                int im1 = i - 1;
-                carry2 -= ((sum2 & MASK31) >>> SHIFT) + PartialCarry;
-                sum2 &= MASK;
-
-                partialI = partials[im1];
-
-                PartialSum -= partialI & MASK;
-                PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFT;
-                PartialSum &= MASK;
-
-                old_sum = carry2;
-
-                di = (int) (sum2);
-                isNonZero |= di;
-                resDigits[im1] = di;
-            }
-            else {
-                sum2 &= MASK;
-                int d0 = (int) (sum2 & MASKD0);
-                resDigits[0] = d0;
-                result.isOne = d0 == 1 && isNonZero == 0;
-            }
-        }
-
-        if(evenFracDigits) {
-            sum = p0 + old_sum;
-
-            int d0 = (int) (sum & MASKD0);
-            resDigits[0] = d0;
-
-            //result.isOne = ( (((d0 ^ isNonZero) | d0) & ~(isNonZero & 0x1)) )  == 1
-            result.isOne = d0 == 1 && isNonZero == 0;
-        }
-
-        result.sign = sign * b.sign;
-
-        return result;
-
-    }
-
     public BigNum30 multKaratsuba(BigNum30 b) {
 
         BigNum30 result = new BigNum30();
@@ -3684,11 +2048,11 @@ public class BigNum30 extends BigNum {
                 result.sign = sign * b.sign;
             }
             else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
+                System.arraycopy(bdigits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             return result;
@@ -4163,122 +2527,6 @@ public class BigNum30 extends BigNum {
 
     }
 
-    /*
-         Too slow
-     */
-    public BigNum30 divide(BigNum30 b) {
-
-        if(b.sign == 0) {
-            BigNum30 result = getMax();
-            result.sign = sign;
-        }
-
-        BigNum30 result = new BigNum30();
-
-        if(sign == 0) {
-            return result;
-        }
-
-        if (isOne && b.isOne) {
-            result.digits[0] = 1;
-            result.isOne = true;
-            result.sign = sign * b.sign;
-            return result;
-        }
-        else if (b.isOne){
-            System.arraycopy(digits, 0, result.digits, 0, digits.length);
-            result.sign = sign * b.sign;
-            return result;
-        }
-
-        BigNum30 low = new BigNum30();
-        BigNum30 high = this.compare(b) < 0 ? new BigNum30(1) : new BigNum30(0x7fffffff);
-
-        BigNum30 oldVal = null;
-
-        //int iterations = 0;
-
-        while (true) {
-            BigNum30 mid = low.add(high.sub(low).divide2());
-
-            BigNum30 temp = b.mult(mid);
-
-            BigNum30 val = temp.sub(this);
-
-            if(oldVal != null && val.compare(oldVal) == 0) {
-                result.digits = mid.digits;
-                result.sign = sign * b.sign;
-                result.isOne = result.digits[0] == 1 && isFractionalPartZero(result.digits);
-                return result;
-            }
-
-            oldVal = val;
-
-            if(temp.compare(this) < 0) {
-                low = mid;
-            }
-            else {
-                high = mid;
-            }
-            //iterations++;
-        }
-
-
-    }
-
-    /*
-         Too slow
-     */
-    public BigNum30 reciprocal() {
-
-        if(sign == 0) {
-            BigNum30 result = getMax();
-            result.sign = sign;
-        }
-
-        BigNum30 result = new BigNum30();
-
-        if (isOne) {
-            result.digits[0] = 1;
-            result.isOne = true;
-            result.sign = sign;
-            return result;
-        }
-
-        BigNum30 low = new BigNum30();
-        BigNum30 high  = digits[0] != 0 ? new BigNum30(1) : new BigNum30(0x7fffffff);
-
-        BigNum30 oldVal = null;
-
-        BigNum30 one = new BigNum30(1);
-
-        while (true) {
-            BigNum30 mid = low.add(high.sub(low).divide2());
-
-            BigNum30 temp = this.mult(mid);
-
-            BigNum30 val = temp.sub(one);
-
-            if(oldVal != null && val.compare(oldVal) == 0) {
-                result.digits = mid.digits;
-                result.sign = sign;
-                result.isOne = result.digits[0] == 1 && isFractionalPartZero(result.digits);
-                return result;
-            }
-
-            oldVal = val;
-
-            if(temp.compare(one) < 0) {
-                low = mid;
-            }
-            else {
-                high = mid;
-            }
-        }
-
-
-    }
-
     @Override
     public MantExp getMantExp() {
 
@@ -4295,14 +2543,14 @@ public class BigNum30 extends BigNum {
         int i;
         int digit = 0;
         if(offset == -1) {
-            for (i = 0; i < digits.length; i++) {
+            for (i = 0; i < fracDigitsp1; i++) {
                 digit = digits[i];
                 if (digit != 0) {
                     break;
                 }
             }
 
-            if (i == digits.length) {
+            if (i == fracDigitsp1) {
                 return new MantExp();
             }
 
@@ -4340,7 +2588,7 @@ public class BigNum30 extends BigNum {
         i++;
 
         int k;
-        for(k = bitOffset ; k < 52 && i < digits.length; k+=SHIFT, i++) {
+        for(k = bitOffset ; k < 52 && i < fracDigitsp1; k+=SHIFT, i++) {
             long val = digits[i];
             temp = 52 - k;
 
@@ -4353,7 +2601,7 @@ public class BigNum30 extends BigNum {
                 mantissa |= val >>> temp2;
                 mantissa &= 0xFFFFFFFFFFFFFL;
 
-                if(temp2 == 0 && i + 1 < digits.length) {
+                if(temp2 == 0 && i + 1 < fracDigitsp1) {
                     long val2 = digits[i + 1];
                     mantissa += (val2 >>> (SHIFTM1)) & 0x1; //Rounding
                 }
@@ -4383,17 +2631,6 @@ public class BigNum30 extends BigNum {
 
     }
 
-    public static boolean isFractionalPartZero(int[] digits) {
-
-        for(int i = 1; i < digits.length; i++) {
-            if(digits[i] != 0) {
-                return  false;
-            }
-        }
-
-        return true;
-    }
-
     public static BigNum30 max(BigNum30 a, BigNum30 b) {
         return a.compare(b) > 0 ? a : b;
     }
@@ -4411,11 +2648,11 @@ public class BigNum30 extends BigNum {
         }
 
         int[] digits = result.digits;
-        int total = digits.length + times;
+        int total = fracDigitsp1 + times;
         int isNonZero = 0;
 
         for(int i = times, location = 0; i < total; i++, location++) {
-            if(i < digits.length) {
+            if(i < fracDigitsp1) {
                 if(location == 0) {
                     int value = digits[i - 1];
                     int finalValue = digits[i];
@@ -4428,7 +2665,7 @@ public class BigNum30 extends BigNum {
             }
             else {
                 int im1 = i - 1;
-                if(location == 0 && im1 < digits.length) {
+                if(location == 0 && im1 < fracDigitsp1) {
                     int value = digits[im1];
                     int finalValue = (value & 0x1) << SHIFT;
                     digits[location] = finalValue;
@@ -4463,7 +2700,7 @@ public class BigNum30 extends BigNum {
         int total = -times;
         int isNonZero = 0;
 
-        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+        for(int i = fracDigits - times, location = fracDigits; i >= total; i--, location--) {
             if(i >= 0) {
                 int value = digits[i] >>> internalShift;
 
@@ -4529,11 +2766,11 @@ public class BigNum30 extends BigNum {
         int internalShift = (int)(power % SHIFT);
 
         int[] digits = result.digits;
-        int total = digits.length + times;
+        int total = fracDigitsp1 + times;
         int isNonZero = 0;
 
         for(int i = times, location = 0; i < total; i++, location++) {
-            if(i < digits.length) {
+            if(i < fracDigitsp1) {
 
                 int value = digits[i] << internalShift;
 
@@ -4543,7 +2780,7 @@ public class BigNum30 extends BigNum {
                 }
 
                 int ip1 = i + 1;
-                if(ip1 < digits.length) {
+                if(ip1 < fracDigitsp1) {
                     value |= digits[ip1] >>> (SHIFT - internalShift);
                 }
                 if(location == 0) {
@@ -4556,7 +2793,7 @@ public class BigNum30 extends BigNum {
             }
             else {
                 int im1 = i - 1;
-                if(location == 0 && im1 < digits.length && internalShift == 0) {
+                if(location == 0 && im1 < fracDigitsp1 && internalShift == 0) {
                     int value = (digits[im1] & 0x1) << SHIFT;
                     digits[location] = (int)(value & MASKD0);
                 }
@@ -4586,7 +2823,7 @@ public class BigNum30 extends BigNum {
         int total = -times;
         int isNonZero = 0;
         
-        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+        for(int i = fracDigits - times, location = fracDigits; i >= total; i--, location--) {
             if(i >= 0) {
                 int value = digits[i];
 
@@ -4667,7 +2904,7 @@ public class BigNum30 extends BigNum {
             int i;
 
             int[] digits = a.digits;
-            for(i = 2; i < digits.length; i++) {
+            for(i = 2; i < fracDigitsp1; i++) {
                 if(digits[i] != 0) {
                     break;
                 }
@@ -4697,7 +2934,7 @@ public class BigNum30 extends BigNum {
         BigNum30 newX = x.mult(oneHalf.sub(aHalf.mult(x.squareFull()))); // x = (3/2 - (a/2)*x^2)*x
 
         BigNum30 epsilon = new BigNum30(1);
-        epsilon.digits[epsilon.digits.length - 1] = 0x3;
+        epsilon.digits[fracDigits] = 0x3;
         epsilon.digits[0] = 0;
 
         int iter = 0;

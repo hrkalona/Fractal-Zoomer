@@ -11871,7 +11871,7 @@ public class MainWindow extends JFrame implements Constants {
 
                         try {
                             int val = Integer.parseInt(token);
-                            if(val >= 0 && val <= 4) {
+                            if(val >= 0 && val <= 2) {
                                 TaskRender.BUILT_IT_BIGNUM_IMPLEMENTATION = val;
                             }
                         }

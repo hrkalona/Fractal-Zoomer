@@ -24,8 +24,6 @@ public class BigNum60 extends BigNum {
     private static int fracDigitsp1;
     private static int fracDigitsHalf;
 
-    private static int fracDigits2;
-    private static boolean useToDouble2;
     private static boolean useKaratsuba;
     private static int initialLength;
     private static boolean evenFracDigits;
@@ -74,7 +72,6 @@ public class BigNum60 extends BigNum {
         //useToDouble2 = fracDigits > 80;
         useKaratsuba = fracDigits > 20;
         fracDigitsHalf = fracDigits >> 1;
-        fracDigits2 = fracDigits << 1;
         initialLength = fracDigitsHalf - ((fracDigitsp1) % 2);
         evenFracDigits = (fracDigits & 1) == 0;
 
@@ -98,7 +95,7 @@ public class BigNum60 extends BigNum {
     }
 
     protected BigNum60(BigNum60 other) {
-        digits = Arrays.copyOf(other.digits, other.digits.length);
+        digits = Arrays.copyOf(other.digits, fracDigitsp1);
         sign = other.sign;
         isOne = other.isOne;
         scale = 0;
@@ -162,7 +159,7 @@ public class BigNum60 extends BigNum {
 
                 int k;
                 int i = index;
-                for (k = 53; k > 0 && i < digits.length; i++) {
+                for (k = 53; k > 0 && i < fracDigitsp1; i++) {
                     int r;
 
                     if (k == 53) {
@@ -185,7 +182,7 @@ public class BigNum60 extends BigNum {
         }
 
         boolean isZero = true;
-        for(int i = 0; i < digits.length; i++) {
+        for(int i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -242,7 +239,7 @@ public class BigNum60 extends BigNum {
             int index2 = (i / SHIFT) + 1;
             int index = j / base_digits + offset;
 
-            if(index2 >= digits.length || index >= data.length) {
+            if(index2 >= fracDigitsp1 || index >= data.length) {
                 break;
             }
 
@@ -253,7 +250,7 @@ public class BigNum60 extends BigNum {
         }
 
         boolean isZero = true;
-        for(int i = 0; i < digits.length; i++) {
+        for(int i = 0; i < fracDigitsp1; i++) {
             if(digits[i] != 0) {
                 isZero = false;
                 break;
@@ -279,14 +276,14 @@ public class BigNum60 extends BigNum {
 
         int i;
         long digit = 0;
-        for(i = 0; i < digits.length; i++) {
+        for(i = 0; i < fracDigitsp1; i++) {
             digit = digits[i];
             if(digit != 0) {
                 break;
             }
         }
 
-        if(i == digits.length) {
+        if(i == fracDigitsp1) {
             return Long.MIN_VALUE;
         }
 
@@ -401,7 +398,7 @@ public class BigNum60 extends BigNum {
             ret.append(i==1 ? "." : " ");
             ret.append(toHexString(digits[i]));
         }
-        return doubleValueOld() + " " + ret.toString();
+        return doubleValue() + " " + ret.toString();
     }
 
 
@@ -412,7 +409,7 @@ public class BigNum60 extends BigNum {
         if(sign == -1) {
             value = "-";
         }
-        for (int i = 0; i < digits.length; i++) {
+        for (int i = 0; i < fracDigitsp1; i++) {
 
             if (i == 0) {
                 boolean zero = true;
@@ -464,7 +461,7 @@ public class BigNum60 extends BigNum {
             }
 
             if(signA < 0) {
-                for (int i = 0; i < digits.length; i++) {
+                for (int i = 0; i < fracDigitsp1; i++) {
                     digit = digits[i];
                     otherDigit = otherDigits[i];
                     if (digit < otherDigit) {
@@ -475,7 +472,7 @@ public class BigNum60 extends BigNum {
                 }
             }
             else {
-                for (int i = 0; i < digits.length; i++) {
+                for (int i = 0; i < fracDigitsp1; i++) {
                     digit = digits[i];
                     otherDigit = otherDigits[i];
                     if (digit < otherDigit) {
@@ -505,7 +502,7 @@ public class BigNum60 extends BigNum {
         long[] otherDigits = other.digits;
         long digit, otherDigit;
 
-        for (int i = 0; i < digits.length; i++) {
+        for (int i = 0; i < fracDigitsp1; i++) {
             digit = digits[i];
             otherDigit = otherDigits[i];
             if (digit < otherDigit) {
@@ -519,103 +516,6 @@ public class BigNum60 extends BigNum {
 
     }
 
-//    static long binarySearch64(long v) {
-//
-//        int shift = 32;
-//
-//        long res = v >>> shift;
-//
-//        if(res == 1) {
-//            return shift;
-//        }
-//        else if (res > 1) {
-//            shift +=  16; //+16
-//        }
-//        else {
-//            shift -=  16; // -16
-//        }
-//
-//        res = v >>> shift;
-//
-//        if(res == 1) {
-//            return shift;
-//        }
-//        else if (res > 1) {
-//            shift +=  8; //+8
-//        }
-//        else {
-//            shift -=  8; // -8
-//        }
-//
-//        res = v >>> shift;
-//
-//        if(res == 1) {
-//            return shift;
-//        }
-//        else if (res > 1) {
-//            shift +=  4; // +4
-//        }
-//        else {
-//            shift -=  4; // -4
-//        }
-//
-//        res = v >>> shift;
-//
-//        if(res == 1) {
-//            return shift;
-//        }
-//        else if (res > 1) {
-//            shift +=  2; // + 2
-//        }
-//        else {
-//            shift -=  2; // -2
-//        }
-//
-//        res = v >>> shift;
-//
-//        if(res == 1) {
-//            return shift;
-//        }
-//        else if (res > 1) {
-//            shift +=  1; // + 1
-//        }
-//        else {
-//
-//            shift -=  1; // -1
-//        }
-//
-//        return shift;
-//    }
-//
-//
-//    static int debruijn64[] =
-//            {
-//                    0, 58, 1, 59, 47, 53, 2, 60, 39, 48, 27, 54, 33, 42, 3, 61, 51, 37, 40, 49,
-//                    18, 28, 20, 55, 30, 34, 11, 43, 14, 22, 4, 62, 57, 46, 52, 38, 26, 32, 41,
-//                    50, 36, 17, 19, 29, 10, 13, 21, 56, 45, 25, 31, 35, 16, 9, 12, 44, 24, 15,
-//                    8, 23, 7, 6, 5, 63
-//            };
-//
-//    static long msbDeBruijn64(long v) {
-//
-//
-//        /* Round down to one less than a power of 2. */
-//        v |= v >>> 1;
-//        v |= v >>> 2;
-//        v |= v >>> 4;
-//        v |= v >>> 8;
-//        v |= v >>> 16;
-//        v |= v >>> 32;
-//
-//        /* 0x03f6eaf2cd271461 is a hexadecimal representation of a De Bruijn
-//         * sequence for binary words of length 6. The binary representation
-//         * starts with 000000111111. This is required to make it work with one less
-//         * than a power of 2 instead of an actual power of 2.
-//         */
-//
-//        return debruijn64[(int)((v * 0x03f6eaf2cd271461L) >>> 58)];
-//    }
-
     @Override
     public double doubleValue() {
 
@@ -624,14 +524,14 @@ public class BigNum60 extends BigNum {
         int i;
         long digit = 0;
         if(offset == -1) {
-            for (i = 0; i < digits.length; i++) {
+            for (i = 0; i < fracDigitsp1; i++) {
                 digit = digits[i];
                 if (digit != 0) {
                     break;
                 }
             }
 
-            if (i == digits.length) {
+            if (i == fracDigitsp1) {
                 return 0;
             }
 
@@ -671,7 +571,7 @@ public class BigNum60 extends BigNum {
         if(temp >= 0) {
             mantissa |= val << temp;
             mantissa &= 0xFFFFFFFFFFFFFL;
-            if(temp == 0 && i + 1 < digits.length) {
+            if(temp == 0 && i + 1 < fracDigitsp1) {
                 mantissa += (digits[i + 1] >>> (SHIFTM1)) & 0x1;
             }
         }
@@ -685,7 +585,7 @@ public class BigNum60 extends BigNum {
         i++;
 
         int k;
-        for(k = bitOffset ; k < 52 && i < digits.length; k+=SHIFT, i++) {
+        for(k = bitOffset ; k < 52 && i < fracDigitsp1; k+=SHIFT, i++) {
             val = digits[i];
             temp = 52 - k;
 
@@ -698,7 +598,7 @@ public class BigNum60 extends BigNum {
                 mantissa |= val >>> temp2;
                 mantissa &= 0xFFFFFFFFFFFFFL;
 
-                if(temp2 == 0 && i + 1 < digits.length) {
+                if(temp2 == 0 && i + 1 < fracDigitsp1) {
                     mantissa += (digits[i + 1] >>> (SHIFTM1)) & 0x1;
                 }
                 else {
@@ -729,47 +629,6 @@ public class BigNum60 extends BigNum {
     }
 
     @Override
-    public double doubleValueOld() {
-
-        if (sign == 0) {
-            return 0;
-        }
-
-        if(isOne) {
-            return sign;
-        }
-
-        if(useToDouble2) {
-            return doubleValue();
-        }
-
-        double ret = 0;
-
-
-        /*if(digits[0]>=0) {
-            for(int i=fracDigits; i>=0; i--) {
-                ret *= TWO_TO_SHIFT;
-                ret += digits[i];
-            }
-        } else {
-            ret--;
-            for(int i=fracDigits; i>0; i--) {
-                ret += digits[i] - MASK;
-                ret *= TWO_TO_SHIFT;
-            }
-            ret += digits[0]+1;
-        }*/
-
-        for(int i=fracDigits; i>=0; i--) {
-            ret *= TWO_TO_SHIFT;
-            ret += digits[i];
-        }
-
-        ret *= sign;
-        return ret;
-    }
-
-    @Override
     public BigNum60 add(BigNum aa) {
         BigNum60 a = (BigNum60) aa;
 
@@ -790,12 +649,12 @@ public class BigNum60 extends BigNum {
             else if(sign == 0) {
                 result.sign = otherSign;
                 result.isOne = a.isOne;
-                System.arraycopy(otherDigits, 0, resDigits, 0, otherDigits.length);
+                System.arraycopy(otherDigits, 0, resDigits, 0, fracDigitsp1);
             }
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -885,7 +744,7 @@ public class BigNum60 extends BigNum {
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -951,12 +810,12 @@ public class BigNum60 extends BigNum {
            else if(sign == 0) {
                result.sign = -otherSign;
                result.isOne = a.isOne;
-               System.arraycopy(otherDigits, 0, resDigits, 0, otherDigits.length);
+               System.arraycopy(otherDigits, 0, resDigits, 0, fracDigitsp1);
            }
            else {
                result.sign = sign;
                result.isOne = isOne;
-               System.arraycopy(digits, 0, resDigits, 0, digits.length);
+               System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
            }
            return result;
        }
@@ -1047,7 +906,7 @@ public class BigNum60 extends BigNum {
             else {
                 result.sign = sign;
                 result.isOne = isOne;
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
             }
             return result;
         }
@@ -1504,173 +1363,6 @@ public class BigNum60 extends BigNum {
         return  result;
     }
 
-    @Deprecated
-    @Override
-    public BigNum60 squareFullGolden() {
-
-
-        BigNum60 result = new BigNum60();
-
-        if(sign == 0) {
-            return result;
-        }
-
-        long[] resDigits = result.digits;
-        long[] origDigitsA = this.digits;
-
-        if(isOne) {
-            resDigits[0] = 1;
-            result.isOne = true;
-            result.sign = 1;
-            return result;
-        }
-
-        int newFracDigits = fracDigits2;
-        int newLength = newFracDigits + 1;
-        int[] digits = new int[newLength];
-
-        long old_sum;
-
-        long sum = 0;
-
-        int length = fracDigitsHalf;
-
-        long carry = 0;
-
-        digits[0] = (int)origDigitsA[0];
-        int j = 1, k = fracDigits;
-        int base = (j << 1) - 1, base2 = (k << 1);
-        for (; j <= length; j++, k--) {
-            long bdigit = origDigitsA[j];
-            long adigit = origDigitsA[k];
-
-            long bjlo = bdigit & MASKI;
-            long aklo = adigit & MASKI;
-
-            long bjhi = bdigit >>> SHIFTI;
-            long akhi = adigit >>> SHIFTI;
-
-            digits[base2] = (int)(aklo);
-            digits[base] = (int)(bjhi);
-            base++;
-            base2--;
-            digits[base2] = (int)(akhi);
-            digits[base] = (int)(bjlo);
-            base++;
-            base2--;
-
-            sum += bjlo * akhi;
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-            sum += bjhi * aklo;
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-        }
-
-        if(j == k) {
-            long bdigit = origDigitsA[j];
-            long aklo = bdigit & MASKI;
-            long bjhi = bdigit >>> SHIFTI;
-
-            digits[base2] = (int)(aklo);
-            digits[base] = (int)(bjhi);
-
-            sum += bjhi * aklo;
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-        }
-
-        carry <<= 1;
-        sum <<= 1;
-        carry += sum >>> SHIFTI;
-        sum &= MASKI;
-
-
-        old_sum = carry + (sum >>> SHIFTIM1); // Roundish
-
-        int m = fracDigits;
-        for(int i = newFracDigits; i > 0; i--, m--) {
-
-            sum = old_sum;
-
-            length = (i >> 1) - 1;
-
-            long temp_sum = 0;
-            carry = 0;
-
-            long bj, ak;
-
-            for(j = 0, k = i; j <= length; j++, k--) {
-                bj = digits[j];
-                ak = digits[k];
-                temp_sum += bj * ak;
-                carry += temp_sum >>> SHIFTI;
-                temp_sum &= MASKI;
-            }
-
-            carry <<= 1;
-
-            bj = digits[j];
-            ak = digits[k];
-            temp_sum = (temp_sum << 1) + bj * ak;
-
-            //carry += temp_sum >>> SHIFT; //Maybe its ok
-            //temp_sum &= MASK;
-
-            sum += temp_sum;
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-            long finalVal = sum;
-
-            i--;//Unrolling
-
-            sum = carry;
-
-            length = i >> 1;
-
-            temp_sum = 0;
-            carry = 0;
-
-            for(j = 0, k = i; j <= length; j++, k--) {
-                bj = digits[j];
-                ak = digits[k];
-                temp_sum += bj * ak;
-                carry += temp_sum >>> SHIFTI;
-                temp_sum &= MASKI;
-            }
-
-            carry <<= 1;
-            temp_sum <<= 1;
-
-            //carry += temp_sum >>> SHIFT; //Maybe its ok
-            //temp_sum &= MASK;
-
-            sum += temp_sum;
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-            finalVal |= sum << SHIFTI;
-
-            resDigits[m] = finalVal;
-            old_sum = carry;
-        }
-
-        sum = old_sum;
-
-        long bj = digits[0];
-        long ak = digits[0];
-        sum += bj * ak;
-
-        result.sign = 1;
-
-        result.digits[0] = sum;
-
-        return  result;
-    }
-
     @Override
     public BigNum60 mult(BigNum bb) {
         BigNum60 b = (BigNum60) bb;
@@ -1680,134 +1372,6 @@ public class BigNum60 extends BigNum {
         else {
             return multFull(b);
         }
-    }
-
-    @Deprecated
-    public BigNum60 multFullGolden(BigNum60 b) {
-
-        BigNum60 result = new BigNum60();
-
-        if(sign == 0 || b.sign == 0) {
-            return result;
-        }
-
-        long[] resDigits = result.digits;
-        long[] origDigitsA = this.digits;
-        long[] origDigitsB = b.digits;
-
-        if(isOne || b.isOne) {
-            if (isOne && b.isOne) {
-                resDigits[0] = 1;
-                result.isOne = true;
-                result.sign = sign * b.sign;
-            }
-            else if(isOne) {
-                System.arraycopy(origDigitsB, 0, resDigits, 0, origDigitsB.length);
-                result.sign = sign * b.sign;
-            }
-            else {
-                System.arraycopy(origDigitsA, 0, resDigits, 0, origDigitsA.length);
-                result.sign = sign * b.sign;
-            }
-            return result;
-        }
-
-        int newFracDigits = fracDigits2;
-        int newLength = newFracDigits + 1;
-        int[] digits = new int[newLength];
-        int[] bdigits = new int[newLength];
-
-        long old_sum;
-
-        long sum = 0;
-        long carry = 0;
-        digits[0] = (int)origDigitsA[0];
-        bdigits[0] = (int)origDigitsB[0];
-
-        for (int j = 1, base = (j << 1) - 1, k = fracDigits, base2 = (k << 1); j <= fracDigits; j++, k--) {
-
-            long bdigit = origDigitsB[j];
-            long adigit = origDigitsA[k];
-
-            long bjlo = bdigit & MASKI;
-            long aklo = adigit & MASKI;
-
-            long bjhi = bdigit >>> SHIFTI;
-            long akhi = adigit >>> SHIFTI;
-
-            digits[base2] = (int)(aklo);
-            bdigits[base] = (int)(bjhi);
-            base++;
-            base2--;
-            digits[base2] = (int)(akhi);
-            bdigits[base] = (int)(bjlo);
-            base++;
-            base2--;
-
-            sum += bjlo * akhi;
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-            sum += bjhi * aklo;
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-        }
-
-        old_sum = carry + (sum >>> SHIFTIM1); // Roundish
-
-        long isNonZero = 0;
-        for(int i = newFracDigits, m = fracDigits; i > 0; i--, m--) {
-
-            sum = old_sum; //carry from prev
-            carry = 0;
-            for(int j = 0, k = i; j <= i; j++, k--) {
-                long bj = bdigits[j];
-                long ak = digits[k];
-
-                sum += bj * ak;
-                carry += sum >>> SHIFTI;
-                sum &= MASKI;
-
-            }
-
-            long finalVal = sum;
-
-            i--;//Unrolling
-
-            sum = carry; //carry from prev
-            carry = 0;
-            for(int j = 0, k = i; j <= i; j++, k--) {
-                long bj = bdigits[j];
-                long ak = digits[k];
-
-                sum += bj * ak;
-                carry += sum >>> SHIFTI;
-                sum &= MASKI;
-
-            }
-
-            finalVal |= sum << SHIFTI;
-            resDigits[m] = finalVal;
-
-            isNonZero |= finalVal;
-            old_sum = carry;
-        }
-
-        sum = old_sum;
-
-        long bj = bdigits[0];
-        long ak = digits[0];
-
-        sum += bj * ak;
-
-        long d0 = sum & MASKD0;
-        result.digits[0] = sum;
-        result.isOne = d0 == 1 && isNonZero == 0;
-        result.sign = sign * b.sign;
-
-        return result;
-
     }
 
     public BigNum60 multFull(BigNum60 b) {
@@ -1829,11 +1393,11 @@ public class BigNum60 extends BigNum {
                 result.sign = sign * b.sign;
             }
             else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
+                System.arraycopy(bdigits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             return result;
@@ -2071,11 +1635,11 @@ public class BigNum60 extends BigNum {
                 result.sign = sign * b.sign;
             }
             else if(isOne) {
-                System.arraycopy(bdigits, 0, resDigits, 0, bdigits.length);
+                System.arraycopy(bdigits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * b.sign;
             }
             return result;
@@ -2622,220 +2186,6 @@ public class BigNum60 extends BigNum {
 
     }
 
-    @Deprecated
-    public BigNum60 multKaratsubaGolden(BigNum60 b) {
-
-        BigNum60 result = new BigNum60();
-
-        if(sign == 0 || b.sign == 0) {
-            return result;
-        }
-
-        long[] resDigits = result.digits;
-        long[] origDigitsA = this.digits;
-        long[] origDigitsB = b.digits;
-
-        if(isOne || b.isOne) {
-            if (isOne && b.isOne) {
-                resDigits[0] = 1;
-                result.isOne = true;
-                result.sign = sign * b.sign;
-            }
-            else if(isOne) {
-                System.arraycopy(origDigitsB, 0, resDigits, 0, origDigitsB.length);
-                result.sign = sign * b.sign;
-            }
-            else {
-                System.arraycopy(origDigitsA, 0, resDigits, 0, origDigitsA.length);
-                result.sign = sign * b.sign;
-            }
-            return result;
-        }
-
-        int newFracDigits = fracDigits2;
-        int newLength = newFracDigits + 1;
-        int[] digits = new int[newLength];
-        int[] bdigits = new int[newLength];
-
-        long[] partials = new long[newLength];
-
-
-        long PartialSum = 0;
-        long PartialCarry = 0;
-
-        long adigit = (int)origDigitsA[0];
-        long bdigit = (int)origDigitsB[0];
-        digits[0] = (int)adigit;
-        bdigits[0] = (int)bdigit;
-
-        long p = adigit * bdigit;
-        long p0 = p;
-        partials[0] = p;
-        PartialSum += p;
-
-        PartialCarry += PartialSum >>> SHIFTI;
-        PartialSum &= MASKI;
-
-        for(int i = 1, base = (i << 1) - 1; i <=fracDigits; i++) {
-
-            bdigit = origDigitsB[i];
-            adigit = origDigitsA[i];
-
-            long bjlo = bdigit & MASKI;
-            long aklo = adigit & MASKI;
-
-            long bjhi = bdigit >>> SHIFTI;
-            long akhi = adigit >>> SHIFTI;
-
-            digits[base] = (int)(akhi);
-            bdigits[base] = (int)(bjhi);
-            p = akhi * bjhi;
-            partials[base] = p;
-            PartialSum += p;
-            PartialCarry += PartialSum >>> SHIFTI;
-            PartialSum &= MASKI;
-
-            base++;
-            digits[base] = (int)(aklo);
-            bdigits[base] = (int)(bjlo);
-            p = aklo * bjlo;
-            partials[base] = p;
-            PartialSum += p;
-
-            PartialCarry += PartialSum >>> SHIFTI;
-            PartialSum &= MASKI;
-            base++;
-
-
-        }
-
-        long old_sum;
-
-        long sum = p0;
-
-        int length = fracDigits;//newFracDigits >> 1;
-
-        int j;
-        int k;
-        long carry = 0;
-        for (j = 1, k = newFracDigits; j <= length; j++, k--) {
-            long bj = bdigits[j];
-            long bk = bdigits[k];
-            long aj = digits[j];
-            long ak = digits[k];
-
-            sum += (bk + bj) * (ak + aj);
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-            //System.out.println("partials " + k + " partials " + j);
-
-        }
-
-        long bj, bk, aj, ak;
-
-        sum -= PartialSum;
-        carry -= ((sum & MASK31) >>> SHIFTI) + PartialCarry;
-        sum &= MASKI;
-
-        old_sum = carry + (sum >>> SHIFTIM1); // Roundish
-
-
-        long isNonZero = 0;
-        int m = fracDigits;
-        for(int i = newFracDigits; i > 0; i--, m--) {
-
-            length = (i >> 1) - 1;
-
-            sum = old_sum; //carry from prev
-
-            carry = 0;
-            for(j = 0, k = i; j <= length; j++, k--) {
-                bj = bdigits[j];
-                bk = bdigits[k];
-                aj =  digits[j];
-                ak = digits[k];
-
-                sum += (bk + bj) * (ak + aj);
-
-                carry += sum >>> SHIFTI;
-                sum &= MASKI;
-                //System.out.println("b " + k + " + b " + j + " * a " + k + " + a " + j);
-                //System.out.println("partials " + k + " partials " + j);
-
-            }
-
-
-            // System.out.println("partials " + k);
-            //System.out.println("NEXT");
-            sum += partials[k] << 1;
-
-            carry += sum >>> SHIFTI;
-            sum &= MASKI;
-
-            sum -= PartialSum;
-            carry -= ((sum & MASK31) >>> SHIFTI) + PartialCarry;
-            sum &= MASKI;
-
-            long partialI = partials[i];
-            PartialSum -= partialI & MASKI;
-            PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFTI;
-            //PartialCarry -= ((PartialSum & MASK31) >>> SHIFTI);
-            PartialSum &= MASKI;
-            //PartialCarry -= partialI >>> SHIFTI;
-
-            long finalVal = sum;
-
-            i--;//Unrolling
-
-            length = i >> 1;
-
-            sum = carry;
-
-            carry = 0;
-            for(j = 0, k = i; j <= length; j++, k--) {
-                bj = bdigits[j];
-                bk = bdigits[k];
-                aj =  digits[j];
-                ak = digits[k];
-
-                sum += (bk + bj) * (ak + aj);
-
-                carry += sum >>> SHIFTI;
-                sum &= MASKI;
-
-                //System.out.println("b " + k + " + b " + j + " * a " + k + " + a " + j);
-            }
-
-            sum -= PartialSum;
-            carry -= ((sum & MASK31) >>> SHIFTI) + PartialCarry;
-            finalVal |= (sum & MASKI) << SHIFTI;
-
-            partialI = partials[i];
-            PartialSum -= partialI & MASKI;
-            PartialCarry -= ((PartialSum & MASK31) + partialI) >>> SHIFTI;
-            //PartialCarry -= ((PartialSum & MASK31) >>> SHIFTI);
-            PartialSum &= PartialSum & MASKI;
-            //PartialCarry -= partialI >>> SHIFTI;
-
-            isNonZero |= finalVal;
-            resDigits[m] = finalVal;
-            old_sum = carry;
-        }
-
-        sum = old_sum;
-
-        sum += p0;
-
-        long d0 = sum & MASKD0;
-        result.digits[0] = sum;
-        result.isOne = d0 == 1 && isNonZero == 0;
-        result.sign = sign * b.sign;
-
-        return result;
-
-    }
-
     @Override
     /* Sign is positive */
     public BigNum60 mult(int value) {
@@ -2870,7 +2220,7 @@ public class BigNum60 extends BigNum {
                 result.sign = sign * bsign;
             }
             else {
-                System.arraycopy(digits, 0, resDigits, 0, digits.length);
+                System.arraycopy(digits, 0, resDigits, 0, fracDigitsp1);
                 result.sign = sign * bsign;
             }
             return result;
@@ -3111,14 +2461,14 @@ public class BigNum60 extends BigNum {
         int i;
         long digit = 0;
         if(offset == -1) {
-            for (i = 0; i < digits.length; i++) {
+            for (i = 0; i < fracDigitsp1; i++) {
                 digit = digits[i];
                 if (digit != 0) {
                     break;
                 }
             }
 
-            if (i == digits.length) {
+            if (i == fracDigitsp1) {
                 return new MantExp();
             }
 
@@ -3151,7 +2501,7 @@ public class BigNum60 extends BigNum {
         if(temp >= 0) {
             mantissa |= val << temp;
             mantissa &= 0xFFFFFFFFFFFFFL;
-            if(temp == 0 && i + 1 < digits.length) {
+            if(temp == 0 && i + 1 < fracDigitsp1) {
                 mantissa += (digits[i + 1] >>> (SHIFTM1)) & 0x1;
             }
         }
@@ -3167,7 +2517,7 @@ public class BigNum60 extends BigNum {
         i++;
 
         int k;
-        for(k = bitOffset ; k < 52 && i < digits.length; k+=SHIFT, i++) {
+        for(k = bitOffset ; k < 52 && i < fracDigitsp1; k+=SHIFT, i++) {
             val = digits[i];
             temp = 52 - k;
 
@@ -3180,7 +2530,7 @@ public class BigNum60 extends BigNum {
                 mantissa |= val >>> temp2;
                 mantissa &= 0xFFFFFFFFFFFFFL;
 
-                if(temp2 == 0 && i + 1 < digits.length) {
+                if(temp2 == 0 && i + 1 < fracDigitsp1) {
                     mantissa += (digits[i + 1] >>> (SHIFTM1)) & 0x1;
                 }
                 else {
@@ -3226,11 +2576,11 @@ public class BigNum60 extends BigNum {
         }
 
         long[] digits = result.digits;
-        int total = digits.length + times;
+        int total = fracDigitsp1 + times;
         long isNonZero = 0;
 
         for(int i = times, location = 0; i < total; i++, location++) {
-            if(i < digits.length) {
+            if(i < fracDigitsp1) {
                 if(location == 0) {
                     long value = digits[i - 1];
                     long finalValue = digits[i];
@@ -3243,7 +2593,7 @@ public class BigNum60 extends BigNum {
             }
             else {
                 int im1 = i - 1;
-                if(location == 0 && im1 < digits.length) {
+                if(location == 0 && im1 < fracDigitsp1) {
                     long value = digits[im1];
                     long finalValue = (value & 0x1) << SHIFT;
                     digits[location] = finalValue;
@@ -3278,7 +2628,7 @@ public class BigNum60 extends BigNum {
         int total = -times;
         long isNonZero = 0;
 
-        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+        for(int i = fracDigits - times, location = fracDigits; i >= total; i--, location--) {
             if(i >= 0) {
                 long value = digits[i] >>> internalShift;
 
@@ -3344,11 +2694,11 @@ public class BigNum60 extends BigNum {
         int internalShift = (int)(power % SHIFT);
 
         long[] digits = result.digits;
-        int total = digits.length + times;
+        int total = fracDigitsp1 + times;
         long isNonZero = 0;
 
         for(int i = times, location = 0; i < total; i++, location++) {
-            if(i < digits.length) {
+            if(i < fracDigitsp1) {
 
                 long value = digits[i] << internalShift;
 
@@ -3358,7 +2708,7 @@ public class BigNum60 extends BigNum {
                 }
 
                 int ip1 = i + 1;
-                if(ip1 < digits.length) {
+                if(ip1 < fracDigitsp1) {
                     value |= digits[ip1] >>> (SHIFT - internalShift);
                 }
                 if(location == 0) {
@@ -3371,7 +2721,7 @@ public class BigNum60 extends BigNum {
             }
             else {
                 int im1 = i - 1;
-                if(location == 0 && im1 < digits.length && internalShift == 0) {
+                if(location == 0 && im1 < fracDigitsp1 && internalShift == 0) {
                     long value = (digits[im1] & 0x1) << SHIFT;
                     digits[location] = value & MASKD0;
                 }
@@ -3401,7 +2751,7 @@ public class BigNum60 extends BigNum {
         int total = -times;
         long isNonZero = 0;
 
-        for(int i = digits.length - 1 - times, location = digits.length - 1; i >= total; i--, location--) {
+        for(int i = fracDigits - times, location = fracDigits; i >= total; i--, location--) {
             if(i >= 0) {
                 long value = digits[i];
 
@@ -3482,7 +2832,7 @@ public class BigNum60 extends BigNum {
             int i;
 
             long[] digits = a.digits;
-            for(i = 2; i < digits.length; i++) {
+            for(i = 2; i < fracDigitsp1; i++) {
                 if(digits[i] != 0) {
                     break;
                 }
@@ -3510,7 +2860,7 @@ public class BigNum60 extends BigNum {
         BigNum60 newX = x.mult(oneHalf.sub(aHalf.mult(x.squareFull()))); // x = (3/2 - (a/2)*x^2)*x
 
         BigNum60 epsilon = new BigNum60(1);
-        epsilon.digits[epsilon.digits.length - 1] = 0x3;
+        epsilon.digits[fracDigits] = 0x3;
         epsilon.digits[0] = 0;
 
         int iter = 0;
